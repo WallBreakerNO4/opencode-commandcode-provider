@@ -1,0 +1,7 @@
+{
+  "name": "commandcode-proto-throwaway",
+  "version": "0.0.0-prototype",
+  "type": "module",
+  "private": true,
+  "description": "PROTOTYPE：验证 opencode2 beta 自定义 provider 包契约的一次性代码，禁止发布"
+}
