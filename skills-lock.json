@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "gh": {
+      "source": "cli/cli",
+      "sourceType": "github",
+      "skillPath": "skills/gh/SKILL.md",
+      "computedHash": "d03eef4e00337d70af996730ce9ec76560626f3beab0105ad2e23654f8f7ee2a"
+    }
+  }
+}
