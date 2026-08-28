@@ -40,12 +40,31 @@ _Avoid_: 反检测、作弊层
 某订阅 plan 实际可用的模型 id 集合。来源：`GET /provider/v1/models`。
 
 **模型元数据**:
-单个模型的上下文窗口、价格、能力（视觉 / 工具）、reasoning 档位等配置参数。来源：models.dev、官方 CLI 模型目录、包内快照。
+单个模型的上下文窗口、价格、能力（视觉 / 工具）、reasoning 档位等配置参数。来源：官方 CLI 模型目录（构建侧解析进构建产物）、`/provider/v1/models`、包内快照。
 _Avoid_: 模型配置、模型信息
 
-**解析产物**:
-构建侧（维护者发布时或 GitHub Action）从官方 CLI 模型目录解析出的 JSON，托管于 gist 供插件运行时拉取。绝不在用户机器上生成。
-_Avoid_: 逆向结果
+**构建产物**:
+构建侧（GitHub Action，随官方 CLI 发版自动触发）从官方 CLI 包解析出的 JSON（schema 见 `docs/spec/model-pipeline.md`），经分发渠道供插件运行时拉取；渠道未定，gist 只是候选之一。绝不在用户机器上解析或生成。
+_Avoid_: 解析产物（旧称）、逆向结果、gist JSON
 
 **Go plan 过滤**:
-把 `/provider/v1/models` 的全量列表筛成 Go plan 实际可用子集的规则（开源 provider 全保留，品牌 premium 模型剔除）。
+把 `/provider/v1/models` 的全量列表筛成 Go plan 实际可用子集的规则：Min plan 归一化后等于 Go 的模型保留，在构建侧完成，客户端不做过滤。
+_Avoid_: isGoModel 前缀白名单（jiesou 式，已漂移弃用）、客户端过滤
+
+**Min plan**:
+官方 CLI models.md 标注的、能调用某模型的最便宜订阅档位；套餐序 Go < GOAT < Pro < Max，高档包含低档全部模型。Go plan 过滤的判定依据。
+_Avoid_: 最低套餐列
+
+**包内快照**:
+随插件一起发布的构建产物副本（同 schema），代表发版时刻的最后已知良好产物，是运行时永远可用的兜底层。
+_Avoid_: 内置目录、静态目录
+
+**合并级联**:
+运行时对多来源模型数据按「每字段单一天窗」取值的规则：`/provider/v1/models`（发现、context）× 构建产物（其余元数据）× 包内快照（兜底）。
+_Avoid_: 来源优先级矩阵
+
+### 插件与安装
+
+**插件自举**:
+插件在运行时自己注入 provider 配置、模型清单与认证方式（v1 经 config/auth hook，v2 经 catalog.transform 与 integration），使用户除安装插件与登录外无需手写任何配置。
+_Avoid_: 自动配置、零配置魔法
