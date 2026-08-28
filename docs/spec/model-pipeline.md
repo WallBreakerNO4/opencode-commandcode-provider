@@ -9,10 +9,11 @@
 | 来源 | 角色 | 参与时机 |
 |---|---|---|
 | `GET /provider/v1/models` | 发现（id 清单）与 `context_length` 的权威 | 运行时拉取，匿名即可（带 key 实测无差异） |
-| 官方 CLI 包（npm `command-code`） | 模型元数据的唯一权威：efforts、reasoning、contextWindow、maxOutputTokens、inputModalities、name、Min plan（Go 过滤依据） | 仅构建侧解析（GitHub Action 随官方发版触发）；解包动作绝不发生在用户机器上 |
+| 官方 CLI 包（npm `command-code`） | 模型元数据的第一权威：efforts、reasoning、inputModalities、name、Min plan（Go 过滤依据）与 limits | 仅构建侧解析（GitHub Action 随官方发版触发）；解包动作绝不发生在用户机器上 |
+| models.dev（`api.json`） | limits 补全源：bundle 缺 `contextWindow` / `maxOutputTokens` 的模型用其 `limit.context` / `limit.output` 补齐 | 仅构建侧拉取与匹配，不进运行时级联 |
 | 包内快照 | 与构建产物同 schema 的「最后已知良好产物」，随插件发版内置 | 运行时兜底，永远可用 |
 
-**models.dev 不参与本项目**（构建侧与客户端均不拉取）：价格砍出 v1 后它没有独有字段；efforts 只认官方 CLI；其 limit/cost 是第三方视角值。将来若需引入，按 §1.2 的演进规则以新增可选字段方式回归，不改现有字段语义。
+**运行时只有三层**（API × 构建产物 × 包内快照）。models.dev 只在构建侧参与：context 运行时永远听 API（62/62 全量，且 models.dev 口径与 API 实测有 28 处出入、含 200k vs 1M 的真矛盾，其值只在 API 失效的离线场景经产物/快照间接生效）；efforts 与 modalities 不采用 models.dev（档位只认官方 CLI；模态按「网关可投递」口径，见 §1.1）；价格已砍出 v1。
 
 ## 1. 构建产物 schema v1
 
@@ -53,10 +54,10 @@ per-model：
 | `id` | ✅ | models.md Id 列（与 API id 同一 wire id） | 主键 |
 | `name` | ✅ | bundle `label`/`name` | 展示名 |
 | `reasoning` | ✅ | bundle `reasoning` | 布尔；bundle 缺省该字段的模型即非推理模型，构建侧显式写出 `false` |
-| `inputModalities` | ✅ | bundle `inputModalities` | 取值仅 `["text"]` / `["text","image"]`；不引入 models.dev 的 pdf/audio 细分（协议层只转发图片） |
+| `inputModalities` | ✅ | bundle `inputModalities` | 词表按「网关可投递」口径：取值仅 `["text"]` / `["text","image"]`（即 OpenCode 判断图片可否粘贴的开关）。不采用 models.dev 的 audio/video/pdf——那是厂商原生 API 能力，`/alpha/generate` 投递通道未经验证，advertise 超出协议层转换能力会导致放行后静默丢弃。字段为开放数组，网关支持面扩大时直接扩数据，schema 不变 |
 | `efforts` | 可选 | bundle `reasoningEfforts`（与 models.md Efforts 列同源，逐值一致） | 严格透传官方词表（当前 `low/medium/high/xhigh/max`）；无档位的模型**不写该字段**，不造空数组、不造占位值 |
-| `context` | 可选 | bundle `contextWindow` | 运行时通常被 API 覆盖；缺失时兜底常量 200000 |
-| `maxOutput` | 可选 | bundle `maxOutputTokens` | 仅极少数模型有值；缺失时兜底常量 32000 |
+| `context` | ✅ | 补全链：bundle `contextWindow` → 同 family 官方目录值借用 → models.dev `limit.context` → 常量 200000 | 构建侧保证每个模型都有具体值；运行时被 API 覆盖（62/62），产物值主要服务 API 失效的离线场景 |
+| `maxOutput` | ✅ | 补全链：bundle `maxOutputTokens` → 同 family 借用 → models.dev `limit.output` → 常量 32000 | 官方仅极少数模型披露（Go 40 中仅 3 个），主要靠 models.dev 补齐（61/62 覆盖） |
 
 **无价格字段**：v1 明确不做价格（理由见 §6），`cost` 留待将来以新增可选字段方式回归。
 
@@ -73,12 +74,13 @@ per-model：
 
 ## 2. 构建侧契约
 
-输入：`command-code@<version>` tarball（解包仅做文本解析，绝不执行包内代码）+ `/provider/v1/models` 实时清单（对账用）。
+输入：`command-code@<version>` tarball（解包仅做文本解析，绝不执行包内代码）+ `/provider/v1/models` 实时清单（对账用）+ models.dev `api.json`（limits 补全用）。
 
 1. **bundle 逆向**（`dist/cli.mjs`）：提取模型目录字段（`id/label/name/reasoning/reasoningEfforts/contextWindow/maxOutputTokens/inputModalities`）。注意 1.37.0 结构：provider 为独立常量、目录对象按「`={` + 平衡括号」截取、getter 与标识符引用需注入求值（方法详见 `docs/research/model-metadata-sources.md` §五）。
 2. **models.md 解析**（`dist/bundled/command-code-knowledge/reference/models.md`，与 tarball 内文件同源）：Min plan 在第 6 列（index 6），按行首 `` | `wire-id` | `` 模式解析；normalize = 去掉后缀 `" and above"`（`Max` 为裸词，自然归一）。
 3. **Go plan 过滤**：保留 normalize 后 `== "Go"` 的模型。官方语义：Min plan 是能调用该模型的最便宜档位，高档包含低档全部模型，套餐序 `Go < GOAT < Pro < Max`。当前基线 40 个模型。
-4. **对账与断言**（任一失败则构建失败、开 issue，不静默出产物）：
+4. **limits 补全**：保证 `context` / `maxOutput` 每模型必有具体值，按 §1.1 补全链依次尝试；构建日志记录每个值的 provenance（`bundle` / `family` / `models-dev` / `constant`），编造值可审计。
+5. **对账与断言**（任一失败则构建失败、开 issue，不静默出产物）：
    - models.md 列头含 `Min plan`；normalize 值域 ⊆ `{Go, GOAT, Pro, Max}`（新取值出现 = 新套餐上线，需人工确认套餐序）。
    - 产物 id 集合 ⊆ `/models` API id 集合；bundle 目录中 API 之外的条目（隐藏 free 等）不进产物。
    - 监控基线：Min plan 分布 Go 40 / GOAT 4 / Pro 13 / Max 5；分布突变即人工复核。
@@ -90,10 +92,10 @@ per-model：
 | 字段 | 权威 | 兜底链 |
 |---|---|---|
 | 发现（暴露哪些 id） | API ∩ 产物（Go 过滤已在构建侧完成） | API 失败 → 产物 id 清单；再失败 → 快照 id 清单 |
-| `context` | API `context_length`（网关实际执行值） | 产物 `context` → 快照 → 常量 200000 |
+| `context` | API `context_length`（网关实际执行值） | 产物 `context` → 快照（构建侧已保证必有值） |
 | `name` | API | 产物 → 快照 |
 | `efforts` / variants | 产物 | 无 |
-| `reasoning` / `inputModalities` / `maxOutput` | 产物 | 快照 → 常量（32000 / 200000） |
+| `reasoning` / `inputModalities` / `maxOutput` | 产物 | 快照（构建侧已保证必有值） |
 | `tool_call` | 常量 `true` | — |
 
 暴露规则（保守）：
@@ -141,8 +143,9 @@ per-model：
 
 | 备选 | 否决理由 |
 |---|---|
-| models.dev 参与运行时级联（四层方案） | 4.4MB 拉取 + 脆弱的别名匹配链路进客户端；对订阅制用户，「价格/档位更新快几小时」没有实际收益 |
-| models.dev 参与构建侧合并 | 价格砍出 v1 后无独有字段；efforts 只认官方 CLI（其档位与 limit 同为第三方视角） |
+| models.dev 参与运行时级联（四层方案） | 4.4MB 拉取 + 脆弱的别名匹配链路进客户端；context 运行时已有 API 权威（62/62），订阅制用户无新鲜度收益 |
+| limits 缺失用常量兜底（初版草案） | context 是 OpenCode 压缩判断的依据、maxOutput 是请求上限，真实数据优于编造值；models.dev limits 覆盖 61/62，构建侧补全后常量只剩 hy3-paid 一类极端兜底 |
+| 模态词表扩到 audio/video/pdf | models.dev 口径是厂商原生 API 能力，网关投递通道未经验证；advertise 超出协议层转换能力 = 放行后静默丢弃。维持「网关可投递」口径 text/image，通道扩展后直接扩数据 |
 | 价格字段（`cost.*`） | v1 明确砍掉：实现链路长（三来源对账 + 官方 promo 口径校正），订阅制下展示收益薄；schema 演进规则留门 |
 | isGoModel 前缀启发式（jiesou） | 官方明文「套餐按计费类别门控，与开源/闭源无关」；实测已漏 3 个 Go 可用模型；仅可作为 §2 断言链末级应急且需打补丁，不作常规依据 |
 | off 变体 | 实测 off ≡ 不发送 `reasoning_effort` ≡ base 模型，造了是冗余 |

@@ -40,7 +40,7 @@ _Avoid_: 反检测、作弊层
 某订阅 plan 实际可用的模型 id 集合。来源：`GET /provider/v1/models`。
 
 **模型元数据**:
-单个模型的上下文窗口、价格、能力（视觉 / 工具）、reasoning 档位等配置参数。来源：官方 CLI 模型目录（构建侧解析进构建产物）、`/provider/v1/models`、包内快照。
+单个模型的上下文窗口、价格、能力（视觉 / 工具）、reasoning 档位等配置参数。来源：官方 CLI 模型目录（构建侧解析进构建产物）、`/provider/v1/models`、models.dev（仅构建侧补 limits 缺口）、包内快照。
 _Avoid_: 模型配置、模型信息
 
 **构建产物**:
