@@ -1,0 +1,545 @@
+{
+  "_meta": {
+    "source": "官方 command-code CLI 真实流量（mitmproxy 采集）",
+    "endpoint_group": "fingerprint-record",
+    "record_count": 3,
+    "captured_at_first": "2026-08-30T15:23:02.198414+00:00",
+    "captured_at_last": "2026-08-30T15:24:01.957018+00:00",
+    "cli_version": "1.38.2",
+    "raw_source": "/home/wall/.cc-capture/requests.jsonl（不随仓库分发）",
+    "records_selected": "0,2,19",
+    "sanitized_at": "2026-08-30T15:38:17.129356+00:00",
+    "sanitizer": "capture/sanitize.py",
+    "redaction_summary": {
+      "credential_redacted": 3,
+      "hash_pseudonymized": 102
+    }
+  },
+  "requests": [
+    {
+      "captured_at": "2026-08-30T15:23:02.198414+00:00",
+      "method": "POST",
+      "url": "https://api.commandcode.ai/alpha/fingerprint/record",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ],
+        [
+          "content-length",
+          "2601"
+        ]
+      ],
+      "request_body": {
+        "_format": "json",
+        "value": {
+          "thumbmark": "41d6111b870a5038b29d58840b42e632ebc21bde01ed34709a6bf177575a3ac2",
+          "components": {
+            "machineIdHash": "6355687859f657f8bd370b5accb9bc285f4531073446e8ae758dd8106a10b35c",
+            "macHashes": [
+              "c97574867e8c74f45fec2d17fa9ec73cf62f3d14524d92aeb1af7c5178b3a0c7",
+              "d500f638c91dd399ae24aff43b3e7765a66451c33235f047bb33c6d9c869408e",
+              "649470fedb2eafeea939fdec816acfbb199437849b1e8aa1bcc52515e0c21f17",
+              "06f6b606b7b3032b387270be8d8c8c4495bd0207ea2f9277aa08bb579d2565e7",
+              "9b7d0ef17e45454c648ab5978f2df59dcc389a4f50880bb23c77e8fa4aae15c4",
+              "c43e5aa01ba9892d00fd48a71f666f83cfa434d4a038870790eccdf9f71fcd76",
+              "d8c207b7ee262d475c2ae2409a73fec54d7b4ecf1d39891e7dced7e31d19acd2",
+              "4b9bb78a60e4723a8bdc4ea0069ad3919888324f87e5d12b7d4c01e33d782720",
+              "4a90d3b97fe259beecd4d89fa74766549c70a32914fdb9e98bfe3d64fd1e6f48",
+              "58faf12148e122e790f0a8cc8dfdd750173e5f0794a96fec78d80ae130ceb3a6",
+              "81a249150f79348ce9a7dc65f3a72af86ab21e9c3af6b2e7f567ff0d9ac85fb0",
+              "373b095c0a15bc2d00ff3fde271c7352a252b9f34538b2ba8697d3fa62e05737",
+              "fa1f02e53ad9d873dc96bf8695347eb5a40806a60d1460a8a1dfd3bd12e99218",
+              "6ba0930aacfbd61d6b99cb22a1e6c31aab978db60ce239c635f16545d5ff1e32",
+              "6f3ff6951927e23d1026976846ed359b2a24e66c64cdcb39cf0f1250c1a1b996",
+              "7f7bef99ec34d0ad7b2686024714fd399297eac6b54f6160dc14a96b87382f61",
+              "2d5ade2ba177943d614fb55a11c74eda2f3ffe58918a519041ee9b3ef4226679",
+              "66c39a257dc42412f0502b25f1ab016414e5e25143cdc81c835e11ec71717183",
+              "0e4c2debfbc638e0f4c45f19c055e8c75422e9f64650b6effee0a22d43b07aca",
+              "fecbcbd3580b5c477ae4fb332b80cc6b339bbd714e9428edad27529d05fc1487",
+              "6b83ae7fdba22d5d994e44adc53afb0f944378558acae0d2a22434445a1cac46",
+              "82d300762261eeb6356e2dbae420460cd84d9c0db491466e36ca7c7db232e5a8",
+              "bb2cf4c80a122d644eb69ab408ef868e5c28d62aeb36f3f2e5818cac391a1feb",
+              "7a8ffb1588c147479a92f5040acf94e3ccdd497496a1c2e7c8d7543057c8be62",
+              "272ded2ebeb0ca1526f22e87b2edca1945d5d1531c8379d188a9076bb4db4a9d",
+              "7d3af5f9f07a14f3faf647815b35f1179b828c5ca8463d4f0998cf05b890a2d8",
+              "81ce62ac33eacc5d21a1a28fb05f8226e5ac88145df997d6897d153c93b76721",
+              "12c2087764dbf3a48dabcdcd908edd61ade37b10703eaa4f4dfe4bf242470521",
+              "11b70fcb455b2128dff65df893a841d675776c23069a2c7ef60fa8ce242a5bc8"
+            ],
+            "osUserHash": "d8663a1c02bda8bf4962e61e64d3ab29a1a4f1338a12a9ffbea9c294ce692237",
+            "hostnameHash": "1b23d3a025e7f58886a1303176a1febc45bbd9192f10fbf8c057840d9fc34359",
+            "gitEmailHash": "6f36192516918f49fbc97cf5e9cb1f8502048ab24d5eb0604e1de710a343d116",
+            "platform": "linux",
+            "arch": "x64",
+            "osRelease": "6.8.0-138-generic",
+            "cpuModel": "AMD Ryzen 7 5700X 8-Core Processor",
+            "cpuCount": 16,
+            "memGiB": 35,
+            "isContainer": false,
+            "timezone": "Asia/Shanghai",
+            "runtime": "cli",
+            "collectorVersion": 1
+          }
+        }
+      },
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:01 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Content-Length",
+          "16"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=1223.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "64015f05396dbf8c398b177e9ea7a038"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=jHYroONtOcOflrFoxV4jn2z82uXuDcxE%2BRlba4B78%2FqVSAzpWDUE1WumM1p8AeDbhmfg3yCQWpExlKQrr5hQW2kSBh0bPhmVN4ImbuH8fGJ0jENWo%2FLFTZ7O5tvuXNO2aTasook%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cb48ce201321-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:23:42.126436+00:00",
+      "method": "POST",
+      "url": "https://api.commandcode.ai/alpha/fingerprint/record",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ],
+        [
+          "content-length",
+          "2601"
+        ]
+      ],
+      "request_body": {
+        "_format": "json",
+        "value": {
+          "thumbmark": "41d6111b870a5038b29d58840b42e632ebc21bde01ed34709a6bf177575a3ac2",
+          "components": {
+            "machineIdHash": "6355687859f657f8bd370b5accb9bc285f4531073446e8ae758dd8106a10b35c",
+            "macHashes": [
+              "c97574867e8c74f45fec2d17fa9ec73cf62f3d14524d92aeb1af7c5178b3a0c7",
+              "d500f638c91dd399ae24aff43b3e7765a66451c33235f047bb33c6d9c869408e",
+              "649470fedb2eafeea939fdec816acfbb199437849b1e8aa1bcc52515e0c21f17",
+              "06f6b606b7b3032b387270be8d8c8c4495bd0207ea2f9277aa08bb579d2565e7",
+              "9b7d0ef17e45454c648ab5978f2df59dcc389a4f50880bb23c77e8fa4aae15c4",
+              "c43e5aa01ba9892d00fd48a71f666f83cfa434d4a038870790eccdf9f71fcd76",
+              "d8c207b7ee262d475c2ae2409a73fec54d7b4ecf1d39891e7dced7e31d19acd2",
+              "4b9bb78a60e4723a8bdc4ea0069ad3919888324f87e5d12b7d4c01e33d782720",
+              "4a90d3b97fe259beecd4d89fa74766549c70a32914fdb9e98bfe3d64fd1e6f48",
+              "58faf12148e122e790f0a8cc8dfdd750173e5f0794a96fec78d80ae130ceb3a6",
+              "81a249150f79348ce9a7dc65f3a72af86ab21e9c3af6b2e7f567ff0d9ac85fb0",
+              "373b095c0a15bc2d00ff3fde271c7352a252b9f34538b2ba8697d3fa62e05737",
+              "fa1f02e53ad9d873dc96bf8695347eb5a40806a60d1460a8a1dfd3bd12e99218",
+              "6ba0930aacfbd61d6b99cb22a1e6c31aab978db60ce239c635f16545d5ff1e32",
+              "6f3ff6951927e23d1026976846ed359b2a24e66c64cdcb39cf0f1250c1a1b996",
+              "7f7bef99ec34d0ad7b2686024714fd399297eac6b54f6160dc14a96b87382f61",
+              "2d5ade2ba177943d614fb55a11c74eda2f3ffe58918a519041ee9b3ef4226679",
+              "66c39a257dc42412f0502b25f1ab016414e5e25143cdc81c835e11ec71717183",
+              "0e4c2debfbc638e0f4c45f19c055e8c75422e9f64650b6effee0a22d43b07aca",
+              "fecbcbd3580b5c477ae4fb332b80cc6b339bbd714e9428edad27529d05fc1487",
+              "6b83ae7fdba22d5d994e44adc53afb0f944378558acae0d2a22434445a1cac46",
+              "82d300762261eeb6356e2dbae420460cd84d9c0db491466e36ca7c7db232e5a8",
+              "bb2cf4c80a122d644eb69ab408ef868e5c28d62aeb36f3f2e5818cac391a1feb",
+              "7a8ffb1588c147479a92f5040acf94e3ccdd497496a1c2e7c8d7543057c8be62",
+              "272ded2ebeb0ca1526f22e87b2edca1945d5d1531c8379d188a9076bb4db4a9d",
+              "7d3af5f9f07a14f3faf647815b35f1179b828c5ca8463d4f0998cf05b890a2d8",
+              "81ce62ac33eacc5d21a1a28fb05f8226e5ac88145df997d6897d153c93b76721",
+              "12c2087764dbf3a48dabcdcd908edd61ade37b10703eaa4f4dfe4bf242470521",
+              "11b70fcb455b2128dff65df893a841d675776c23069a2c7ef60fa8ce242a5bc8"
+            ],
+            "osUserHash": "d8663a1c02bda8bf4962e61e64d3ab29a1a4f1338a12a9ffbea9c294ce692237",
+            "hostnameHash": "1b23d3a025e7f58886a1303176a1febc45bbd9192f10fbf8c057840d9fc34359",
+            "gitEmailHash": "6f36192516918f49fbc97cf5e9cb1f8502048ab24d5eb0604e1de710a343d116",
+            "platform": "linux",
+            "arch": "x64",
+            "osRelease": "6.8.0-138-generic",
+            "cpuModel": "AMD Ryzen 7 5700X 8-Core Processor",
+            "cpuCount": 16,
+            "memGiB": 35,
+            "isContainer": false,
+            "timezone": "Asia/Shanghai",
+            "runtime": "cli",
+            "collectorVersion": 1
+          }
+        }
+      },
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:42 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Content-Length",
+          "16"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=249.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "799bc093a73bfd25343c7cea68f5cef3"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=dL9cm2R%2FvwZ0S4KX1BA2%2B%2FHjfbyv%2FfcgCXMtCrg8C2JHhbGWS%2FXe%2FfQTxTSJ8gNsj9Xz%2FvorHnVROnPtw0PQGC5Js48oOZnPuB9wtlyrQOMXKkTBvY7YugSDpjEiC%2BLU%2BnkxW6A%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cc51eba3c782-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:01.957018+00:00",
+      "method": "POST",
+      "url": "https://api.commandcode.ai/alpha/fingerprint/record",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ],
+        [
+          "content-length",
+          "2601"
+        ]
+      ],
+      "request_body": {
+        "_format": "json",
+        "value": {
+          "thumbmark": "41d6111b870a5038b29d58840b42e632ebc21bde01ed34709a6bf177575a3ac2",
+          "components": {
+            "machineIdHash": "6355687859f657f8bd370b5accb9bc285f4531073446e8ae758dd8106a10b35c",
+            "macHashes": [
+              "c97574867e8c74f45fec2d17fa9ec73cf62f3d14524d92aeb1af7c5178b3a0c7",
+              "d500f638c91dd399ae24aff43b3e7765a66451c33235f047bb33c6d9c869408e",
+              "649470fedb2eafeea939fdec816acfbb199437849b1e8aa1bcc52515e0c21f17",
+              "06f6b606b7b3032b387270be8d8c8c4495bd0207ea2f9277aa08bb579d2565e7",
+              "9b7d0ef17e45454c648ab5978f2df59dcc389a4f50880bb23c77e8fa4aae15c4",
+              "c43e5aa01ba9892d00fd48a71f666f83cfa434d4a038870790eccdf9f71fcd76",
+              "d8c207b7ee262d475c2ae2409a73fec54d7b4ecf1d39891e7dced7e31d19acd2",
+              "4b9bb78a60e4723a8bdc4ea0069ad3919888324f87e5d12b7d4c01e33d782720",
+              "4a90d3b97fe259beecd4d89fa74766549c70a32914fdb9e98bfe3d64fd1e6f48",
+              "58faf12148e122e790f0a8cc8dfdd750173e5f0794a96fec78d80ae130ceb3a6",
+              "81a249150f79348ce9a7dc65f3a72af86ab21e9c3af6b2e7f567ff0d9ac85fb0",
+              "373b095c0a15bc2d00ff3fde271c7352a252b9f34538b2ba8697d3fa62e05737",
+              "fa1f02e53ad9d873dc96bf8695347eb5a40806a60d1460a8a1dfd3bd12e99218",
+              "6ba0930aacfbd61d6b99cb22a1e6c31aab978db60ce239c635f16545d5ff1e32",
+              "6f3ff6951927e23d1026976846ed359b2a24e66c64cdcb39cf0f1250c1a1b996",
+              "7f7bef99ec34d0ad7b2686024714fd399297eac6b54f6160dc14a96b87382f61",
+              "2d5ade2ba177943d614fb55a11c74eda2f3ffe58918a519041ee9b3ef4226679",
+              "66c39a257dc42412f0502b25f1ab016414e5e25143cdc81c835e11ec71717183",
+              "0e4c2debfbc638e0f4c45f19c055e8c75422e9f64650b6effee0a22d43b07aca",
+              "fecbcbd3580b5c477ae4fb332b80cc6b339bbd714e9428edad27529d05fc1487",
+              "6b83ae7fdba22d5d994e44adc53afb0f944378558acae0d2a22434445a1cac46",
+              "82d300762261eeb6356e2dbae420460cd84d9c0db491466e36ca7c7db232e5a8",
+              "bb2cf4c80a122d644eb69ab408ef868e5c28d62aeb36f3f2e5818cac391a1feb",
+              "7a8ffb1588c147479a92f5040acf94e3ccdd497496a1c2e7c8d7543057c8be62",
+              "272ded2ebeb0ca1526f22e87b2edca1945d5d1531c8379d188a9076bb4db4a9d",
+              "7d3af5f9f07a14f3faf647815b35f1179b828c5ca8463d4f0998cf05b890a2d8",
+              "81ce62ac33eacc5d21a1a28fb05f8226e5ac88145df997d6897d153c93b76721",
+              "12c2087764dbf3a48dabcdcd908edd61ade37b10703eaa4f4dfe4bf242470521",
+              "11b70fcb455b2128dff65df893a841d675776c23069a2c7ef60fa8ce242a5bc8"
+            ],
+            "osUserHash": "d8663a1c02bda8bf4962e61e64d3ab29a1a4f1338a12a9ffbea9c294ce692237",
+            "hostnameHash": "1b23d3a025e7f58886a1303176a1febc45bbd9192f10fbf8c057840d9fc34359",
+            "gitEmailHash": "6f36192516918f49fbc97cf5e9cb1f8502048ab24d5eb0604e1de710a343d116",
+            "platform": "linux",
+            "arch": "x64",
+            "osRelease": "6.8.0-138-generic",
+            "cpuModel": "AMD Ryzen 7 5700X 8-Core Processor",
+            "cpuCount": 16,
+            "memGiB": 35,
+            "isContainer": false,
+            "timezone": "Asia/Shanghai",
+            "runtime": "cli",
+            "collectorVersion": 1
+          }
+        }
+      },
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:01 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Content-Length",
+          "16"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=259.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "501ec8b0e5bd3730f0d90c8067ef4008"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=xOnLpNpJQd2SOkuAlua16k%2Fxy5dAcm8p1VAjf4739IAy8LLZKz5cRwDRWHOmMqaQEG7lWAhH30sGBtkkPx%2B8zMNIlD3Kg3lMnPUx5pda7I3An7QZvi3y6gbq6JKc%2B1plOC4q%2F0c%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cccd8ac5229f-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true
+        }
+      },
+      "error": null
+    }
+  ]
+}

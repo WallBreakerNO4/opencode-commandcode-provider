@@ -1,0 +1,4966 @@
+{
+  "_meta": {
+    "source": "官方 command-code CLI 真实流量（mitmproxy 采集）",
+    "endpoint_group": "generate",
+    "record_count": 3,
+    "captured_at_first": "2026-08-30T15:23:03.975836+00:00",
+    "captured_at_last": "2026-08-30T15:25:58.125837+00:00",
+    "cli_version": "1.38.2",
+    "raw_source": "/home/wall/.cc-capture/requests.jsonl（不随仓库分发）",
+    "records_selected": "0,2,19",
+    "sanitized_at": "2026-08-30T15:38:17.129356+00:00",
+    "sanitizer": "capture/sanitize.py",
+    "redaction_summary": {
+      "slug_pseudonymized": 20,
+      "uuid_pseudonymized": 100,
+      "credential_redacted": 20,
+      "traceparent_pseudonymized": 20,
+      "path_redacted": 788,
+      "long_text_redacted": 1319
+    }
+  },
+  "requests": [
+    {
+      "captured_at": "2026-08-30T15:23:03.975836+00:00",
+      "method": "POST",
+      "url": "https://api.commandcode.ai/alpha/generate",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "df72321c-66e7-4f3b-8779-5b882e51727f"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "traceparent",
+          "00-7eb5a58692aa5ae871c904556248dfef-1596f6fe8c37c792-01"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ],
+        [
+          "content-length",
+          "74279"
+        ]
+      ],
+      "request_body": {
+        "_format": "json",
+        "value": {
+          "config": {
+            "workingDir": "<redacted-path len=59>",
+            "date": "2026-08-30",
+            "environment": "linux",
+            "structure": [
+              "AGENTS.md",
+              "CONTEXT.md",
+              "capture",
+              "docs",
+              "prototype",
+              "skills-lock.json"
+            ],
+            "isGitRepo": true,
+            "currentBranch": "main",
+            "mainBranch": "main",
+            "gitStatus": "M .env.example\n M .gitignore\n?? capture/",
+            "recentCommits": [
+              "10546e0 词汇表与文档更新：新增协议/分发渠道词条，定稿协议核心规格与构建产物分发渠道 ADR",
+              "418ce70 伪装模块运行时设计定稿：状态、时机、降级规格（wayfinder #7）",
+              "a448c87 完成 https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/4 的 wayfinder 调查"
+            ]
+          },
+          "memory": null,
+          "taste": null,
+          "skills": null,
+          "permissionMode": "standard",
+          "threadId": "df72321c-66e7-4f3b-8779-5b882e51727f",
+          "params": {
+            "model": "deepseek/deepseek-v4-flash",
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Say OK"
+                  }
+                ]
+              }
+            ],
+            "tools": [
+              {
+                "name": "read_file",
+                "description": "<redacted-text len=2379>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "file_path": {
+                      "type": "string",
+                      "description": "<redacted-text len=345>"
+                    },
+                    "paths": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "<redacted-text len=268>"
+                    },
+                    "offset": {
+                      "type": "number",
+                      "description": "<redacted-text len=535>"
+                    },
+                    "limit": {
+                      "type": "number",
+                      "description": "The maximum number of lines to read starting from offset. Must be a positive integer. Defaults to 2000 lines."
+                    },
+                    "exclude": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Multi-file reads: glob patterns to skip, e.g. [\"**/*.test.ts\"]."
+                    },
+                    "target_directory": {
+                      "type": "string",
+                      "description": "<redacted-text len=122>"
+                    },
+                    "default_exclude": {
+                      "type": "boolean",
+                      "description": "<redacted-text len=122>"
+                    },
+                    "git_ignore": {
+                      "type": "boolean",
+                      "description": "Multi-file reads: set false to stop skipping .gitignored files (default true)."
+                    }
+                  },
+                  "required": [
+                    "file_path"
+                  ]
+                }
+              },
+              {
+                "name": "write_file",
+                "description": "<redacted-text len=1153>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "file_path": {
+                      "type": "string",
+                      "description": "<redacted-text len=413>"
+                    },
+                    "content": {
+                      "type": "string",
+                      "description": "<redacted-text len=234>"
+                    }
+                  },
+                  "required": [
+                    "file_path",
+                    "content"
+                  ]
+                }
+              },
+              {
+                "name": "edit_file",
+                "description": "<redacted-text len=1346>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "file_path": {
+                      "type": "string",
+                      "description": "<redacted-text len=328>"
+                    },
+                    "old_string": {
+                      "type": "string",
+                      "description": "<redacted-text len=265>"
+                    },
+                    "new_string": {
+                      "type": "string",
+                      "description": "<redacted-text len=218>"
+                    },
+                    "replace_all": {
+                      "type": "boolean",
+                      "description": "<redacted-text len=164>"
+                    },
+                    "replacement_count": {
+                      "type": "number",
+                      "description": "<redacted-text len=241>"
+                    }
+                  },
+                  "required": [
+                    "file_path",
+                    "old_string",
+                    "new_string"
+                  ]
+                }
+              },
+              {
+                "name": "read_directory",
+                "description": "<redacted-text len=941>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "<redacted-text len=352>"
+                    },
+                    "exclude": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "<redacted-text len=299>"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ]
+                }
+              },
+              {
+                "name": "glob",
+                "description": "<redacted-text len=1384>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "description": "<redacted-text len=476>"
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "<redacted-text len=375>"
+                    },
+                    "limit": {
+                      "type": "number",
+                      "description": "<redacted-text len=168>"
+                    },
+                    "offset": {
+                      "type": "number",
+                      "description": "<redacted-text len=169>"
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ]
+                }
+              },
+              {
+                "name": "grep",
+                "description": "<redacted-text len=938>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "description": "The regular expression pattern to search for in file contents (ripgrep syntax)."
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "<redacted-text len=165>"
+                    },
+                    "glob": {
+                      "type": "string",
+                      "description": "<redacted-text len=158>"
+                    },
+                    "output_mode": {
+                      "type": "string",
+                      "enum": [
+                        "content",
+                        "files_with_matches",
+                        "count"
+                      ],
+                      "description": "<redacted-text len=175>"
+                    },
+                    "-B": {
+                      "type": "number",
+                      "description": "Number of lines to show before each match. Requires output_mode: \"content\", ignored otherwise."
+                    },
+                    "-A": {
+                      "type": "number",
+                      "description": "Number of lines to show after each match. Requires output_mode: \"content\", ignored otherwise."
+                    },
+                    "-C": {
+                      "type": "number",
+                      "description": "Number of lines to show before and after each match. Requires output_mode: \"content\", ignored otherwise."
+                    },
+                    "context": {
+                      "type": "number",
+                      "description": "Alias for -C; takes precedence over -C when both are set. Requires output_mode: \"content\"."
+                    },
+                    "-n": {
+                      "type": "boolean",
+                      "description": "Show line numbers in output (default true). Requires output_mode: \"content\", ignored otherwise."
+                    },
+                    "-i": {
+                      "type": "boolean",
+                      "description": "Case-insensitive search (default false)."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "File type to search, for example \"js\", \"py\", \"rust\". More efficient than glob for standard file types."
+                    },
+                    "head_limit": {
+                      "type": "number",
+                      "description": "Limit output to the first N lines/entries (default 250). Works in all output modes. Pass 0 for unlimited."
+                    },
+                    "offset": {
+                      "type": "number",
+                      "description": "Skip the first N lines/entries before applying head_limit (default 0). Works in all output modes."
+                    },
+                    "multiline": {
+                      "type": "boolean",
+                      "description": "Enable multiline mode where . matches newlines and patterns can span lines (default false)."
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ]
+                }
+              },
+              {
+                "name": "shell_command",
+                "description": "<redacted-text len=2617>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "command": {
+                      "type": "string",
+                      "description": "<redacted-text len=425>"
+                    },
+                    "args": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "<redacted-text len=449>"
+                    },
+                    "cwd": {
+                      "type": "string",
+                      "description": "<redacted-text len=558>"
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "description": "<redacted-text len=591>"
+                    },
+                    "run_in_background": {
+                      "type": "boolean",
+                      "description": "<redacted-text len=302>"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "<redacted-text len=126>"
+                    }
+                  },
+                  "required": [
+                    "command"
+                  ]
+                }
+              },
+              {
+                "name": "activate_skill",
+                "description": "<redacted-text len=818>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "enum": [
+                        "gh",
+                        "code-review",
+                        "codebase-design",
+                        "diagnosing-bugs",
+                        "docx",
+                        "domain-modeling",
+                        "find-skills",
+                        "grilling",
+                        "pdf",
+                        "pptx",
+                        "prototype",
+                        "research",
+                        "resolving-merge-conflicts",
+                        "tdd",
+                        "wizard",
+                        "writing-for-agents",
+                        "xlsx",
+                        "agent-browser",
+                        "command-code-knowledge",
+                        "config",
+                        "design",
+                        "mod-builder",
+                        "skill-builder"
+                      ],
+                      "description": "The skill name exactly as listed in <available_skills>."
+                    },
+                    "arguments": {
+                      "type": "string",
+                      "description": "Optional arguments for the skill, as a single string (what a user would type after \"/name\")."
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                }
+              },
+              {
+                "name": "agent",
+                "description": "<redacted-text len=852>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "description": "A short (3-5 word) label for this task, shown to the user while the sub-agent works."
+                    },
+                    "subagent_type": {
+                      "type": "string",
+                      "description": "Which sub-agent to run — pick the one whose purpose matches the task. Omit to use 'general'.",
+                      "enum": [
+                        "general",
+                        "explore",
+                        "plan"
+                      ]
+                    },
+                    "prompt": {
+                      "type": "string",
+                      "description": "<redacted-text len=182>"
+                    },
+                    "model": {
+                      "type": "string",
+                      "description": "<redacted-text len=201>"
+                    },
+                    "run_in_background": {
+                      "type": "boolean",
+                      "description": "<redacted-text len=129>"
+                    }
+                  },
+                  "required": [
+                    "description",
+                    "prompt"
+                  ]
+                }
+              },
+              {
+                "name": "agent_output",
+                "description": "<redacted-text len=295>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "description": "The agent_id returned when the task was launched. Omit to list all background agents."
+                    },
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "wait",
+                        "status",
+                        "kill"
+                      ],
+                      "description": "<redacted-text len=138>"
+                    }
+                  },
+                  "required": []
+                }
+              },
+              {
+                "name": "search_tools",
+                "description": "<redacted-text len=293>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "The capability you need, e.g. \"schedule a recurring job\". Or select:web_search,web_fetch for exact names."
+                    },
+                    "max_results": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 20,
+                      "default": 5
+                    }
+                  },
+                  "required": [
+                    "query"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            ],
+            "system": "<redacted-text len=43689>",
+            "max_tokens": 64000,
+            "stream": true,
+            "reasoning_effort": "max"
+          }
+        }
+      },
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:01 GMT"
+        ],
+        [
+          "Content-Type",
+          "text/event-stream"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=1671.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "x-robots-tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-system-prompt-breakdown",
+          "{\"systemPrompt\":11903,\"memory\":0,\"taste\":0}"
+        ],
+        [
+          "x-trace-id",
+          "0e5e7db5c6747a3430da2ff14d3e7d77"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=o4Jh443kh98vaHKCt5tFCNps%2FrYP5LmAeraOftuRpD9UfpiBHmgen4COPWni%2BPInkWjc%2FgJ7S%2BiNh2Y4Dwqez%2BJ6hLR%2BzJ7kyOhQb5TchPQ0%2F359AnmOAQxrEF39ueiPpOnbpgY%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cb4cfd1e34bd-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "ndjson",
+        "lines": [
+          {
+            "type": "start"
+          },
+          {
+            "type": "start-step",
+            "request": {
+              "body": {
+                "maxOutputTokens": 64000,
+                "tools": [
+                  {
+                    "type": "function",
+                    "name": "read_file",
+                    "description": "<redacted-text len=2379>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "file_path": {
+                          "type": "string",
+                          "description": "<redacted-text len=345>"
+                        },
+                        "paths": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "<redacted-text len=268>"
+                        },
+                        "offset": {
+                          "type": "number",
+                          "description": "<redacted-text len=535>"
+                        },
+                        "limit": {
+                          "type": "number",
+                          "description": "The maximum number of lines to read starting from offset. Must be a positive integer. Defaults to 2000 lines."
+                        },
+                        "exclude": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Multi-file reads: glob patterns to skip, e.g. [\"**/*.test.ts\"]."
+                        },
+                        "target_directory": {
+                          "type": "string",
+                          "description": "<redacted-text len=122>"
+                        },
+                        "default_exclude": {
+                          "type": "boolean",
+                          "description": "<redacted-text len=122>"
+                        },
+                        "git_ignore": {
+                          "type": "boolean",
+                          "description": "Multi-file reads: set false to stop skipping .gitignored files (default true)."
+                        }
+                      },
+                      "required": [
+                        "file_path"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "write_file",
+                    "description": "<redacted-text len=1153>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "file_path": {
+                          "type": "string",
+                          "description": "<redacted-text len=413>"
+                        },
+                        "content": {
+                          "type": "string",
+                          "description": "<redacted-text len=234>"
+                        }
+                      },
+                      "required": [
+                        "file_path",
+                        "content"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "edit_file",
+                    "description": "<redacted-text len=1346>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "file_path": {
+                          "type": "string",
+                          "description": "<redacted-text len=328>"
+                        },
+                        "old_string": {
+                          "type": "string",
+                          "description": "<redacted-text len=265>"
+                        },
+                        "new_string": {
+                          "type": "string",
+                          "description": "<redacted-text len=218>"
+                        },
+                        "replace_all": {
+                          "type": "boolean",
+                          "description": "<redacted-text len=164>"
+                        },
+                        "replacement_count": {
+                          "type": "number",
+                          "description": "<redacted-text len=241>"
+                        }
+                      },
+                      "required": [
+                        "file_path",
+                        "old_string",
+                        "new_string"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "read_directory",
+                    "description": "<redacted-text len=941>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "description": "<redacted-text len=352>"
+                        },
+                        "exclude": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "<redacted-text len=299>"
+                        }
+                      },
+                      "required": [
+                        "path"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "glob",
+                    "description": "<redacted-text len=1384>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "pattern": {
+                          "type": "string",
+                          "description": "<redacted-text len=476>"
+                        },
+                        "path": {
+                          "type": "string",
+                          "description": "<redacted-text len=375>"
+                        },
+                        "limit": {
+                          "type": "number",
+                          "description": "<redacted-text len=168>"
+                        },
+                        "offset": {
+                          "type": "number",
+                          "description": "<redacted-text len=169>"
+                        }
+                      },
+                      "required": [
+                        "pattern"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "grep",
+                    "description": "<redacted-text len=938>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "pattern": {
+                          "type": "string",
+                          "description": "The regular expression pattern to search for in file contents (ripgrep syntax)."
+                        },
+                        "path": {
+                          "type": "string",
+                          "description": "<redacted-text len=165>"
+                        },
+                        "glob": {
+                          "type": "string",
+                          "description": "<redacted-text len=158>"
+                        },
+                        "output_mode": {
+                          "type": "string",
+                          "enum": [
+                            "content",
+                            "files_with_matches",
+                            "count"
+                          ],
+                          "description": "<redacted-text len=175>"
+                        },
+                        "-B": {
+                          "type": "number",
+                          "description": "Number of lines to show before each match. Requires output_mode: \"content\", ignored otherwise."
+                        },
+                        "-A": {
+                          "type": "number",
+                          "description": "Number of lines to show after each match. Requires output_mode: \"content\", ignored otherwise."
+                        },
+                        "-C": {
+                          "type": "number",
+                          "description": "Number of lines to show before and after each match. Requires output_mode: \"content\", ignored otherwise."
+                        },
+                        "context": {
+                          "type": "number",
+                          "description": "Alias for -C; takes precedence over -C when both are set. Requires output_mode: \"content\"."
+                        },
+                        "-n": {
+                          "type": "boolean",
+                          "description": "Show line numbers in output (default true). Requires output_mode: \"content\", ignored otherwise."
+                        },
+                        "-i": {
+                          "type": "boolean",
+                          "description": "Case-insensitive search (default false)."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "File type to search, for example \"js\", \"py\", \"rust\". More efficient than glob for standard file types."
+                        },
+                        "head_limit": {
+                          "type": "number",
+                          "description": "Limit output to the first N lines/entries (default 250). Works in all output modes. Pass 0 for unlimited."
+                        },
+                        "offset": {
+                          "type": "number",
+                          "description": "Skip the first N lines/entries before applying head_limit (default 0). Works in all output modes."
+                        },
+                        "multiline": {
+                          "type": "boolean",
+                          "description": "Enable multiline mode where . matches newlines and patterns can span lines (default false)."
+                        }
+                      },
+                      "required": [
+                        "pattern"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "shell_command",
+                    "description": "<redacted-text len=2617>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "command": {
+                          "type": "string",
+                          "description": "<redacted-text len=425>"
+                        },
+                        "args": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "<redacted-text len=449>"
+                        },
+                        "cwd": {
+                          "type": "string",
+                          "description": "<redacted-text len=558>"
+                        },
+                        "timeout": {
+                          "type": "number",
+                          "description": "<redacted-text len=591>"
+                        },
+                        "run_in_background": {
+                          "type": "boolean",
+                          "description": "<redacted-text len=302>"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "<redacted-text len=126>"
+                        }
+                      },
+                      "required": [
+                        "command"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "activate_skill",
+                    "description": "<redacted-text len=818>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "gh",
+                            "code-review",
+                            "codebase-design",
+                            "diagnosing-bugs",
+                            "docx",
+                            "domain-modeling",
+                            "find-skills",
+                            "grilling",
+                            "pdf",
+                            "pptx",
+                            "prototype",
+                            "research",
+                            "resolving-merge-conflicts",
+                            "tdd",
+                            "wizard",
+                            "writing-for-agents",
+                            "xlsx",
+                            "agent-browser",
+                            "command-code-knowledge",
+                            "config",
+                            "design",
+                            "mod-builder",
+                            "skill-builder"
+                          ],
+                          "description": "The skill name exactly as listed in <available_skills>."
+                        },
+                        "arguments": {
+                          "type": "string",
+                          "description": "Optional arguments for the skill, as a single string (what a user would type after \"/name\")."
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "agent",
+                    "description": "<redacted-text len=852>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "description": {
+                          "type": "string",
+                          "description": "A short (3-5 word) label for this task, shown to the user while the sub-agent works."
+                        },
+                        "subagent_type": {
+                          "type": "string",
+                          "description": "Which sub-agent to run — pick the one whose purpose matches the task. Omit to use 'general'.",
+                          "enum": [
+                            "general",
+                            "explore",
+                            "plan"
+                          ]
+                        },
+                        "prompt": {
+                          "type": "string",
+                          "description": "<redacted-text len=182>"
+                        },
+                        "model": {
+                          "type": "string",
+                          "description": "<redacted-text len=201>"
+                        },
+                        "run_in_background": {
+                          "type": "boolean",
+                          "description": "<redacted-text len=129>"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "prompt"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "agent_output",
+                    "description": "<redacted-text len=295>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "agent_id": {
+                          "type": "string",
+                          "description": "The agent_id returned when the task was launched. Omit to list all background agents."
+                        },
+                        "action": {
+                          "type": "string",
+                          "enum": [
+                            "wait",
+                            "status",
+                            "kill"
+                          ],
+                          "description": "<redacted-text len=138>"
+                        }
+                      },
+                      "required": []
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "search_tools",
+                    "description": "<redacted-text len=293>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "query": {
+                          "type": "string",
+                          "description": "The capability you need, e.g. \"schedule a recurring job\". Or select:web_search,web_fetch for exact names."
+                        },
+                        "max_results": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 20,
+                          "default": 5
+                        }
+                      },
+                      "required": [
+                        "query"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                ],
+                "toolChoice": {
+                  "type": "auto"
+                },
+                "prompt": [
+                  {
+                    "role": "system",
+                    "content": "<redacted-text len=43689>"
+                  },
+                  {
+                    "role": "user",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Say OK"
+                      }
+                    ]
+                  }
+                ],
+                "providerOptions": {
+                  "deepseek": {
+                    "reasoningEffort": "max"
+                  },
+                  "openaiCompatible": {
+                    "reasoningEffort": "max"
+                  },
+                  "gateway": {
+                    "caching": "auto",
+                    "sort": "ttft",
+                    "only": [
+                      "deepseek"
+                    ]
+                  }
+                },
+                "includeRawChunks": false
+              }
+            },
+            "warnings": []
+          },
+          {
+            "type": "reasoning-start",
+            "id": "reasoning-0",
+            "providerMetadata": {
+              "gateway": {
+                "generationId": "gen_01M19M8N3NYP2DAB2RRH2PVGN6"
+              }
+            }
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "The"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " user"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " just"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " said"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " \""
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "Say"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " OK"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "\"."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " This"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " is"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " a"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " simple"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " request"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " I"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " should"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " respond"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " with"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " \""
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "OK"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "\"."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " No"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " tools"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " needed"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "text-start",
+            "id": "txt-0"
+          },
+          {
+            "type": "reasoning-end",
+            "id": "reasoning-0"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "OK"
+          },
+          {
+            "type": "text-end",
+            "id": "txt-0"
+          },
+          {
+            "type": "finish-step",
+            "finishReason": "stop",
+            "rawFinishReason": "stop",
+            "usage": {
+              "inputTokens": 16977,
+              "inputTokenDetails": {
+                "noCacheTokens": 11601,
+                "cacheReadTokens": 5376
+              },
+              "outputTokens": 27,
+              "outputTokenDetails": {
+                "textTokens": 2,
+                "reasoningTokens": 25
+              },
+              "totalTokens": 17004,
+              "raw": {
+                "prompt_tokens": 16977,
+                "completion_tokens": 27,
+                "prompt_cache_hit_tokens": 5376,
+                "prompt_cache_miss_tokens": 11601,
+                "total_tokens": 17004,
+                "prompt_tokens_details": {
+                  "cached_tokens": 5376
+                },
+                "completion_tokens_details": {
+                  "reasoning_tokens": 25
+                }
+              },
+              "reasoningTokens": 25,
+              "cachedInputTokens": 5376
+            },
+            "providerMetadata": {
+              "deepseek": {
+                "promptCacheHitTokens": 5376,
+                "promptCacheMissTokens": 11601,
+                "responseObject": "chat.completion.chunk",
+                "choiceIndex": 0,
+                "messageRole": "assistant",
+                "systemFingerprint": "a26a7955944dc5c60445bff77fac9c8e"
+              },
+              "gateway": {
+                "routing": {
+                  "originalModelId": "deepseek/deepseek-v4-flash",
+                  "resolvedProvider": "deepseek",
+                  "fallbacksAvailable": [],
+                  "planningReasoning": "<redacted-text len=190>",
+                  "canonicalSlug": "deepseek/deepseek-v4-flash",
+                  "finalProvider": "deepseek",
+                  "modelAttemptCount": 1,
+                  "modelAttempts": [
+                    {
+                      "canonicalSlug": "deepseek/deepseek-v4-flash",
+                      "success": true,
+                      "providerAttemptCount": 1,
+                      "providerAttempts": [
+                        {
+                          "provider": "deepseek",
+                          "credentialType": "system",
+                          "success": true,
+                          "startTime": 1788103382147,
+                          "endTime": 1788103383647,
+                          "providerRequestId": "c1c7a85010b90094f7ddd0d4b9f7a3fc",
+                          "statusCode": 200,
+                          "providerResponseId": "489472a3-20e1-4510-80f2-9ac8d490cfa7"
+                        }
+                      ]
+                    }
+                  ],
+                  "totalProviderAttemptCount": 1,
+                  "sort": {
+                    "option": "ttft",
+                    "executionOrder": [
+                      "deepseek",
+                      "deepseek"
+                    ],
+                    "metrics": {
+                      "deepseek": 1819
+                    },
+                    "deprioritizedProviders": []
+                  }
+                },
+                "cost": "0.002607672",
+                "marketCost": "0.002607672",
+                "surchargeCost": "0",
+                "gatewayCost": "0.002607672",
+                "inferenceCost": "0.002607672",
+                "inputInferenceCost": "0.002589852",
+                "outputInferenceCost": "0.00001782",
+                "generationId": "gen_01M19M8N3NYP2DAB2RRH2PVGN6"
+              }
+            },
+            "response": {
+              "id": "489472a3-20e1-4510-80f2-9ac8d490cfa7",
+              "timestamp": "2026-08-30T15:23:02.000Z",
+              "modelId": "deepseek-v4-flash",
+              "headers": {
+                "access-control-allow-headers": "<redacted-text len=435>",
+                "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-origin": "*",
+                "cache-control": "no-cache, no-transform",
+                "cf-cache-status": "DYNAMIC",
+                "cf-ray": "a334cb592d8c34bd-SJC",
+                "connection": "close",
+                "content-type": "text/event-stream",
+                "date": "Sun, 30 Aug 2026 15:23:02 GMT",
+                "server": "cloudflare",
+                "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+                "transfer-encoding": "chunked",
+                "x-effective-store": "false",
+                "x-generation-id": "gen_01M19M8N3NYP2DAB2RRH2PVGN6",
+                "x-matched-path": "<redacted-path len=21>",
+                "x-model-id": "deepseek/deepseek-v4-flash",
+                "x-vercel-cache": "MISS",
+                "x-vercel-id": "sfo1::cle1::mfc5s-1788103381954-b841952707ae"
+              }
+            }
+          },
+          {
+            "type": "finish",
+            "finishReason": "stop",
+            "rawFinishReason": "stop",
+            "totalUsage": {
+              "inputTokens": 16977,
+              "inputTokenDetails": {
+                "noCacheTokens": 11601,
+                "cacheReadTokens": 5376
+              },
+              "outputTokens": 27,
+              "outputTokenDetails": {
+                "textTokens": 2,
+                "reasoningTokens": 25
+              },
+              "totalTokens": 17004,
+              "reasoningTokens": 25,
+              "cachedInputTokens": 5376
+            }
+          },
+          {
+            "type": "provider-metadata",
+            "providerMetadata": {
+              "deepseek": {
+                "promptCacheHitTokens": 5376,
+                "promptCacheMissTokens": 11601,
+                "responseObject": "chat.completion.chunk",
+                "choiceIndex": 0,
+                "messageRole": "assistant",
+                "systemFingerprint": "a26a7955944dc5c60445bff77fac9c8e"
+              },
+              "gateway": {
+                "routing": {
+                  "originalModelId": "deepseek/deepseek-v4-flash",
+                  "resolvedProvider": "deepseek",
+                  "fallbacksAvailable": [],
+                  "planningReasoning": "<redacted-text len=190>",
+                  "canonicalSlug": "deepseek/deepseek-v4-flash",
+                  "finalProvider": "deepseek",
+                  "modelAttemptCount": 1,
+                  "modelAttempts": [
+                    {
+                      "canonicalSlug": "deepseek/deepseek-v4-flash",
+                      "success": true,
+                      "providerAttemptCount": 1,
+                      "providerAttempts": [
+                        {
+                          "provider": "deepseek",
+                          "credentialType": "system",
+                          "success": true,
+                          "startTime": 1788103382147,
+                          "endTime": 1788103383647,
+                          "providerRequestId": "c1c7a85010b90094f7ddd0d4b9f7a3fc",
+                          "statusCode": 200,
+                          "providerResponseId": "489472a3-20e1-4510-80f2-9ac8d490cfa7"
+                        }
+                      ]
+                    }
+                  ],
+                  "totalProviderAttemptCount": 1,
+                  "sort": {
+                    "option": "ttft",
+                    "executionOrder": [
+                      "deepseek",
+                      "deepseek"
+                    ],
+                    "metrics": {
+                      "deepseek": 1819
+                    },
+                    "deprioritizedProviders": []
+                  }
+                },
+                "cost": "0.002607672",
+                "marketCost": "0.002607672",
+                "surchargeCost": "0",
+                "gatewayCost": "0.002607672",
+                "inferenceCost": "0.002607672",
+                "inputInferenceCost": "0.002589852",
+                "outputInferenceCost": "0.00001782",
+                "generationId": "gen_01M19M8N3NYP2DAB2RRH2PVGN6"
+              }
+            }
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:26.100178+00:00",
+      "method": "POST",
+      "url": "https://api.commandcode.ai/alpha/generate",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "4cc19c48-fdae-4a5f-a184-9618ec408e49"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "traceparent",
+          "00-21c0c6a623090a7e13743f99b82d25f7-34efca05630ce4e9-01"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ],
+        [
+          "content-length",
+          "88232"
+        ]
+      ],
+      "request_body": {
+        "_format": "json",
+        "value": {
+          "config": {
+            "workingDir": "<redacted-path len=59>",
+            "date": "2026-08-30",
+            "environment": "linux",
+            "structure": [
+              "AGENTS.md",
+              "CONTEXT.md",
+              "capture",
+              "docs",
+              "prototype",
+              "skills-lock.json"
+            ],
+            "isGitRepo": true,
+            "currentBranch": "main",
+            "mainBranch": "main",
+            "gitStatus": "M .env.example\n M .gitignore\n?? capture/",
+            "recentCommits": [
+              "10546e0 词汇表与文档更新：新增协议/分发渠道词条，定稿协议核心规格与构建产物分发渠道 ADR",
+              "418ce70 伪装模块运行时设计定稿：状态、时机、降级规格（wayfinder #7）",
+              "a448c87 完成 https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/4 的 wayfinder 调查"
+            ]
+          },
+          "memory": null,
+          "taste": null,
+          "skills": null,
+          "permissionMode": "standard",
+          "threadId": "4cc19c48-fdae-4a5f-a184-9618ec408e49",
+          "params": {
+            "model": "deepseek/deepseek-v4-flash",
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "你好，介绍一下你自己"
+                  }
+                ]
+              }
+            ],
+            "tools": [
+              {
+                "name": "read_file",
+                "description": "<redacted-text len=2379>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "file_path": {
+                      "type": "string",
+                      "description": "<redacted-text len=345>"
+                    },
+                    "paths": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "<redacted-text len=268>"
+                    },
+                    "offset": {
+                      "type": "number",
+                      "description": "<redacted-text len=535>"
+                    },
+                    "limit": {
+                      "type": "number",
+                      "description": "The maximum number of lines to read starting from offset. Must be a positive integer. Defaults to 2000 lines."
+                    },
+                    "exclude": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Multi-file reads: glob patterns to skip, e.g. [\"**/*.test.ts\"]."
+                    },
+                    "target_directory": {
+                      "type": "string",
+                      "description": "<redacted-text len=122>"
+                    },
+                    "default_exclude": {
+                      "type": "boolean",
+                      "description": "<redacted-text len=122>"
+                    },
+                    "git_ignore": {
+                      "type": "boolean",
+                      "description": "Multi-file reads: set false to stop skipping .gitignored files (default true)."
+                    }
+                  },
+                  "required": [
+                    "file_path"
+                  ]
+                }
+              },
+              {
+                "name": "write_file",
+                "description": "<redacted-text len=1153>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "file_path": {
+                      "type": "string",
+                      "description": "<redacted-text len=413>"
+                    },
+                    "content": {
+                      "type": "string",
+                      "description": "<redacted-text len=234>"
+                    }
+                  },
+                  "required": [
+                    "file_path",
+                    "content"
+                  ]
+                }
+              },
+              {
+                "name": "edit_file",
+                "description": "<redacted-text len=1346>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "file_path": {
+                      "type": "string",
+                      "description": "<redacted-text len=328>"
+                    },
+                    "old_string": {
+                      "type": "string",
+                      "description": "<redacted-text len=265>"
+                    },
+                    "new_string": {
+                      "type": "string",
+                      "description": "<redacted-text len=218>"
+                    },
+                    "replace_all": {
+                      "type": "boolean",
+                      "description": "<redacted-text len=164>"
+                    },
+                    "replacement_count": {
+                      "type": "number",
+                      "description": "<redacted-text len=241>"
+                    }
+                  },
+                  "required": [
+                    "file_path",
+                    "old_string",
+                    "new_string"
+                  ]
+                }
+              },
+              {
+                "name": "read_directory",
+                "description": "<redacted-text len=941>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "<redacted-text len=352>"
+                    },
+                    "exclude": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "<redacted-text len=299>"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ]
+                }
+              },
+              {
+                "name": "glob",
+                "description": "<redacted-text len=1384>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "description": "<redacted-text len=476>"
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "<redacted-text len=375>"
+                    },
+                    "limit": {
+                      "type": "number",
+                      "description": "<redacted-text len=168>"
+                    },
+                    "offset": {
+                      "type": "number",
+                      "description": "<redacted-text len=169>"
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ]
+                }
+              },
+              {
+                "name": "grep",
+                "description": "<redacted-text len=938>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "pattern": {
+                      "type": "string",
+                      "description": "The regular expression pattern to search for in file contents (ripgrep syntax)."
+                    },
+                    "path": {
+                      "type": "string",
+                      "description": "<redacted-text len=165>"
+                    },
+                    "glob": {
+                      "type": "string",
+                      "description": "<redacted-text len=158>"
+                    },
+                    "output_mode": {
+                      "type": "string",
+                      "enum": [
+                        "content",
+                        "files_with_matches",
+                        "count"
+                      ],
+                      "description": "<redacted-text len=175>"
+                    },
+                    "-B": {
+                      "type": "number",
+                      "description": "Number of lines to show before each match. Requires output_mode: \"content\", ignored otherwise."
+                    },
+                    "-A": {
+                      "type": "number",
+                      "description": "Number of lines to show after each match. Requires output_mode: \"content\", ignored otherwise."
+                    },
+                    "-C": {
+                      "type": "number",
+                      "description": "Number of lines to show before and after each match. Requires output_mode: \"content\", ignored otherwise."
+                    },
+                    "context": {
+                      "type": "number",
+                      "description": "Alias for -C; takes precedence over -C when both are set. Requires output_mode: \"content\"."
+                    },
+                    "-n": {
+                      "type": "boolean",
+                      "description": "Show line numbers in output (default true). Requires output_mode: \"content\", ignored otherwise."
+                    },
+                    "-i": {
+                      "type": "boolean",
+                      "description": "Case-insensitive search (default false)."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "File type to search, for example \"js\", \"py\", \"rust\". More efficient than glob for standard file types."
+                    },
+                    "head_limit": {
+                      "type": "number",
+                      "description": "Limit output to the first N lines/entries (default 250). Works in all output modes. Pass 0 for unlimited."
+                    },
+                    "offset": {
+                      "type": "number",
+                      "description": "Skip the first N lines/entries before applying head_limit (default 0). Works in all output modes."
+                    },
+                    "multiline": {
+                      "type": "boolean",
+                      "description": "Enable multiline mode where . matches newlines and patterns can span lines (default false)."
+                    }
+                  },
+                  "required": [
+                    "pattern"
+                  ]
+                }
+              },
+              {
+                "name": "shell_command",
+                "description": "<redacted-text len=2617>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "command": {
+                      "type": "string",
+                      "description": "<redacted-text len=425>"
+                    },
+                    "args": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "<redacted-text len=449>"
+                    },
+                    "cwd": {
+                      "type": "string",
+                      "description": "<redacted-text len=558>"
+                    },
+                    "timeout": {
+                      "type": "number",
+                      "description": "<redacted-text len=591>"
+                    },
+                    "run_in_background": {
+                      "type": "boolean",
+                      "description": "<redacted-text len=302>"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "<redacted-text len=126>"
+                    }
+                  },
+                  "required": [
+                    "command"
+                  ]
+                }
+              },
+              {
+                "name": "activate_skill",
+                "description": "<redacted-text len=818>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "enum": [
+                        "gh",
+                        "code-review",
+                        "codebase-design",
+                        "diagnosing-bugs",
+                        "docx",
+                        "domain-modeling",
+                        "find-skills",
+                        "grilling",
+                        "pdf",
+                        "pptx",
+                        "prototype",
+                        "research",
+                        "resolving-merge-conflicts",
+                        "tdd",
+                        "wizard",
+                        "writing-for-agents",
+                        "xlsx",
+                        "agent-browser",
+                        "command-code-knowledge",
+                        "config",
+                        "design",
+                        "mod-builder",
+                        "skill-builder"
+                      ],
+                      "description": "The skill name exactly as listed in <available_skills>."
+                    },
+                    "arguments": {
+                      "type": "string",
+                      "description": "Optional arguments for the skill, as a single string (what a user would type after \"/name\")."
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                }
+              },
+              {
+                "name": "agent",
+                "description": "<redacted-text len=852>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "description": "A short (3-5 word) label for this task, shown to the user while the sub-agent works."
+                    },
+                    "subagent_type": {
+                      "type": "string",
+                      "description": "Which sub-agent to run — pick the one whose purpose matches the task. Omit to use 'general'.",
+                      "enum": [
+                        "general",
+                        "explore",
+                        "plan"
+                      ]
+                    },
+                    "prompt": {
+                      "type": "string",
+                      "description": "<redacted-text len=182>"
+                    },
+                    "model": {
+                      "type": "string",
+                      "description": "<redacted-text len=201>"
+                    },
+                    "run_in_background": {
+                      "type": "boolean",
+                      "description": "<redacted-text len=129>"
+                    }
+                  },
+                  "required": [
+                    "description",
+                    "prompt"
+                  ]
+                }
+              },
+              {
+                "name": "agent_output",
+                "description": "<redacted-text len=295>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "type": "string",
+                      "description": "The agent_id returned when the task was launched. Omit to list all background agents."
+                    },
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "wait",
+                        "status",
+                        "kill"
+                      ],
+                      "description": "<redacted-text len=138>"
+                    }
+                  },
+                  "required": []
+                }
+              },
+              {
+                "name": "ask_user_question",
+                "description": "<redacted-text len=1171>",
+                "input_schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "questions": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 4,
+                      "description": "Questions to ask the user (1-4). Prefer 1.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "question": {
+                            "type": "string",
+                            "description": "<redacted-text len=138>"
+                          },
+                          "header": {
+                            "type": "string",
+                            "description": "<redacted-text len=180>"
+                          },
+                          "options": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 4,
+                            "description": "<redacted-text len=207>",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "label": {
+                                  "type": "string",
+                                  "description": "<redacted-text len=144>"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "<redacted-text len=123>"
+                                },
+                                "preview": {
+                                  "type": "string",
+                                  "description": "<redacted-text len=135>"
+                                }
+                              },
+                              "required": [
+                                "label",
+                                "description"
+                              ]
+                            }
+                          },
+                          "multiSelect": {
+                            "type": "boolean",
+                            "description": "Set to true when more than one option can apply to the same question. Defaults to a single answer."
+                          }
+                        },
+                        "required": [
+                          "question",
+                          "header",
+                          "options"
+                        ]
+                      }
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "description": "<redacted-text len=123>",
+                      "properties": {
+                        "source": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "questions"
+                  ]
+                }
+              },
+              {
+                "name": "search_tools",
+                "description": "<redacted-text len=293>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "The capability you need, e.g. \"schedule a recurring job\". Or select:web_search,web_fetch for exact names."
+                    },
+                    "max_results": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 20,
+                      "default": 5
+                    }
+                  },
+                  "required": [
+                    "query"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            ],
+            "system": "<redacted-text len=54072>",
+            "max_tokens": 64000,
+            "stream": true,
+            "reasoning_effort": "max"
+          }
+        }
+      },
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:23 GMT"
+        ],
+        [
+          "Content-Type",
+          "text/event-stream"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=749.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "x-robots-tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-system-prompt-breakdown",
+          "{\"systemPrompt\":14705,\"memory\":0,\"taste\":0}"
+        ],
+        [
+          "x-trace-id",
+          "f5d5108a40dcdf0069ba21b93321ba34"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=T%2Boruo7idFe2nZs9zNQPyNC3x8JdzvUEU8OqLyU5FxAWq61iI7IO2wFVVj8mf0w5Zza%2B81Rx5cD1Rjs9Ot9ECyiX0n9XPBa0qtgRCyT3Tb3GejLpMbWxD%2BGltJ7A8msxJ6seSvo%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cd5389d8ebeb-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "ndjson",
+        "lines": [
+          {
+            "type": "start"
+          },
+          {
+            "type": "start-step",
+            "request": {
+              "body": {
+                "maxOutputTokens": 64000,
+                "tools": [
+                  {
+                    "type": "function",
+                    "name": "read_file",
+                    "description": "<redacted-text len=2379>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "file_path": {
+                          "type": "string",
+                          "description": "<redacted-text len=345>"
+                        },
+                        "paths": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "<redacted-text len=268>"
+                        },
+                        "offset": {
+                          "type": "number",
+                          "description": "<redacted-text len=535>"
+                        },
+                        "limit": {
+                          "type": "number",
+                          "description": "The maximum number of lines to read starting from offset. Must be a positive integer. Defaults to 2000 lines."
+                        },
+                        "exclude": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Multi-file reads: glob patterns to skip, e.g. [\"**/*.test.ts\"]."
+                        },
+                        "target_directory": {
+                          "type": "string",
+                          "description": "<redacted-text len=122>"
+                        },
+                        "default_exclude": {
+                          "type": "boolean",
+                          "description": "<redacted-text len=122>"
+                        },
+                        "git_ignore": {
+                          "type": "boolean",
+                          "description": "Multi-file reads: set false to stop skipping .gitignored files (default true)."
+                        }
+                      },
+                      "required": [
+                        "file_path"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "write_file",
+                    "description": "<redacted-text len=1153>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "file_path": {
+                          "type": "string",
+                          "description": "<redacted-text len=413>"
+                        },
+                        "content": {
+                          "type": "string",
+                          "description": "<redacted-text len=234>"
+                        }
+                      },
+                      "required": [
+                        "file_path",
+                        "content"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "edit_file",
+                    "description": "<redacted-text len=1346>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "file_path": {
+                          "type": "string",
+                          "description": "<redacted-text len=328>"
+                        },
+                        "old_string": {
+                          "type": "string",
+                          "description": "<redacted-text len=265>"
+                        },
+                        "new_string": {
+                          "type": "string",
+                          "description": "<redacted-text len=218>"
+                        },
+                        "replace_all": {
+                          "type": "boolean",
+                          "description": "<redacted-text len=164>"
+                        },
+                        "replacement_count": {
+                          "type": "number",
+                          "description": "<redacted-text len=241>"
+                        }
+                      },
+                      "required": [
+                        "file_path",
+                        "old_string",
+                        "new_string"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "read_directory",
+                    "description": "<redacted-text len=941>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "description": "<redacted-text len=352>"
+                        },
+                        "exclude": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "<redacted-text len=299>"
+                        }
+                      },
+                      "required": [
+                        "path"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "glob",
+                    "description": "<redacted-text len=1384>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "pattern": {
+                          "type": "string",
+                          "description": "<redacted-text len=476>"
+                        },
+                        "path": {
+                          "type": "string",
+                          "description": "<redacted-text len=375>"
+                        },
+                        "limit": {
+                          "type": "number",
+                          "description": "<redacted-text len=168>"
+                        },
+                        "offset": {
+                          "type": "number",
+                          "description": "<redacted-text len=169>"
+                        }
+                      },
+                      "required": [
+                        "pattern"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "grep",
+                    "description": "<redacted-text len=938>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "pattern": {
+                          "type": "string",
+                          "description": "The regular expression pattern to search for in file contents (ripgrep syntax)."
+                        },
+                        "path": {
+                          "type": "string",
+                          "description": "<redacted-text len=165>"
+                        },
+                        "glob": {
+                          "type": "string",
+                          "description": "<redacted-text len=158>"
+                        },
+                        "output_mode": {
+                          "type": "string",
+                          "enum": [
+                            "content",
+                            "files_with_matches",
+                            "count"
+                          ],
+                          "description": "<redacted-text len=175>"
+                        },
+                        "-B": {
+                          "type": "number",
+                          "description": "Number of lines to show before each match. Requires output_mode: \"content\", ignored otherwise."
+                        },
+                        "-A": {
+                          "type": "number",
+                          "description": "Number of lines to show after each match. Requires output_mode: \"content\", ignored otherwise."
+                        },
+                        "-C": {
+                          "type": "number",
+                          "description": "Number of lines to show before and after each match. Requires output_mode: \"content\", ignored otherwise."
+                        },
+                        "context": {
+                          "type": "number",
+                          "description": "Alias for -C; takes precedence over -C when both are set. Requires output_mode: \"content\"."
+                        },
+                        "-n": {
+                          "type": "boolean",
+                          "description": "Show line numbers in output (default true). Requires output_mode: \"content\", ignored otherwise."
+                        },
+                        "-i": {
+                          "type": "boolean",
+                          "description": "Case-insensitive search (default false)."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "File type to search, for example \"js\", \"py\", \"rust\". More efficient than glob for standard file types."
+                        },
+                        "head_limit": {
+                          "type": "number",
+                          "description": "Limit output to the first N lines/entries (default 250). Works in all output modes. Pass 0 for unlimited."
+                        },
+                        "offset": {
+                          "type": "number",
+                          "description": "Skip the first N lines/entries before applying head_limit (default 0). Works in all output modes."
+                        },
+                        "multiline": {
+                          "type": "boolean",
+                          "description": "Enable multiline mode where . matches newlines and patterns can span lines (default false)."
+                        }
+                      },
+                      "required": [
+                        "pattern"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "shell_command",
+                    "description": "<redacted-text len=2617>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "command": {
+                          "type": "string",
+                          "description": "<redacted-text len=425>"
+                        },
+                        "args": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "<redacted-text len=449>"
+                        },
+                        "cwd": {
+                          "type": "string",
+                          "description": "<redacted-text len=558>"
+                        },
+                        "timeout": {
+                          "type": "number",
+                          "description": "<redacted-text len=591>"
+                        },
+                        "run_in_background": {
+                          "type": "boolean",
+                          "description": "<redacted-text len=302>"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "<redacted-text len=126>"
+                        }
+                      },
+                      "required": [
+                        "command"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "activate_skill",
+                    "description": "<redacted-text len=818>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "gh",
+                            "code-review",
+                            "codebase-design",
+                            "diagnosing-bugs",
+                            "docx",
+                            "domain-modeling",
+                            "find-skills",
+                            "grilling",
+                            "pdf",
+                            "pptx",
+                            "prototype",
+                            "research",
+                            "resolving-merge-conflicts",
+                            "tdd",
+                            "wizard",
+                            "writing-for-agents",
+                            "xlsx",
+                            "agent-browser",
+                            "command-code-knowledge",
+                            "config",
+                            "design",
+                            "mod-builder",
+                            "skill-builder"
+                          ],
+                          "description": "The skill name exactly as listed in <available_skills>."
+                        },
+                        "arguments": {
+                          "type": "string",
+                          "description": "Optional arguments for the skill, as a single string (what a user would type after \"/name\")."
+                        }
+                      },
+                      "required": [
+                        "name"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "agent",
+                    "description": "<redacted-text len=852>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "description": {
+                          "type": "string",
+                          "description": "A short (3-5 word) label for this task, shown to the user while the sub-agent works."
+                        },
+                        "subagent_type": {
+                          "type": "string",
+                          "description": "Which sub-agent to run — pick the one whose purpose matches the task. Omit to use 'general'.",
+                          "enum": [
+                            "general",
+                            "explore",
+                            "plan"
+                          ]
+                        },
+                        "prompt": {
+                          "type": "string",
+                          "description": "<redacted-text len=182>"
+                        },
+                        "model": {
+                          "type": "string",
+                          "description": "<redacted-text len=201>"
+                        },
+                        "run_in_background": {
+                          "type": "boolean",
+                          "description": "<redacted-text len=129>"
+                        }
+                      },
+                      "required": [
+                        "description",
+                        "prompt"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "agent_output",
+                    "description": "<redacted-text len=295>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "agent_id": {
+                          "type": "string",
+                          "description": "The agent_id returned when the task was launched. Omit to list all background agents."
+                        },
+                        "action": {
+                          "type": "string",
+                          "enum": [
+                            "wait",
+                            "status",
+                            "kill"
+                          ],
+                          "description": "<redacted-text len=138>"
+                        }
+                      },
+                      "required": []
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "ask_user_question",
+                    "description": "<redacted-text len=1171>",
+                    "inputSchema": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "questions": {
+                          "type": "array",
+                          "minItems": 1,
+                          "maxItems": 4,
+                          "description": "Questions to ask the user (1-4). Prefer 1.",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "question": {
+                                "type": "string",
+                                "description": "<redacted-text len=138>"
+                              },
+                              "header": {
+                                "type": "string",
+                                "description": "<redacted-text len=180>"
+                              },
+                              "options": {
+                                "type": "array",
+                                "minItems": 2,
+                                "maxItems": 4,
+                                "description": "<redacted-text len=207>",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "label": {
+                                      "type": "string",
+                                      "description": "<redacted-text len=144>"
+                                    },
+                                    "description": {
+                                      "type": "string",
+                                      "description": "<redacted-text len=123>"
+                                    },
+                                    "preview": {
+                                      "type": "string",
+                                      "description": "<redacted-text len=135>"
+                                    }
+                                  },
+                                  "required": [
+                                    "label",
+                                    "description"
+                                  ]
+                                }
+                              },
+                              "multiSelect": {
+                                "type": "boolean",
+                                "description": "Set to true when more than one option can apply to the same question. Defaults to a single answer."
+                              }
+                            },
+                            "required": [
+                              "question",
+                              "header",
+                              "options"
+                            ]
+                          }
+                        },
+                        "metadata": {
+                          "type": "object",
+                          "description": "<redacted-text len=123>",
+                          "properties": {
+                            "source": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "questions"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "search_tools",
+                    "description": "<redacted-text len=293>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "query": {
+                          "type": "string",
+                          "description": "The capability you need, e.g. \"schedule a recurring job\". Or select:web_search,web_fetch for exact names."
+                        },
+                        "max_results": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 20,
+                          "default": 5
+                        }
+                      },
+                      "required": [
+                        "query"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                ],
+                "toolChoice": {
+                  "type": "auto"
+                },
+                "prompt": [
+                  {
+                    "role": "system",
+                    "content": "<redacted-text len=54072>"
+                  },
+                  {
+                    "role": "user",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "你好，介绍一下你自己"
+                      }
+                    ]
+                  }
+                ],
+                "providerOptions": {
+                  "deepseek": {
+                    "reasoningEffort": "max"
+                  },
+                  "openaiCompatible": {
+                    "reasoningEffort": "max"
+                  },
+                  "gateway": {
+                    "caching": "auto",
+                    "sort": "ttft",
+                    "only": [
+                      "deepseek"
+                    ]
+                  }
+                },
+                "includeRawChunks": false
+              }
+            },
+            "warnings": []
+          },
+          {
+            "type": "reasoning-start",
+            "id": "reasoning-0",
+            "providerMetadata": {
+              "gateway": {
+                "generationId": "gen_01M19MB51TP0BCJYWB99FYBEWW"
+              }
+            }
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "The"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " user"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " is"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " greeting"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " me"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " in"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " Chinese"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " and"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " asking"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " me"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " to"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " introduce"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " myself"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " This"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " is"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " a"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " basic"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " greeting"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " no"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " tools"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " needed"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " I"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " should"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " respond"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " in"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " Chinese"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " since"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " they"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " wrote"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " in"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " Chinese"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " keep"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " it"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " conversational"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " and"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " brief"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "text-start",
+            "id": "txt-0"
+          },
+          {
+            "type": "reasoning-end",
+            "id": "reasoning-0"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "你好"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "！"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "我是"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " Command"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " Code"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " "
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "的"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "编码"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "助手"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "，"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "可以"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "帮你"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "：\n\n"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "-"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " **"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "探索"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "代码"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "**"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "："
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "理解"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "仓库"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "结构"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "、"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "模块"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "职责"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "、"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "架构"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "设计"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "\n"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "-"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " **"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "写"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "代码"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "**"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "："
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "实现"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "功能"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "、"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "修"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " bug"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "、"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "重构"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "、"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "写"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "测试"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "\n"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "-"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " **"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "查"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "资料"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "**"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "："
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "搜索"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "文档"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "、"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "调查"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "问题"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "\n"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "-"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " **"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "自动化"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "**"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "："
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "跑"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "构建"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "<redacted-path len=1>"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "测试"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "、"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "管理"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " Git"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "、"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "执行"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "命令行"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "操作"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "\n\n"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "当前"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "工作"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "目录"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "是"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " `"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "op"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "encode"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "-"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "command"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "code"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "-prov"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "ider"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "`"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " "
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "这个"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "仓库"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "。"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "有什么"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "想"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "做的"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "，"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "直接"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "说"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "就行"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "。"
+          },
+          {
+            "type": "text-end",
+            "id": "txt-0"
+          },
+          {
+            "type": "finish-step",
+            "finishReason": "stop",
+            "rawFinishReason": "stop",
+            "usage": {
+              "inputTokens": 20096,
+              "inputTokenDetails": {
+                "noCacheTokens": 12672,
+                "cacheReadTokens": 7424
+              },
+              "outputTokens": 142,
+              "outputTokenDetails": {
+                "textTokens": 101,
+                "reasoningTokens": 41
+              },
+              "totalTokens": 20238,
+              "raw": {
+                "prompt_tokens": 20096,
+                "completion_tokens": 142,
+                "prompt_cache_hit_tokens": 7424,
+                "prompt_cache_miss_tokens": 12672,
+                "total_tokens": 20238,
+                "prompt_tokens_details": {
+                  "cached_tokens": 7424
+                },
+                "completion_tokens_details": {
+                  "reasoning_tokens": 41
+                }
+              },
+              "reasoningTokens": 41,
+              "cachedInputTokens": 7424
+            },
+            "providerMetadata": {
+              "deepseek": {
+                "promptCacheHitTokens": 7424,
+                "promptCacheMissTokens": 12672,
+                "responseObject": "chat.completion.chunk",
+                "choiceIndex": 0,
+                "messageRole": "assistant",
+                "systemFingerprint": "a26a7955944dc5c60445bff77fac9c8e"
+              },
+              "gateway": {
+                "routing": {
+                  "originalModelId": "deepseek/deepseek-v4-flash",
+                  "resolvedProvider": "deepseek",
+                  "fallbacksAvailable": [],
+                  "planningReasoning": "<redacted-text len=190>",
+                  "canonicalSlug": "deepseek/deepseek-v4-flash",
+                  "finalProvider": "deepseek",
+                  "modelAttemptCount": 1,
+                  "modelAttempts": [
+                    {
+                      "canonicalSlug": "deepseek/deepseek-v4-flash",
+                      "success": true,
+                      "providerAttemptCount": 1,
+                      "providerAttempts": [
+                        {
+                          "provider": "deepseek",
+                          "credentialType": "system",
+                          "success": true,
+                          "startTime": 1788103464007,
+                          "endTime": 1788103465928,
+                          "providerRequestId": "72bef613b9ccf6558fe93d5f49b4613e",
+                          "statusCode": 200,
+                          "providerResponseId": "8ca3fa1b-a6e1-43aa-8eea-b42513b446a6"
+                        }
+                      ]
+                    }
+                  ],
+                  "totalProviderAttemptCount": 1,
+                  "sort": {
+                    "option": "ttft",
+                    "executionOrder": [
+                      "deepseek",
+                      "deepseek"
+                    ],
+                    "metrics": {
+                      "deepseek": 1937
+                    },
+                    "deprioritizedProviders": []
+                  }
+                },
+                "cost": "0.002933528",
+                "marketCost": "0.002933528",
+                "surchargeCost": "0",
+                "gatewayCost": "0.002933528",
+                "inferenceCost": "0.002933528",
+                "inputInferenceCost": "0.002839808",
+                "outputInferenceCost": "0.00009372",
+                "generationId": "gen_01M19MB51TP0BCJYWB99FYBEWW"
+              }
+            },
+            "response": {
+              "id": "8ca3fa1b-a6e1-43aa-8eea-b42513b446a6",
+              "timestamp": "2026-08-30T15:24:24.000Z",
+              "modelId": "deepseek-v4-flash",
+              "headers": {
+                "access-control-allow-headers": "<redacted-text len=435>",
+                "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-origin": "*",
+                "cache-control": "no-cache, no-transform",
+                "cf-cache-status": "DYNAMIC",
+                "cf-ray": "a334cd58c944ebeb-SJC",
+                "connection": "close",
+                "content-type": "text/event-stream",
+                "date": "Sun, 30 Aug 2026 15:24:24 GMT",
+                "server": "cloudflare",
+                "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+                "transfer-encoding": "chunked",
+                "x-effective-store": "false",
+                "x-generation-id": "gen_01M19MB51TP0BCJYWB99FYBEWW",
+                "x-matched-path": "<redacted-path len=21>",
+                "x-model-id": "deepseek/deepseek-v4-flash",
+                "x-vercel-cache": "MISS",
+                "x-vercel-id": "sfo1::cle1::gr5xx-1788103463816-b827315d6164"
+              }
+            }
+          },
+          {
+            "type": "finish",
+            "finishReason": "stop",
+            "rawFinishReason": "stop",
+            "totalUsage": {
+              "inputTokens": 20096,
+              "inputTokenDetails": {
+                "noCacheTokens": 12672,
+                "cacheReadTokens": 7424
+              },
+              "outputTokens": 142,
+              "outputTokenDetails": {
+                "textTokens": 101,
+                "reasoningTokens": 41
+              },
+              "totalTokens": 20238,
+              "reasoningTokens": 41,
+              "cachedInputTokens": 7424
+            }
+          },
+          {
+            "type": "provider-metadata",
+            "providerMetadata": {
+              "deepseek": {
+                "promptCacheHitTokens": 7424,
+                "promptCacheMissTokens": 12672,
+                "responseObject": "chat.completion.chunk",
+                "choiceIndex": 0,
+                "messageRole": "assistant",
+                "systemFingerprint": "a26a7955944dc5c60445bff77fac9c8e"
+              },
+              "gateway": {
+                "routing": {
+                  "originalModelId": "deepseek/deepseek-v4-flash",
+                  "resolvedProvider": "deepseek",
+                  "fallbacksAvailable": [],
+                  "planningReasoning": "<redacted-text len=190>",
+                  "canonicalSlug": "deepseek/deepseek-v4-flash",
+                  "finalProvider": "deepseek",
+                  "modelAttemptCount": 1,
+                  "modelAttempts": [
+                    {
+                      "canonicalSlug": "deepseek/deepseek-v4-flash",
+                      "success": true,
+                      "providerAttemptCount": 1,
+                      "providerAttempts": [
+                        {
+                          "provider": "deepseek",
+                          "credentialType": "system",
+                          "success": true,
+                          "startTime": 1788103464007,
+                          "endTime": 1788103465928,
+                          "providerRequestId": "72bef613b9ccf6558fe93d5f49b4613e",
+                          "statusCode": 200,
+                          "providerResponseId": "8ca3fa1b-a6e1-43aa-8eea-b42513b446a6"
+                        }
+                      ]
+                    }
+                  ],
+                  "totalProviderAttemptCount": 1,
+                  "sort": {
+                    "option": "ttft",
+                    "executionOrder": [
+                      "deepseek",
+                      "deepseek"
+                    ],
+                    "metrics": {
+                      "deepseek": 1937
+                    },
+                    "deprioritizedProviders": []
+                  }
+                },
+                "cost": "0.002933528",
+                "marketCost": "0.002933528",
+                "surchargeCost": "0",
+                "gatewayCost": "0.002933528",
+                "inferenceCost": "0.002933528",
+                "inputInferenceCost": "0.002839808",
+                "outputInferenceCost": "0.00009372",
+                "generationId": "gen_01M19MB51TP0BCJYWB99FYBEWW"
+              }
+            }
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:25:58.125837+00:00",
+      "method": "POST",
+      "url": "https://api.commandcode.ai/alpha/generate",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "bf8560f4-34d5-4906-a459-0e3bb97f4fba"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "traceparent",
+          "00-244aa07c348de4d6ff0f11d872232b8a-5c858ea809851922-01"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ],
+        [
+          "content-length",
+          "6591"
+        ]
+      ],
+      "request_body": {
+        "_format": "json",
+        "value": {
+          "config": {
+            "workingDir": "<redacted-path len=59>",
+            "date": "2026-08-30",
+            "environment": "linux",
+            "structure": [
+              "AGENTS.md",
+              "CONTEXT.md",
+              "capture",
+              "docs",
+              "prototype",
+              "skills-lock.json"
+            ],
+            "isGitRepo": true,
+            "currentBranch": "main",
+            "mainBranch": "main",
+            "gitStatus": "M .env.example\n M .gitignore\n?? capture/",
+            "recentCommits": [
+              "10546e0 词汇表与文档更新：新增协议/分发渠道词条，定稿协议核心规格与构建产物分发渠道 ADR",
+              "418ce70 伪装模块运行时设计定稿：状态、时机、降级规格（wayfinder #7）",
+              "a448c87 完成 https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/4 的 wayfinder 调查"
+            ]
+          },
+          "memory": null,
+          "taste": null,
+          "skills": null,
+          "permissionMode": "standard",
+          "threadId": "bf8560f4-34d5-4906-a459-0e3bb97f4fba",
+          "mode": "learning",
+          "params": {
+            "model": "deepseek/deepseek-v4-flash",
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "<redacted-text len=2534>"
+                  }
+                ]
+              }
+            ],
+            "tools": [
+              {
+                "name": "read_taste_file",
+                "description": "Read a taste file. Path is relative to the taste directory: \"taste.md\" or \"{category}/taste.md\".",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path"
+                  ]
+                }
+              },
+              {
+                "name": "write_taste_file",
+                "description": "Create or replace a taste file. Path MUST be \"taste.md\" or \"{category}/taste.md\".",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "content": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "content"
+                  ]
+                }
+              },
+              {
+                "name": "edit_taste_file",
+                "description": "<redacted-text len=121>",
+                "input_schema": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "old_text": {
+                      "type": "string"
+                    },
+                    "new_text": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "old_text",
+                    "new_text"
+                  ]
+                }
+              }
+            ],
+            "system": "<redacted-text len=1394>",
+            "max_tokens": 64000,
+            "stream": true
+          }
+        }
+      },
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:25:55 GMT"
+        ],
+        [
+          "Content-Type",
+          "text/event-stream"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Cache-Control",
+          "no-cache"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=797.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "x-robots-tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-system-prompt-breakdown",
+          "{\"systemPrompt\":377,\"memory\":0,\"taste\":0}"
+        ],
+        [
+          "x-trace-id",
+          "330bb0a5a28e1620d733f08d3a225e9f"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=osWVNvd5N8yEKTBcc8x%2FeWgH72LEjhzVkfZh1bX9XuXzNBzS%2FxDSIAGhWz0sPfYEBe4zb7eeDwaBFlP7fdkrhGluu2%2BCeFGnxwEXEj4g%2FabrftVd7HCe3m3rd4VmYkk1v2r7tnU%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cf91aceffa3a-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "ndjson",
+        "lines": [
+          {
+            "type": "start"
+          },
+          {
+            "type": "start-step",
+            "request": {
+              "body": {
+                "maxOutputTokens": 64000,
+                "tools": [
+                  {
+                    "type": "function",
+                    "name": "read_taste_file",
+                    "description": "Read a taste file. Path is relative to the taste directory: \"taste.md\" or \"{category}/taste.md\".",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "path"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "write_taste_file",
+                    "description": "Create or replace a taste file. Path MUST be \"taste.md\" or \"{category}/taste.md\".",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string"
+                        },
+                        "content": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "content"
+                      ]
+                    }
+                  },
+                  {
+                    "type": "function",
+                    "name": "edit_taste_file",
+                    "description": "<redacted-text len=121>",
+                    "inputSchema": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string"
+                        },
+                        "old_text": {
+                          "type": "string"
+                        },
+                        "new_text": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "path",
+                        "old_text",
+                        "new_text"
+                      ]
+                    }
+                  }
+                ],
+                "toolChoice": {
+                  "type": "auto"
+                },
+                "prompt": [
+                  {
+                    "role": "system",
+                    "content": "<redacted-text len=1394>"
+                  },
+                  {
+                    "role": "user",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "<redacted-text len=2534>"
+                      }
+                    ]
+                  }
+                ],
+                "providerOptions": {
+                  "gateway": {
+                    "caching": "auto",
+                    "sort": "ttft",
+                    "only": [
+                      "deepseek"
+                    ]
+                  }
+                },
+                "includeRawChunks": false
+              }
+            },
+            "warnings": []
+          },
+          {
+            "type": "reasoning-start",
+            "id": "reasoning-0",
+            "providerMetadata": {
+              "gateway": {
+                "generationId": "gen_01M19MDYNZ0F7CDXZ3D10KAS2J"
+              }
+            }
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "Let"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " me"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " analyze"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " the"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " new"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " messages"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " The"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " user"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " asked"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " \""
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "这个"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "项目"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "是"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "干啥"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "的"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "？"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "\""
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " ("
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "What"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " is"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " this"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " project"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " about"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "?)"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " and"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " the"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " assistant"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " explored"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " the"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " repository"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " and"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " gave"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " a"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " summary"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " in"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " Chinese"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ".\n\n"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "The"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " assistant"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "'s"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " response"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " includes"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " a"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " summary"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " in"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " Chinese"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " There"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "'s"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " nothing"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " here"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " that"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " reveals"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " explicit"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " user"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " preferences"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " —"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " no"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " coding"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " style"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " tool"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "ing"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " workflow"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " or"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " communication"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " preferences"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " stated"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " by"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " the"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " user"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " The"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " user"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " just"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " asked"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " one"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " question"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " about"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " what"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " the"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " project"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " is"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ".\n\n"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "Wait"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " —"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " the"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " assistant"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "'s"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " summary"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " mentions"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " \""
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "t"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "aste"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "\""
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " as"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " part"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " of"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " the"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " CLI"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " envelope"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " `"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "{"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "config"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " memory"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " taste"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " skills"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " permission"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "Mode"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " params"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "}`"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " That"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "'s"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " about"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " the"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " project"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "'s"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " content"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ","
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " not"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " user"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " preferences"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": ".\n\n"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "There"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "'s"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " nothing"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " durable"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " to"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " learn"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " here"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " The"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " user"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " asked"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " a"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " single"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " clarifying"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " question"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " No"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " preferences"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " revealed"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "."
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " I"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " should"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " make"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " no"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " tool"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " calls"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " and"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " reply"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " \""
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "no"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": " changes"
+          },
+          {
+            "type": "reasoning-delta",
+            "id": "reasoning-0",
+            "text": "\"."
+          },
+          {
+            "type": "text-start",
+            "id": "txt-0"
+          },
+          {
+            "type": "reasoning-end",
+            "id": "reasoning-0"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": "no"
+          },
+          {
+            "type": "text-delta",
+            "id": "txt-0",
+            "text": " changes"
+          },
+          {
+            "type": "text-end",
+            "id": "txt-0"
+          },
+          {
+            "type": "finish-step",
+            "finishReason": "stop",
+            "rawFinishReason": "stop",
+            "usage": {
+              "inputTokens": 1757,
+              "inputTokenDetails": {
+                "noCacheTokens": 861,
+                "cacheReadTokens": 896
+              },
+              "outputTokens": 167,
+              "outputTokenDetails": {
+                "textTokens": 3,
+                "reasoningTokens": 164
+              },
+              "totalTokens": 1924,
+              "raw": {
+                "prompt_tokens": 1757,
+                "completion_tokens": 167,
+                "prompt_cache_hit_tokens": 896,
+                "prompt_cache_miss_tokens": 861,
+                "total_tokens": 1924,
+                "prompt_tokens_details": {
+                  "cached_tokens": 896
+                },
+                "completion_tokens_details": {
+                  "reasoning_tokens": 164
+                }
+              },
+              "reasoningTokens": 164,
+              "cachedInputTokens": 896
+            },
+            "providerMetadata": {
+              "deepseek": {
+                "promptCacheHitTokens": 896,
+                "promptCacheMissTokens": 861,
+                "responseObject": "chat.completion.chunk",
+                "choiceIndex": 0,
+                "messageRole": "assistant",
+                "systemFingerprint": "a26a7955944dc5c60445bff77fac9c8e"
+              },
+              "gateway": {
+                "routing": {
+                  "originalModelId": "deepseek/deepseek-v4-flash",
+                  "resolvedProvider": "deepseek",
+                  "fallbacksAvailable": [],
+                  "planningReasoning": "<redacted-text len=190>",
+                  "canonicalSlug": "deepseek/deepseek-v4-flash",
+                  "finalProvider": "deepseek",
+                  "modelAttemptCount": 1,
+                  "modelAttempts": [
+                    {
+                      "canonicalSlug": "deepseek/deepseek-v4-flash",
+                      "success": true,
+                      "providerAttemptCount": 1,
+                      "providerAttempts": [
+                        {
+                          "provider": "deepseek",
+                          "credentialType": "system",
+                          "success": true,
+                          "startTime": 1788103555799,
+                          "endTime": 1788103557722,
+                          "providerRequestId": "0ad82388ae254981117062f2cc111ae8",
+                          "statusCode": 200,
+                          "providerResponseId": "acb511ce-bf9b-4a5f-95bd-e1602a733534"
+                        }
+                      ]
+                    }
+                  ],
+                  "totalProviderAttemptCount": 1,
+                  "sort": {
+                    "option": "ttft",
+                    "executionOrder": [
+                      "deepseek",
+                      "deepseek"
+                    ],
+                    "metrics": {
+                      "deepseek": 1790
+                    },
+                    "deprioritizedProviders": []
+                  }
+                },
+                "cost": "0.000305912",
+                "marketCost": "0.000305912",
+                "surchargeCost": "0",
+                "gatewayCost": "0.000305912",
+                "inferenceCost": "0.000305912",
+                "inputInferenceCost": "0.000195692",
+                "outputInferenceCost": "0.00011022",
+                "generationId": "gen_01M19MDYNZ0F7CDXZ3D10KAS2J"
+              }
+            },
+            "response": {
+              "id": "acb511ce-bf9b-4a5f-95bd-e1602a733534",
+              "timestamp": "2026-08-30T15:25:55.000Z",
+              "modelId": "deepseek-v4-flash",
+              "headers": {
+                "access-control-allow-headers": "<redacted-text len=435>",
+                "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+                "access-control-allow-origin": "*",
+                "cache-control": "no-cache, no-transform",
+                "cf-cache-status": "DYNAMIC",
+                "cf-ray": "a334cf96e922fa3a-SJC",
+                "connection": "close",
+                "content-type": "text/event-stream",
+                "date": "Sun, 30 Aug 2026 15:25:56 GMT",
+                "server": "cloudflare",
+                "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+                "transfer-encoding": "chunked",
+                "x-effective-store": "false",
+                "x-generation-id": "gen_01M19MDYNZ0F7CDXZ3D10KAS2J",
+                "x-matched-path": "<redacted-path len=21>",
+                "x-model-id": "deepseek/deepseek-v4-flash",
+                "x-vercel-cache": "MISS",
+                "x-vercel-id": "sfo1::cle1::dlb8r-1788103555670-a0e0a47331ba"
+              }
+            }
+          },
+          {
+            "type": "finish",
+            "finishReason": "stop",
+            "rawFinishReason": "stop",
+            "totalUsage": {
+              "inputTokens": 1757,
+              "inputTokenDetails": {
+                "noCacheTokens": 861,
+                "cacheReadTokens": 896
+              },
+              "outputTokens": 167,
+              "outputTokenDetails": {
+                "textTokens": 3,
+                "reasoningTokens": 164
+              },
+              "totalTokens": 1924,
+              "reasoningTokens": 164,
+              "cachedInputTokens": 896
+            }
+          },
+          {
+            "type": "provider-metadata",
+            "providerMetadata": {
+              "deepseek": {
+                "promptCacheHitTokens": 896,
+                "promptCacheMissTokens": 861,
+                "responseObject": "chat.completion.chunk",
+                "choiceIndex": 0,
+                "messageRole": "assistant",
+                "systemFingerprint": "a26a7955944dc5c60445bff77fac9c8e"
+              },
+              "gateway": {
+                "routing": {
+                  "originalModelId": "deepseek/deepseek-v4-flash",
+                  "resolvedProvider": "deepseek",
+                  "fallbacksAvailable": [],
+                  "planningReasoning": "<redacted-text len=190>",
+                  "canonicalSlug": "deepseek/deepseek-v4-flash",
+                  "finalProvider": "deepseek",
+                  "modelAttemptCount": 1,
+                  "modelAttempts": [
+                    {
+                      "canonicalSlug": "deepseek/deepseek-v4-flash",
+                      "success": true,
+                      "providerAttemptCount": 1,
+                      "providerAttempts": [
+                        {
+                          "provider": "deepseek",
+                          "credentialType": "system",
+                          "success": true,
+                          "startTime": 1788103555799,
+                          "endTime": 1788103557722,
+                          "providerRequestId": "0ad82388ae254981117062f2cc111ae8",
+                          "statusCode": 200,
+                          "providerResponseId": "acb511ce-bf9b-4a5f-95bd-e1602a733534"
+                        }
+                      ]
+                    }
+                  ],
+                  "totalProviderAttemptCount": 1,
+                  "sort": {
+                    "option": "ttft",
+                    "executionOrder": [
+                      "deepseek",
+                      "deepseek"
+                    ],
+                    "metrics": {
+                      "deepseek": 1790
+                    },
+                    "deprioritizedProviders": []
+                  }
+                },
+                "cost": "0.000305912",
+                "marketCost": "0.000305912",
+                "surchargeCost": "0",
+                "gatewayCost": "0.000305912",
+                "inferenceCost": "0.000305912",
+                "inputInferenceCost": "0.000195692",
+                "outputInferenceCost": "0.00011022",
+                "generationId": "gen_01M19MDYNZ0F7CDXZ3D10KAS2J"
+              }
+            }
+          }
+        ]
+      },
+      "error": null
+    }
+  ]
+}

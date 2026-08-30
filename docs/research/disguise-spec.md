@@ -4,6 +4,8 @@
 > 目的：把 MAXeaglet/commandcode-proxy 的伪装机制提炼成算法级规格，作为本插件伪装模块的设计输入。
 >
 > **引用约定**：本文所有行号均指 `proxy.mjs`（1940 行）在 commit **`bb5120e343f289b0db86a03f029e91ac556b1d28`**（2026-08-13，master HEAD）下的行号，下文简记为 `bb5120e`。README_zh.md 引用同样基于该 commit。
+>
+> **⚠️ 2026-08-30 更新**：真实 CLI 流量抓包已完成（工单 #9），本文的代码推导结论凡与事实冲突处，以 **§11 抓包校准** 为准——§1–§10 保留为逆向过程记录，不再作为实现的直接依据。
 
 ## 0. 素材可得性声明（重要）
 
@@ -337,3 +339,109 @@ jiesou 与 brent-weatherall 两个项目均 pin `0.26.20` 也能长期工作（j
 - 克隆：`git clone --depth 1 https://github.com/MAXeaglet/commandcode-proxy /tmp/opencode/commandcode-proxy`，后 `git fetch --unshallow` 展开全史取证。
 - `captured-requests/` 缺失的验证：`git log --all -- captured-requests/` 为空；全历史 `git ls-tree -r | grep -i captur` 为空；`test` 分支（`117a5b6`）与 GitHub Releases 无；`.gitignore` L9、README L43 为孤证。
 - slug/NaN 边界与 thumbmark 可复算性：以 bb5120e 函数体原样抽出，Node 22 下独立执行验证（输出见正文 §4）。
+
+---
+
+## 11. 抓包校准（2026-08-30，工单 #9）
+
+> 采集方式：mitmproxy 12.2.3（`--mode upstream` 串联本机 Clash），采集官方 CLI（npm `command-code` **1.38.2**，Node 24 运行）对 `api.commandcode.ai` 的真实流量。观察窗口约 3 分钟，覆盖 **3 次 CLI 进程启动**（两次 `-p` 一次性调用 + 一次交互 TUI），共 50 条请求（generate 20 / fingerprint 3 / lifecycle 3 / whoami 9 / billing 15）。
+> 脱敏样本：`capture/samples/`（指纹/ID/traceparent/slug 为同形状伪值，凭据/路径/长文本为占位符；形状类断言可靠，伪值本身不可作取值依据）。
+> 采集环境：Ubuntu 24.04（真实 Linux 机器），恰好让「指纹是否伪装 Windows」一问直接见分晓。
+
+### 11.1 证实清单（MAXeaglet 猜对的）
+
+| 项 | 事实 |
+|---|---|
+| 指纹 body 结构 | `{thumbmark, components}`，components **15 字段同名同型**（§1.4 全中）；thumbmark 64 位小写 hex |
+| lifecycle | `eventType: "cli_session_exists"` 唯一事件；metadata 四字段 `sessionId/cliVersion/mode/os` 全中；`mode` 恒 `"interactive"`（连 `-p` 一次性调用也报 interactive）；`os = platform-arch` 拼接 |
+| lifecycle sessionId 形状 | `sess_` + 16 位小写 hex ✓ |
+| x-session-id | uuid v4 ✓；lifecycle 的 sess id 与 x-session-id **确实互不引用**（两套 ID 并存被证实，§9.Q3 有答案了） |
+| traceparent | `00-<32hex>-<16hex>-01`，逐请求全新 ✓ |
+| 预请求头 | 指纹/lifecycle 不带 `x-session-id`/`x-project-slug`/`traceparent` ✓ |
+| x-cli-environment | 恒 `"production"` ✓ |
+| x-command-code-version | 动态真实版本（现为 1.38.2，MAXeaglet 的 0.32.3 与 jiesou/brent 的 0.26.20 均为历史值）✓ |
+| Authorization | `Bearer user_…`（实测 key 长 93）✓ |
+| 指纹进程内稳定 | 3 次进程启动的指纹 body 字节级相同（真实机器数据天然确定）✓ |
+| threadId 死代码 | MAXeaglet 的死代码 `threadId` 其实是**真协议字段**：generate body 顶层 `threadId` = `x-session-id` 同值 |
+
+### 11.2 推翻清单（MAXeaglet 猜错的）
+
+| 项 | MAXeaglet 行为 | 真实 CLI（ground truth） |
+|---|---|---|
+| **指纹人格** | 随机池伪造 win32-x64（假 CPU/内存/时区） | **如实上报真实机器**：`platform:"linux"`、`osRelease:"6.8.0-138-generic"`（内核版）、真实 `cpuModel`、真实 `cpuCount`/`memGiB`、真实 `timezone` |
+| **macHashes 数量** | 随机 2–5 个 | **29 个**（真实机器的网卡数量级；Docker/多网卡主机远超 5） |
+| **x-co-flag** | generate 携带 `"false"` | **不存在此头**（纯发明或来自远古版本） |
+| **x-taste-learning** | generate 携带 `"false"` | 携带 `"true"` |
+| **User-Agent** | 未发送 | 恒 `"cli"`（就一个词） |
+| **slug 算法** | `users-dev-projects-<name>-<4hex>`（由 sessionId 派生） | 形状完全不同：`h027-4l7g-j7db-kc5n38q-b5bm9-knhp5vrx-0rlmiveyd7y-kqf2anwv`——小写字母数字短横分组（8 组、组长 4–11），**跨全部会话恒定** ⇒ 由真实 workingDir 派生，与 sessionId 无关 |
+| **预请求节奏** | per-key 首请求 + 8–10h 惰性重发 | **每进程启动发一次**（3 进程 = 3 组 lifecycle+指纹，均在首次 generate 前 0.3–2.5s）；8–10h 重发在观察窗口内无法证实也无法证伪 |
+| **预请求头** | 仅 4 个头 | 另带 `User-Agent: cli` 与 `accept: */*`、`accept-language: *`、`sec-fetch-mode: cors`、`accept-encoding: br, gzip, deflate` |
+| **generate 头** | 无 UA、无 accept 家族 | 头全集与顺序见 §11.3；`content-type` 值为 `"application/json, application/json"`（undici 重复设置的合并产物） |
+| **config.environment** | `` `${platform}-${arch}, Node.js ${version}` `` | 恒 `"linux"`（就一个 platform 词，无 arch、无 Node 版本） |
+| **config.workingDir** | 上报真实 cwd（被 §9.2 视为矛盾点） | 真实 cwd——与指纹的「如实上报」哲学一致，无所谓矛盾 |
+| **generate body 信封** | MAXeaglet 自造 | 真实为 `config/memory/taste/skills/permissionMode/threadId/params` 七键（§11.4）；`threadId` = x-session-id 同值 |
+
+### 11.3 真实请求形状（实现照此对齐）
+
+**generate 请求头（原始顺序）**：
+
+```
+host: api.commandcode.ai
+connection: keep-alive
+content-type: application/json, application/json
+User-Agent: cli
+x-command-code-version: 1.38.2
+x-cli-environment: production
+x-project-slug: <workingDir 派生，跨会话恒定>
+x-taste-learning: true
+x-session-id: <uuid v4，随会话/任务轮换>
+Authorization: Bearer user_…
+traceparent: 00-<32hex>-<16hex>-01      ← 每请求新造
+accept: */*
+accept-language: *
+sec-fetch-mode: cors
+accept-encoding: br, gzip, deflate
+content-length: <动态>
+```
+
+**generate body 顶层信封**（7 键）：`config`、`memory: null`、`taste: null`、`skills: null`、`permissionMode: "standard"`、`threadId`（= x-session-id）、`params`。
+
+- `config`：`workingDir`（真实路径）、`date`（当日）、`environment: "linux"`、`structure`（目录结构列表）、`isGitRepo`、`currentBranch`、`mainBranch`、`gitStatus`（原生 git status 输出）、`recentCommits`（最近 3 条）。
+- `params`：`model`、`messages`（Anthropic 式 content blocks）、`tools`（Anthropic 工具格式：name/description/input_schema）、`system`（单串，实测 43689 字符）、`max_tokens: 64000`、`stream: true`、`reasoning_effort: "max"`。
+
+**指纹请求**（每进程一次，body 3 次字节级相同；响应 `{"success": true}`）：
+
+```
+头：connection, content-type: application/json, Authorization, x-cli-environment,
+    x-command-code-version, User-Agent: cli, accept 家族, content-length（无 session/slug/traceparent/taste）
+body：{thumbmark: <64hex>, components: {machineIdHash, macHashes[29], osUserHash, hostnameHash,
+      gitEmailHash, platform: "linux", arch: "x64", osRelease: <内核版>, cpuModel: <真实>,
+      cpuCount: <真实逻辑核数>, memGiB: <真实>, isContainer: false, timezone: <真实 IANA>,
+      runtime: "cli", collectorVersion: 1}}
+```
+
+**lifecycle 请求**（每进程一次、先于指纹 ≤0.8s；响应 `{"tracked": true}`）：
+
+```json
+{"eventType": "cli_session_exists",
+ "metadata": {"sessionId": "sess_<16hex 随机>", "cliVersion": "1.38.2", "mode": "interactive", "os": "linux-x64"}}
+```
+
+**进程启动时序**（3 次进程一致）：`whoami ×2 → billing/subscriptions → fingerprint → credits → 首个 generate`，全程约 2.5s。会话中途还有零散的 whoami/subscriptions/credits 轮询（credits 明显跟着用量走）。
+
+**billing 类请求头**：subscriptions/credits 带 generate 同款头（含 x-project-slug / x-taste-learning / x-session-id，**无 traceparent**）；whoami 不带 session/slug/taste。
+
+**新增端点（MAXeaglet 完全未涉及）**：
+
+- `GET /alpha/whoami` → `{success, user: {id: <uuid>, name, email, userName}, org: null}`
+- `GET /alpha/billing/subscriptions` → `{success, data: {status, planId: "individual-go", currentPeriodEnd, …}}`——**Go plan 判定的权威来源**（模型管线 #4 的 Go 过滤可改用此值）
+- `GET /alpha/billing/credits` → `{credits: {monthlyCredits, purchasedCredits, freeCredits, …}, windowLimits: {fiveHour: {used, cap: 3}, weekly: {used, cap: 6}}}`
+
+**generate 响应**：`Content-Type: text/event-stream`（mitmproxy 侧重组为逐行 JSON，事件流为 AI SDK 风格）：`start → start-step → reasoning-start → reasoning-delta×N → reasoning-end → text-start → text-delta×N → text-end → finish-step → finish`，另有 `provider-metadata`；响应头固定带 `x-system-prompt-breakdown`（`{"systemPrompt":11903,…}`）与 `x-trace-id`（32hex，服务端生成）。
+
+### 11.4 未决（本窗口无法裁决）
+
+- **slug 的确切算法**：只知形状（8 组小写字母数字短横分组、组长 4–11、跨会话恒定、随 workingDir 变）。逐段哈希链是最像的假说，插件实现取形状一致的近似即可。
+- **8–10h 重发节奏**：3 分钟窗口既不能证实也不能证伪。插件的长驻重报策略保留 8–10h 惰性补发（无反证，且有兜底价值）。
+- **credits 轮询的精确触发条件**：观察上跟用量相关，未逐条对齐。
+- **会话 id 的轮换粒度**：观察到 20 次 generate 用了 4 个 session id（-p 进程各 1 个，TUI 内换了 1 次）——粒度是「每会话/每任务」级，与「一段 OpenCode 会话 = 一个 session id」的绑定设计（spec §3）不冲突。

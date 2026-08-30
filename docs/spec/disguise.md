@@ -3,25 +3,25 @@
 > 状态：定稿（2026-08-30）。决策票：[WallBreakerNO4/opencode-commandcode-provider#7](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/7)。
 > 事实输入：`docs/research/disguise-spec.md`（MAXeaglet/commandcode-proxy 逆向提炼，下称「调研」）。
 > 范围：伪装模块的运行时行为契约——状态管理、预请求时机、会话与 lifecycle 语义、失败降级、版本头策略、日志脱敏、伪装人格。指纹 / slug / traceparent 的**算法本身**以调研 §1–§7 为准，本文只约束「怎么跑」，不重复「怎么算」。
-> 校准预留：抓包校准票（#9）产出 ground truth 后，凡与本文冲突的**事实条款**（body 形状、slug 前缀、ID 真实关系等）以抓包为准并修订本文；本文标注「照抄」的条目均为对 MAXeaglet 行为的同构复刻。
+> 校准状态：抓包校准已完成（2026-08-30，工单 #9）。事实输入升级为「逆向提炼 + 抓包 ground truth」双层，凡两者冲突处以调研文档 **§11 抓包校准** 为准；本文受影响条款已就地修订，修订点标注「（#9 校准）」。
 
 ## 0. 决策总览
 
 | # | 决策点 | 结论 |
 |---|---|---|
 | D1 | 状态存储 | 内存态为主；唯一落盘物 = CC 版本缓存；指纹进程内稳定（重启才换） |
-| D2 | 预请求时机 | 首请求前阻塞等待，每个预请求独立 3s 超时；超时/失败照常放行主请求 |
+| D2 | 预请求时机 | 插件进程启动时发一次（对齐真实 CLI 语义，#9 校准）；每个预请求独立 3s 超时；超时/失败照常放行主请求 |
 | D3 | 会话身份 | 绑定 OpenCode 会话（1 会话 = 1 sessionId）；不可见时回退 per-key uuid 12–13h 轮换 |
-| D4 | lifecycle | 铸造新会话时发一次；metadata.sessionId 与 x-session-id 同源派生 |
+| D4 | lifecycle | 每进程启动发一次（真实语义，#9 校准）；metadata.sessionId 为与 x-session-id 无关的随机 `sess_<16hex>`（#9 校准：真实 CLI 就是两套 ID） |
 | D5 | 失败降级 | 主请求永不因预请求受阻；网络错误/5xx 短退避重试，4xx 长冷却 |
 | D6 | 版本头 | 全局单值；首请求前 1.5s 竞速；24h 惰性刷新；落盘值 → 包内快照双兜底 |
 | D7 | 日志脱敏 | key 只以短哈希出现；伪标识符截断；Authorization 永不整串输出 |
-| D8 | 伪装人格 | 单一 win32-x64 人格逐字照抄；environment 字段修为与人格一致 |
+| D8 | 伪装人格 | **如实上报真实机器**：指纹各字段取真机真值，`config.environment` 报真实 platform（#9 校准：真实 CLI 不伪装 Windows，MAXeaglet 的 win32 假人格纯属它的发明） |
 
 ## 1. 状态模型（D1）
 
 - **per-key 内存态**（`Map<apiKey, KeyState>`，key 为原文、绝不落盘、绝不进日志）：
-  - `fingerprint`：指纹对象，首见该 key 时生成一次；
+  - `fingerprint`：指纹对象，进程启动时采集一次（#9 校准：内容为真机真值）；
   - `session`：`sessionId` + 过期时刻（仅回退路径需要过期语义，见 §3）；
   - 预请求调度：`nextInitAt`、`failCount`（见 §5）。
 - **全局内存态**：`ccVersion` 当前值（见 §6）。
@@ -31,25 +31,26 @@
 
 ## 2. 预请求时机（D2）
 
-- 结构照抄 MAXeaglet：per-key 首次主请求前，指纹记录与 lifecycle 两个预请求**并行**发出（同一 `Promise.all`）；此后按重报节奏惰性补发（每次主请求前比对 `nextInitAt`，不挂定时器）。
+- 结构照抄 MAXeaglet：指纹记录与 lifecycle 两个预请求**并行**发出（同一 `Promise.all`）。**触发时机（#9 校准）**：真实 CLI 是**每进程启动发一次**（3 次进程启动 = 3 组预请求，均在首个 generate 前 0.3–2.5s 完成），并非 per-key 8–10h 节奏——插件对齐为**插件进程启动时发一次**；长驻进程的 8–10h 惰性补发保留为保守策略（观察窗口无法证伪，见调研 §11.4）。
 - **修一处真 bug**：每个预请求挂**独立 3s 超时**（`AbortSignal.timeout(3000)`）。MAXeaglet 预请求无独立超时，网关挂起时主请求被拖着白等 5 分钟（调研 §8.2）。
 - 超时/失败的主请求**照常放行**（降级语义见 §5）；预请求在后台继续跑完，仅更新状态与日志，不影响本次响应。
-- 预请求头照抄：`Content-Type`、`x-cli-environment: production`、`Authorization: Bearer <key>`、`x-command-code-version`；不带 `x-session-id` / `x-project-slug` / `traceparent`（调研 §1.4/§2）。
+- 预请求头（#9 校准后照抄真实 CLI）：`content-type: application/json`、`User-Agent: cli`、`x-cli-environment: production`、`Authorization: Bearer <key>`、`x-command-code-version`、`accept: */*`、`accept-language: *`、`sec-fetch-mode: cors`、`accept-encoding: br, gzip, deflate`；不带 `x-session-id` / `x-project-slug` / `traceparent` / `x-taste-learning`。
 
 ## 3. 会话身份与 project-slug（D3）
 
 - **身份规则（老板拍板）**：一段 OpenCode 会话 = 一个 `x-session-id`；不同会话不共享。动机：会话标识稳定利于服务端会话关联（老板提出亦有利于缓存命中、减少开销），且贴合真实 CLI「一个会话一个 session」的语义。
-- **主路径（绑定）**：调用参数中可见 OpenCode 会话标识时，`x-session-id` 由其**确定性派生**（sha256 → 32 hex → 修补 uuid v4 的版本/变体位），无需任何存储即保证「同会话同 id、跨重启同 id」；`x-project-slug` 照抄调研 §4 算法从该 id 派生，同会话 slug 随之稳定。
+- **主路径（绑定）**：调用参数中可见 OpenCode 会话标识时，`x-session-id` 由其**确定性派生**（sha256 → 32 hex → 修补 uuid v4 的版本/变体位），无需任何存储即保证「同会话同 id、跨重启同 id」。
+- **slug（#9 校准后改写）**：真实 CLI 的 `x-project-slug` 由真实 workingDir 派生、跨会话恒定（实测 20 次 generate 跨 4 个 session id 而 slug 不变），形状为「小写字母数字短横分组 ×8 组、组长 4–11」（样本见 `capture/samples/generate.json`），与 MAXeaglet 的 `users-dev-projects-*` 算法毫无相似。确切算法未知（逐段哈希链为最像假说，调研 §11.4），插件实现取**形状一致的 workingDir 哈希近似**，不再从 sessionId 派生。
 - **回退路径**：看不到会话标识时，照抄 MAXeaglet——per-key 随机 uuid v4，12h + 0~1h 抖动惰性轮换（此路径无法区分会话边界，属尽力而为）。
 - **可见性验证**：v1/v2 调用参数里到底能不能拿到 OpenCode 会话 id，由实测票 #11/#12 验证并回填本文主路径的取值位置。
-- slug 派生修 NaN 边界（调研 §9.2）：id 前 4 字符非 hex 时回退哈希派生，绝不产出含 `undefined` 的 slug。
+- slug 旧算法（MAXeaglet `users-dev-projects-*`）整体弃用（#9 校准），其 NaN 边界问题随之消失。
 - MAXeaglet 的入站头透传（`x-session-id` / `x-claude-code-session-id`）**不适用**：插件形态没有入站 HTTP 头，其位置由上述绑定主路径取代。
 
 ## 4. lifecycle 事件（D4）
 
-- **节奏**：铸造新会话时发一次——绑定路径 = 每个会话在本进程内首次请求前；回退路径 = 首次用前 + 每次 12–13h 轮换时。与指纹的 8–10h 重发**解绑**（MAXeaglet 把两者捆在一拍，而本事件字面语义是「这个会话存在」，理应跟着会话走）。
-- **身份同源**：`metadata.sessionId` = `"sess_" + x-session-id 去连字符后前 16 位 hex`——保持 MAXeaglet 的 wire 格式，但与主请求头讲同一个故事，消灭「嘴上说会话 A 存在、手上签会话 B」的两套 ID 破绽（调研 §2 疑点）。#9 若抓到两套 ID 的真实关系与本派生不符，以抓包为准。
-- 其余照抄：`eventType: "cli_session_exists"`；`cliVersion` = 当前 ccVersion；`mode: "interactive"`；`os: "win32-x64"`（取自伪装人格，MAXeaglet 从指纹 platform-arch 拼接，同值）；请求头同预请求（§2）。
+- **节奏（#9 校准）**：真实 CLI 每进程启动发一次（先 whoami/billing，lifecycle 先于指纹 ≤0.8s，均早于首个 generate）——插件对齐为插件进程启动时发一次；不再绑定会话铸造（原设计弃用）。长驻进程的 8–10h 补发保留为保守策略（§5）。
+- **身份（#9 校准，推翻原同源派生）**：`metadata.sessionId` 为**与 x-session-id 无关的随机 `sess_<16hex>`**——抓包证实真实 CLI 就是两套互不引用的 ID（`x-session-id` uuid v4 随会话轮换，lifecycle sess id 每进程现造）。「嘴上说会话 A、手上签会话 B」的原判断错误，如实照抄。
+- 其余照抄：`eventType: "cli_session_exists"`（实测唯一事件类型）；`cliVersion` = 当前 ccVersion；`mode: "interactive"` 恒定（连 `-p` 一次性调用也报 interactive）；`os` = 真实 `platform-arch`（#9 校准：报真值，不再取伪装人格）；请求头同预请求（§2）；响应为 `{"tracked": true}`。
 
 ## 5. 失败降级（D5）
 
@@ -59,7 +60,7 @@
 
 | 结局 | 判定 | 动作 |
 |---|---|---|
-| 成功 | 两个都 2xx | `nextInitAt = now + 8h + rand*2h`（照抄节奏），`failCount = 0` |
+| 成功 | 两个都 2xx | `nextInitAt = now + 8h + rand*2h`（长驻补发节奏；真实 CLI 的重发间隔未获 ground truth，保守保留），`failCount = 0` |
 | 瞬时失败 | 网络错误 / 超时 / 5xx（任一） | 不推进 8–10h；`nextAttemptAt = now + min(60s × 2^failCount, 15min)`，`failCount++`；下次主请求前到点即重试 |
 | 拒绝 | 4xx（含 401/403，任一） | `nextAttemptAt = now + 8h + rand*2h` 长冷却；服务器明确说「不」之后继续敲门更像机器人，且 403 可能意味着 key 已被盯上，安静是上策 |
 
@@ -90,15 +91,16 @@
 
 通道：**注入式 logger**——伪装模块不直接依赖 opencode 客户端；v2 glue 注入 `client.app.log`，v1 与独立调用退化 console，测试注 no-op。
 
-## 8. 伪装人格（D8）
+## 8. 伪装人格（D8，#9 校准后整体改写）
 
-- **单一 win32-x64 人格逐字照抄**：CPU/内存/时区随机池、`platform: "win32"`、`arch: "x64"`、`osRelease: "10.0.22631"` 硬编码、thumbmark 拼接序与「五字段不入哈希」结构、`isContainer/runtime/collectorVersion` 常量——与被逆向对象字节级同构是当下唯一有依据的安全姿态；多平台池属无 ground truth 的纯发明，不做。
-- **修一处自相矛盾**（照抄反而是把破绽抄进来）：请求体 `config.environment` 的 platform-arch 部分报人格值 `win32-x64`（MAXeaglet 报进程真实平台，Linux 部署即自曝，调研 §7）；Node 版本部分报真实运行时版本——真实 CLI 的版本分布未知，不发明。
-- 时区照抄池随机，不读用户真实时区。
+- **如实上报真实机器**：抓包证实真实 CLI 的指纹就是真机真值——`platform`/`arch` 取真实平台、`osRelease` 报内核版本（如 `6.8.0-138-generic`）、`cpuModel`/`cpuCount`/`memGiB` 报真实硬件（cpuCount 为逻辑核数，实测 8 核 16 线程报 16）、`timezone` 报真实 IANA 时区、`macHashes` 按真实网卡数量生成（实测多网卡主机 29 个）。MAXeaglet 的 win32 随机池假人格纯属其发明，**弃用**。
+- **指纹生成 = 采集**：进程启动时读真实平台/硬件/时区/网卡，按调研 §1.2 的哈希算法计算各字段哈希与 thumbmark（拼接序与「五字段不入哈希」结构保留——服务端无从校验原像，结构同构无成本）。真机真值天然确定，指纹跨进程稳定随之免费获得。
+- **`config.environment`**：报真实 `platform` 单词（实测恒 `"linux"`），无 arch、无 Node 版本——MAXeaglet 的 `${platform}-${arch}, Node.js ${version}` 拼接格式弃用。原「报人格值修自相矛盾」条款随之作废：如实上报天然自洽。
+- 时区读真实时区，不做随机池。
 
 ## 9. 照抄 / 修写 / 不适用 对照表
 
-**照抄（逐字）**：指纹随机池与生成算法；thumbmark 联合哈希；slug 派生算法（NaN 修补除外）；traceparent 生成；请求头集合与取值（`x-cli-environment` / `x-co-flag` / `x-taste-learning`）；指纹重报节奏 8–10h；回退路径会话寿命 12–13h；lifecycle 事件类型与 metadata 形状；per-key KeyState 结构；重启即重造重报。
+**照抄（逐字，#9 校准后以调研 §11 为准）**：thumbmark/components 的 15 字段结构与哈希算法（输入换真机真值）；traceparent 生成（`00-<32hex>-<16hex>-01` 逐请求新造，实测吻合）；请求头集合与取值（`x-cli-environment: production`、`x-taste-learning: true`、`User-Agent: cli`、accept 家族，全集见调研 §11.3）；两套 session id 并存（`x-session-id` uuid v4 + lifecycle `sess_<16hex>` 无关随机）；lifecycle 事件类型与 metadata 形状；回退路径会话寿命 12–13h；per-key KeyState 结构。
 
 **修写（相对 MAXeaglet）**：
 
@@ -107,13 +109,18 @@
 | 预请求无超时 | 独立 3s | 网关挂起拖死主请求 5 分钟（调研 §8.2） |
 | 失败无条件 8–10h 冷却 | 差异化退避/冷却 | 死代码注释掩盖的实际行为；一次抖动 = 裸奔一天 |
 | 清理连带删指纹 | 指纹进程内稳定 | 每 12–13h 换机是作者本意外的副作用 |
-| lifecycle 捆绑 8–10h 节奏 + 现造 sess id | 绑会话 + 同源派生 | 两套互不引用的 ID 是画像破绽 |
-| environment 报真实平台 | 报人格值 | Linux 部署自曝 win32 谎言 |
-| slug NaN 边界 | hex 校验回退 | 透传 id 可产出 `undefined` slug |
+| win32 随机池假人格 | 如实上报真机真值 | #9 证实真实指纹是真机数据（linux/真内核/真 CPU/29 个 macHashes），假人格纯属 MAXeaglet 发明 |
+| environment 拼接 platform-arch + Node 版本 | 报真实 platform 单词 | #9 实测恒 `"linux"` |
+| slug 由 sessionId 派生（`users-dev-projects-*`） | 由 workingDir 派生（形状一致近似） | #9 证实真实 slug 跨会话恒定、随 workingDir 变，旧算法形状完全不符 |
+| lifecycle sess id 与 x-session-id 同源派生 | 无关随机 `sess_<16hex>` | #9 证实真实 CLI 就是两套互不引用的 ID，原「破绽」判断错误 |
+| `x-co-flag` 头 | 删除 | #9 证实真实 CLI 不发送此头 |
+| `x-taste-learning: false` | 改 `true` | #9 实测取值 `true` |
+| 预请求仅 4 头 | 补 `User-Agent: cli` + accept 家族 | #9 实测头全集（调研 §11.3） |
+| slug NaN 边界 | 随旧算法一并弃用 | 旧算法不复存在 |
 | 版本头 fire-and-forget + 硬编码兜底 | 1.5s 竞速 + 落盘/快照链 | 初期请求带陈旧值；被墙用户集体陈旧成异常簇 |
 | 模块级散装全局变量 + appendFileSync | 单一模块 state + 注入 logger | 插件形态无文件日志；两版 glue 共用同一实现 |
 
-**不适用 / 丢弃**：本地反代服务器形态（架构主判例是进程内转换，不起本地服务）；入站 session 头透传（插件无入站 HTTP 头，由会话绑定主路径取代，见 §3）；两套 session id 并存（同源化，见 §4）；死代码 `threadId`。
+**不适用 / 丢弃**：本地反代服务器形态（架构主判例是进程内转换，不起本地服务）；入站 session 头透传（插件无入站 HTTP 头，由会话绑定主路径取代，见 §3）；指纹随机池（假人格弃用，见 §8）；`x-co-flag` 头（真实 CLI 不发送）。另注：MAXeaglet 的「死代码 threadId」其实是真协议字段——generate body 顶层的 `threadId` 等于 `x-session-id`（#9 证实），协议模块（#8）实现 generate 信封时需带上。
 
 ## 10. 参数速查
 
@@ -122,7 +129,7 @@
 | 预请求独立超时 | 3s |
 | 版本竞速上限 / jsDelivr 尝试上限 | 1.5s / 1.5s |
 | 版本惰性刷新间隔 | 24h |
-| 指纹重报节奏（成功后）/ 4xx 长冷却 | 8h + rand×2h |
+| 指纹重报节奏（成功后）/ 4xx 长冷却 | 8h + rand×2h（未获 ground truth 证实，保守保留，#9） |
 | 回退路径会话寿命 | 12h + rand×1h |
 | 瞬时失败退避 | 60s × 2^n，上限 15min |
 

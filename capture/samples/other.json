@@ -1,0 +1,3532 @@
+{
+  "_meta": {
+    "source": "官方 command-code CLI 真实流量（mitmproxy 采集）",
+    "endpoint_group": "other",
+    "record_count": 24,
+    "captured_at_first": "2026-08-30T15:23:01.440417+00:00",
+    "captured_at_last": "2026-08-30T15:25:58.058742+00:00",
+    "cli_version": "1.38.2",
+    "raw_source": "/home/wall/.cc-capture/requests.jsonl（不随仓库分发）",
+    "records_selected": "0,2,19",
+    "sanitized_at": "2026-08-30T15:38:17.129356+00:00",
+    "sanitizer": "capture/sanitize.py",
+    "redaction_summary": {
+      "credential_redacted": 24,
+      "uuid_pseudonymized": 33,
+      "string_redacted": 9,
+      "identity_redacted": 18,
+      "slug_pseudonymized": 12,
+      "stripe_id_redacted": 12,
+      "traceparent_pseudonymized": 6
+    }
+  },
+  "requests": [
+    {
+      "captured_at": "2026-08-30T15:23:01.440417+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/whoami",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:01 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=2004.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "be4062aa60ecbe876458e7024a15e22e"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=YAkUd6EvlBzc%2Fui66HEy0k6P0ZJN9ca6deKDRf05JQx6dpECtpwSinVLj2o6hLvZCC3WP0BmFQa%2FHmgkFLd%2Bjlbq%2FwTqbpvgI3RsCdzYnt6Ek8w1Ak%2F7Kws87TFGa62xoDg3gi0%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cb48ae4acf2a-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "user": {
+            "id": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "name": "<redacted len=6>",
+            "email": "<redacted len=19>",
+            "userName": "<redacted len=14>"
+          },
+          "org": null
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:23:01.442907+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/whoami",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "df72321c-66e7-4f3b-8779-5b882e51727f"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:01 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=1809.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "ad75572cbe8f21cf2b08de7667975fbf"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=8XVLbqxqxaH5QRZwVYs4wlgNJt6u4aEwFvEiA2KyrJ8lh79Taj7Fwi4KStTfSdQZ14E%2B%2FMDqsFKaRZLb7qi1cpAtTL00ZeUmj3MYbZZsUlbXjcahWG4cDHGLoWSc6BrOg4ZsMu8%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cb49eda3ed3c-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "user": {
+            "id": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "name": "<redacted len=6>",
+            "email": "<redacted len=19>",
+            "userName": "<redacted len=14>"
+          },
+          "org": null
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:23:02.030668+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/subscriptions",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "df72321c-66e7-4f3b-8779-5b882e51727f"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:01 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=394.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "64382fae575395470c917ab6167907f6"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=flWm3fvtU3diKPN3G3PjuXfvUUyetxY3bTpNAKpd%2FSAA4XiT1ubv0JK14NlmUbhC8%2BOYXn7xUtU8WDF%2Fw%2BS5j17uvaqbTabQI6aujLBhuRwKij5A7pCBF5LyAGoVoTnLAN7ZGvY%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cb566a3ecf2a-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "data": {
+            "id": "<redacted-sub-id len=28>",
+            "status": "active",
+            "userId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "orgId": null,
+            "createdAt": "2026-08-27T15:59:12.000Z",
+            "priceId": "<redacted-price-id len=30>",
+            "metadata": {
+              "commandCode": "true",
+              "commandCodeUserId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342"
+            },
+            "quantity": 1,
+            "cancelAtPeriodEnd": false,
+            "currentPeriodStart": "2026-08-27T15:59:12.000Z",
+            "currentPeriodEnd": "2026-09-27T15:59:12.000Z",
+            "endedAt": null,
+            "cancelAt": null,
+            "canceledAt": null,
+            "planId": "individual-go",
+            "pendingPhase": null
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:23:02.215406+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/credits",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "df72321c-66e7-4f3b-8779-5b882e51727f"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:02 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=578.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "2645aeff56b8b514626453bc1b3f3026"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=MEFVr%2BGMUgcDFwJ5YXTXgSqtGJXSLKKAXJGHl2Hfw0k5cpl0pgEIJun59CBwKiSYI%2BhNExEpVtv4WIOAkIaAk5%2BNJYPhJZsJAh7gGkLzu443InJyEU5OZVYfoxnP8yMGL3cIoWY%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cb567ad5eb36-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "credits": {
+            "belowThreshold": false,
+            "creditThreshold": 0,
+            "monthlyCredits": 8.548173322,
+            "purchasedCredits": 0,
+            "freeCredits": 0
+          },
+          "windowLimits": {
+            "limited": true,
+            "exceeded": null,
+            "fiveHour": {
+              "used": 0.025416516,
+              "cap": 3,
+              "exceeded": false,
+              "resetAt": 1788120642625
+            },
+            "weekly": {
+              "used": 1.451826678,
+              "cap": 6,
+              "exceeded": false,
+              "resetAt": 1788451558879
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:23:41.935011+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/whoami",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:41 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=252.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "2a39fd0d67b052dacd9c3a9ba53aec99"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=OKZS32kJSzXjbB03F2tSUNqIZ%2FIc80kA0diXupGUkZUGt1T9RNANyuRAEtyAH6oAQV2wRlOxMhoLHqI9a3rhxXpufgU8PJMG%2BtQqMtxMrwrbo7DifM7jA8ITKdKaiDFOYTCIz%2FQ%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cc50aee82386-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "user": {
+            "id": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "name": "<redacted len=6>",
+            "email": "<redacted len=19>",
+            "userName": "<redacted len=14>"
+          },
+          "org": null
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:23:41.969071+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/whoami",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "048e9088-eadc-48d4-82b8-3e2c75bcd991"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:41 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=261.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "9443f9aa850e69811ef0aa9cb9551a60"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=I8Aq4C%2Fmdtr6wlZcQg3%2FBe0NcUDloDvh4U%2BqJyTa6IRxDR0N4SQEvzKnuIaYy9DMHmwtwqoY7H%2FzIUC9iLT8pRs4sWLGTGp8Wz1%2F%2Fbvn%2FsYm81KQBQHv7rolNh56WgnFt0KGfEY%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cc50dfe867fc-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "user": {
+            "id": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "name": "<redacted len=6>",
+            "email": "<redacted len=19>",
+            "userName": "<redacted len=14>"
+          },
+          "org": null
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:23:42.571956+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/subscriptions",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "048e9088-eadc-48d4-82b8-3e2c75bcd991"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:42 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=396.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "f08bb25cd672cdd1f6a5b2c7aced346b"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=0xvItuI0HCXRFK8rj9erWCpNdchVLIwfTiRPS71tbq8OpEQbs%2FS6%2Fjh43AE72QHsIoPAlEIGc%2BeLa9vCr09l7ZItoL7ffyUAY8h2QHN4VVf43RtLIHn%2FJabxcq0GXbwJTLFvuKE%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cc53b87c2386-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "data": {
+            "id": "<redacted-sub-id len=28>",
+            "status": "active",
+            "userId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "orgId": null,
+            "createdAt": "2026-08-27T15:59:12.000Z",
+            "priceId": "<redacted-price-id len=30>",
+            "metadata": {
+              "commandCode": "true",
+              "commandCodeUserId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342"
+            },
+            "quantity": 1,
+            "cancelAtPeriodEnd": false,
+            "currentPeriodStart": "2026-08-27T15:59:12.000Z",
+            "currentPeriodEnd": "2026-09-27T15:59:12.000Z",
+            "endedAt": null,
+            "cancelAt": null,
+            "canceledAt": null,
+            "planId": "individual-go",
+            "pendingPhase": null
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:23:42.735810+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/credits",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "048e9088-eadc-48d4-82b8-3e2c75bcd991"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:23:42 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=571.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "427bbf7986ba8f7b85b18267c7dd3e2a"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=GoeYTZ8iUfCBL4T0expZjpG7xKZIwEIc6eWf4Bn0%2BKjQ4yvgkqBjQgz%2BBQKKlVNqji7ngiRfDguiRwn8GVqwpzjPcgU6xbXgLauvTSuoVX%2F9%2BV8vNC1mnNi7ILlgsWivVd6WBZo%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cc53b93267fc-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "credits": {
+            "belowThreshold": false,
+            "creditThreshold": 0,
+            "monthlyCredits": 8.54556565,
+            "purchasedCredits": 0,
+            "freeCredits": 0
+          },
+          "windowLimits": {
+            "limited": true,
+            "exceeded": null,
+            "fiveHour": {
+              "used": 0.028024188,
+              "cap": 3,
+              "exceeded": false,
+              "resetAt": 1788120642625
+            },
+            "weekly": {
+              "used": 1.45443435,
+              "cap": 6,
+              "exceeded": false,
+              "resetAt": 1788451558879
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:02.046823+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/whoami",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:01 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=229.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "663fe2efaead8ed55008ab2b1c2c588c"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Jk%2B2C2hWMuaSatErAC9vppNTLXJNm%2BxVxvJK%2B41yOpZ3ZydcM9tpscZ3FhxrupUcEwI6M0%2B6n%2FH80BbRuT%2FgtuIjxj%2Bxoc4QwriMQQabkMuERY3nQGvkcBRS2GZLK4P%2FdaXLQzk%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334ccce9b456dd5-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "user": {
+            "id": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "name": "<redacted len=6>",
+            "email": "<redacted len=19>",
+            "userName": "<redacted len=14>"
+          },
+          "org": null
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:02.124892+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/whoami",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "4cc19c48-fdae-4a5f-a184-9618ec408e49"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:01 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=241.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "5295d690ba70ee86573ba0518e0a1630"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=oJuOPwUFWM%2BC7rb2%2FEvqy3Ysgjs7nSK1novGFndfb1YTunbhJ0l5bLw73gbI8wid5DYzlxqH73EBx8%2BaNV8QV6%2BXIgQeB9SnTwgI1nIwn46SUHddRDFmZFaYX6n0pmN7EJzKJDc%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cccd8baf981a-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "user": {
+            "id": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "name": "<redacted len=6>",
+            "email": "<redacted len=19>",
+            "userName": "<redacted len=14>"
+          },
+          "org": null
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:02.681059+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/whoami",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:02 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=281.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "5eb9980c4ac3db90134127f4bf8afaf8"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=B6A64LABg01yaAgVTEDsh6yCO2feSUWhjMREyG8lnMk2QJfCpp4F4JuPZEPT7GYnoVdObmlvtYKkUFxvA2VMzYHYNEoM1x4317j%2BgbtjmI5CTr1uYo7tqLgJNvYT3xcM%2BznZEdU%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cccd6ecf0653-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "user": {
+            "id": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "name": "<redacted len=6>",
+            "email": "<redacted len=19>",
+            "userName": "<redacted len=14>"
+          },
+          "org": null
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:02.702014+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/subscriptions",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "4cc19c48-fdae-4a5f-a184-9618ec408e49"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:02 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=383.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "9815786dedfc4d9919f4c2907f5588fd"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=oF4yKaQK3HEhUcG%2BhDzDHq90Hp0zc0EV1T6Yq9aDAbRMFb9SIrY0qmRAJ%2FZNKAz8d5fgAac%2FUBpYTYp377cYJqRc9XU8WCr86qx7DqAXMaeBf0SjeOpdcYqlXyPd1r9k1AevsQU%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334ccd1ad936dd5-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "data": {
+            "id": "<redacted-sub-id len=28>",
+            "status": "active",
+            "userId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "orgId": null,
+            "createdAt": "2026-08-27T15:59:12.000Z",
+            "priceId": "<redacted-price-id len=30>",
+            "metadata": {
+              "commandCode": "true",
+              "commandCodeUserId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342"
+            },
+            "quantity": 1,
+            "cancelAtPeriodEnd": false,
+            "currentPeriodStart": "2026-08-27T15:59:12.000Z",
+            "currentPeriodEnd": "2026-09-27T15:59:12.000Z",
+            "endedAt": null,
+            "cancelAt": null,
+            "canceledAt": null,
+            "planId": "individual-go",
+            "pendingPhase": null
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:02.809019+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/credits",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:02 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=569.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "0510bfa7e13e78367dc1a7e18d635b6c"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Q7HSff6R29pDgjPFD4YESUnQdYVXGhfAczZdQ7juhOr8%2BtqSERMdEMVasRts0bFpm89ZPuYHL4iFIHQGK%2FYYRiHIdzXfjF6St5pCKgyAx9%2FoCKf8EfveRNu%2BawQepWIX2bUt%2B9I%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334ccd13cb4229f-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "credits": {
+            "belowThreshold": false,
+            "creditThreshold": 0,
+            "monthlyCredits": 8.542961938,
+            "purchasedCredits": 0,
+            "freeCredits": 0
+          },
+          "windowLimits": {
+            "limited": true,
+            "exceeded": null,
+            "fiveHour": {
+              "used": 0.0306279,
+              "cap": 3,
+              "exceeded": false,
+              "resetAt": 1788120642625
+            },
+            "weekly": {
+              "used": 1.457038062,
+              "cap": 6,
+              "exceeded": false,
+              "resetAt": 1788451558879
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:02.848172+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/subscriptions",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:02 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=384.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "bc6ee7b59c96690ccdfec9e3b34e2877"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Va1IIIQz3%2BCE1R%2FdN%2BMSKMhu%2Ff745DcE%2B6bVN5X2LOMOoejLuohEWJVeUbOjBsjeuNi3Ml00ixwHck3bngcfNhS95IwV1%2Fm%2F6sCgez6Fzp2JWX2QNbJn47MrZfZkF07GNcaFQLQ%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334ccd13f273354-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "data": {
+            "id": "<redacted-sub-id len=28>",
+            "status": "active",
+            "userId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "orgId": null,
+            "createdAt": "2026-08-27T15:59:12.000Z",
+            "priceId": "<redacted-price-id len=30>",
+            "metadata": {
+              "commandCode": "true",
+              "commandCodeUserId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342"
+            },
+            "quantity": 1,
+            "cancelAtPeriodEnd": false,
+            "currentPeriodStart": "2026-08-27T15:59:12.000Z",
+            "currentPeriodEnd": "2026-09-27T15:59:12.000Z",
+            "endedAt": null,
+            "cancelAt": null,
+            "canceledAt": null,
+            "planId": "individual-go",
+            "pendingPhase": null
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:03.619725+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/credits",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "4cc19c48-fdae-4a5f-a184-9618ec408e49"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:02 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=578.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "2cdfb9c51a901db979c0a90c5d647be9"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=1CtNLy4lUX2GrqKJXXaPT8WCuytO1vDZvGCOkXNJotkQx1Sby3tV0IaMMOPAKUM10ikBXq7yT2rjDNGwPW4nFO9rG3Rw7EBIPVqNjHnw3zfmkfjv5boFRqMK8R%2B%2FnPyMDW9xQS0%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334ccd1ad77981a-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "credits": {
+            "belowThreshold": false,
+            "creditThreshold": 0,
+            "monthlyCredits": 8.542961938,
+            "purchasedCredits": 0,
+            "freeCredits": 0
+          },
+          "windowLimits": {
+            "limited": true,
+            "exceeded": null,
+            "fiveHour": {
+              "used": 0.0306279,
+              "cap": 3,
+              "exceeded": false,
+              "resetAt": 1788120642625
+            },
+            "weekly": {
+              "used": 1.457038062,
+              "cap": 6,
+              "exceeded": false,
+              "resetAt": 1788451558879
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:28.779664+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/whoami",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "traceparent",
+          "00-333ee2f00c18735235d49bfa2dea5384-e4522f5887e7b3b9-01"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:28 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=259.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "f5d5108a40dcdf0069ba21b93321ba34"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=1l3idadrzCQV8KPRQs0cqtMsTMn3M%2ByNCsOWifcnOTlGM8lLhaCO3w0JK%2BP73wKIuf6seYDKFGbpOmDYr1SkGP5zAJPZXYhu7iGnhPM%2BY0JUiP64tcuGG3le6%2FmwVE16LMwvLpY%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cd757ad72b29-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "user": {
+            "id": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "name": "<redacted len=6>",
+            "email": "<redacted len=19>",
+            "userName": "<redacted len=14>"
+          },
+          "org": null
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:30.107731+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/subscriptions",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "traceparent",
+          "00-f89ee74a4ae22382cf7afd4df56d571c-86008eacf49d79d1-01"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:29 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=385.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "f5d5108a40dcdf0069ba21b93321ba34"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=sWm2uxdtEkdOs%2FcdBdFwsrekyDW2mEemIt7uYH3kP%2BXzdgcMFVATO%2BRqFwzXRlAA7On9TzANkZ7ca8WkFXJ8Ndv25Uup8wmPXEjblqR9XNPtUpOM57hAouHZloV1CkE0nh6D8D8%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cd784a7d2b29-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "data": {
+            "id": "<redacted-sub-id len=28>",
+            "status": "active",
+            "userId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "orgId": null,
+            "createdAt": "2026-08-27T15:59:12.000Z",
+            "priceId": "<redacted-price-id len=30>",
+            "metadata": {
+              "commandCode": "true",
+              "commandCodeUserId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342"
+            },
+            "quantity": 1,
+            "cancelAtPeriodEnd": false,
+            "currentPeriodStart": "2026-08-27T15:59:12.000Z",
+            "currentPeriodEnd": "2026-09-27T15:59:12.000Z",
+            "endedAt": null,
+            "cancelAt": null,
+            "canceledAt": null,
+            "planId": "individual-go",
+            "pendingPhase": null
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:31.190845+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/credits",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "traceparent",
+          "00-6798a067816ceafc0a9c4647130f5df9-4b823da1c5cf6823-01"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:30 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=536.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "f5d5108a40dcdf0069ba21b93321ba34"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=nKyvBSEa1E8DpCSK1ko5OFi%2FhzkEjtPQSOORiksWGN2uWVVAUCobYLrYE7bFj7kWXb2EEzAEADYo6QNHTT68nq0DYMkIvYrmbqMattefatudG66kLWv0sR2yFCm7PXBXkLn0bd0%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cd809afaebeb-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "credits": {
+            "belowThreshold": false,
+            "creditThreshold": 0,
+            "monthlyCredits": 8.539794642,
+            "purchasedCredits": 0,
+            "freeCredits": 0
+          },
+          "windowLimits": {
+            "limited": true,
+            "exceeded": null,
+            "fiveHour": {
+              "used": 0.033795196,
+              "cap": 3,
+              "exceeded": false,
+              "resetAt": 1788120642625
+            },
+            "weekly": {
+              "used": 1.460205358,
+              "cap": 6,
+              "exceeded": false,
+              "resetAt": 1788451558879
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:45.188050+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/whoami",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "bf8560f4-34d5-4906-a459-0e3bb97f4fba"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:45 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=259.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "4b1f54c9a166d15e82224982c3dfeb53"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=J%2FfMPRph8FmfrUu5kAZ9%2Blyui8qfZ9w9Fy6odCUCkvZhscQUWVMGAHIUR4Sm32SoW9eyV90gArYqLksWFhdejpCdSu5moW0UPDBo5YV1KCJq1XxsMy3ctQg4VSZdT1sM66XRXSg%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cddbcb8e22c6-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "user": {
+            "id": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "name": "<redacted len=6>",
+            "email": "<redacted len=19>",
+            "userName": "<redacted len=14>"
+          },
+          "org": null
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:45.787528+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/subscriptions",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "bf8560f4-34d5-4906-a459-0e3bb97f4fba"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:45 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=407.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "59151a3c99264daed63d73bbd35e4fff"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Xz2ghlrxETDPZOmk%2B%2BmWEblD3JGO4q5WfzZA3mctxLTxlyveAYIrYGm87UT%2Bw7q6QAoXe%2FP8zNC2tL62J8Z31w7ClVFr3uTpRN8rz%2BCkgQtvM9uSSDgbnh1x8JqoHO9%2Fd1CrvTs%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cddede2522c6-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "success": true,
+          "data": {
+            "id": "<redacted-sub-id len=28>",
+            "status": "active",
+            "userId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342",
+            "orgId": null,
+            "createdAt": "2026-08-27T15:59:12.000Z",
+            "priceId": "<redacted-price-id len=30>",
+            "metadata": {
+              "commandCode": "true",
+              "commandCodeUserId": "bb5681cd-ddf9-4c99-9133-d7604f9a2342"
+            },
+            "quantity": 1,
+            "cancelAtPeriodEnd": false,
+            "currentPeriodStart": "2026-08-27T15:59:12.000Z",
+            "currentPeriodEnd": "2026-09-27T15:59:12.000Z",
+            "endedAt": null,
+            "cancelAt": null,
+            "canceledAt": null,
+            "planId": "individual-go",
+            "pendingPhase": null
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:24:46.531692+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/credits",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "x-project-slug",
+          "czfb-kdha-w6n3-qk15g6g-pfvrc-bh33ucrc-hkc4sri6db8-uea2s9c5"
+        ],
+        [
+          "x-taste-learning",
+          "true"
+        ],
+        [
+          "x-session-id",
+          "bf8560f4-34d5-4906-a459-0e3bb97f4fba"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:24:46 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=587.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "a8be2ed8e29439a36f766dae005c9c51"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=eWrzBTJfgy%2Bx4IjoV3vjjnKM3Lh9lv78BGkvTart6Lhp8X3uVvbNoaAIJk%2BlsMcjDYdoJ3vxAiHTiuJ01nFz84BzRmNQB6Ru%2BSQXXD0tPS0nICqzHg8Pi5sx6Qd%2Bq2HpTXgwFL8%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cde25c1fb231-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "credits": {
+            "belowThreshold": false,
+            "creditThreshold": 0,
+            "monthlyCredits": 8.539794642,
+            "purchasedCredits": 0,
+            "freeCredits": 0
+          },
+          "windowLimits": {
+            "limited": true,
+            "exceeded": null,
+            "fiveHour": {
+              "used": 0.033795196,
+              "cap": 3,
+              "exceeded": false,
+              "resetAt": 1788120642625
+            },
+            "weekly": {
+              "used": 1.460205358,
+              "cap": 6,
+              "exceeded": false,
+              "resetAt": 1788451558879
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:25:00.335093+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/credits",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "traceparent",
+          "00-3e4680e29738ec229e069534d4d77bd2-729bd7336de102e4-01"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:25:00 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=630.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "ce7a915867fdedf3789b59a25d4f5284"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=sqv1wEGT6yCOPemjrWfFJbKzaa4VsqFXqISPzKlZtHXJDEXNFtHMDOnImH6mT1r2rx6U2sd4KA3aUglyNyBgOqIV8g%2FgOkW4p6WI6zO3u%2Bxax79a2RwP%2FaNDDThcKOLQ6uQ7kSU%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334ce352e8c34c3-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "credits": {
+            "belowThreshold": false,
+            "creditThreshold": 0,
+            "monthlyCredits": 8.536756614,
+            "purchasedCredits": 0,
+            "freeCredits": 0
+          },
+          "windowLimits": {
+            "limited": true,
+            "exceeded": null,
+            "fiveHour": {
+              "used": 0.036833224,
+              "cap": 3,
+              "exceeded": false,
+              "resetAt": 1788120642625
+            },
+            "weekly": {
+              "used": 1.463243386,
+              "cap": 6,
+              "exceeded": false,
+              "resetAt": 1788451558879
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:25:53.937031+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/credits",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "traceparent",
+          "00-ca2b7a5446a5cf387f8ebd36528d7a84-5c5f2afa2b1f603b-01"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:25:53 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=619.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "330bb0a5a28e1620d733f08d3a225e9f"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=Tn6FtwVjiQCDVgwC5iWy9RXV9oAg01clEsBVf8L8JsSuyMcTs5V9pf3E%2Bn5nezopaf1A3jzY5Cfk2vNHU545nHm7E2t%2Bz3yoqnastdLKLPnItXXyghax84LgBGjuaOc39e9MaNs%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cf80ce97fa3a-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "credits": {
+            "belowThreshold": false,
+            "creditThreshold": 0,
+            "monthlyCredits": 8.52185065,
+            "purchasedCredits": 0,
+            "freeCredits": 0
+          },
+          "windowLimits": {
+            "limited": true,
+            "exceeded": null,
+            "fiveHour": {
+              "used": 0.051739188,
+              "cap": 3,
+              "exceeded": false,
+              "resetAt": 1788120642625
+            },
+            "weekly": {
+              "used": 1.47814935,
+              "cap": 6,
+              "exceeded": false,
+              "resetAt": 1788451558879
+            }
+          }
+        }
+      },
+      "error": null
+    },
+    {
+      "captured_at": "2026-08-30T15:25:58.058742+00:00",
+      "method": "GET",
+      "url": "https://api.commandcode.ai/alpha/billing/credits",
+      "http_version": "HTTP/1.1",
+      "request_headers": [
+        [
+          "host",
+          "api.commandcode.ai"
+        ],
+        [
+          "connection",
+          "keep-alive"
+        ],
+        [
+          "content-type",
+          "application/json, application/json"
+        ],
+        [
+          "x-cli-environment",
+          "production"
+        ],
+        [
+          "Authorization",
+          "Bearer <redacted-key prefix=user_ len=93>"
+        ],
+        [
+          "traceparent",
+          "00-da64d2dcb8459d76660a7d3848880006-dcb7fbb8bf2d9424-01"
+        ],
+        [
+          "User-Agent",
+          "cli"
+        ],
+        [
+          "x-command-code-version",
+          "1.38.2"
+        ],
+        [
+          "accept",
+          "*/*"
+        ],
+        [
+          "accept-language",
+          "*"
+        ],
+        [
+          "sec-fetch-mode",
+          "cors"
+        ],
+        [
+          "accept-encoding",
+          "br, gzip, deflate"
+        ]
+      ],
+      "request_body": null,
+      "status_code": 200,
+      "response_headers": [
+        [
+          "Date",
+          "Sun, 30 Aug 2026 15:25:57 GMT"
+        ],
+        [
+          "Content-Type",
+          "application/json"
+        ],
+        [
+          "Transfer-Encoding",
+          "chunked"
+        ],
+        [
+          "Connection",
+          "keep-alive"
+        ],
+        [
+          "Access-Control-Allow-Origin",
+          "*"
+        ],
+        [
+          "Server-Timing",
+          "total;dur=567.0;desc=\"Total Response Time\""
+        ],
+        [
+          "X-Powered-By",
+          "Hono"
+        ],
+        [
+          "X-Robots-Tag",
+          "noindex, nofollow"
+        ],
+        [
+          "x-trace-id",
+          "330bb0a5a28e1620d733f08d3a225e9f"
+        ],
+        [
+          "Report-To",
+          "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=1gYXpjf7pbglQ2plG9Xrmyo3L9jWGn%2ByHxJbErG84HefBJUUEA7P9vEQbtffATcUPYKlgLA3%2Fsy1JciedwMdP6RgPlDFmVQ3oBg2Hg%2F4WxONRvfD3ebFBaNUF%2BuGu%2F8THd6iGkQ%3D\"}]}"
+        ],
+        [
+          "Nel",
+          "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}"
+        ],
+        [
+          "Content-Encoding",
+          "br"
+        ],
+        [
+          "Server",
+          "cloudflare"
+        ],
+        [
+          "CF-RAY",
+          "a334cfa18f09c38b-SJC"
+        ],
+        [
+          "alt-svc",
+          "h3=\":443\"; ma=86400"
+        ]
+      ],
+      "response_body": {
+        "_format": "json",
+        "value": {
+          "credits": {
+            "belowThreshold": false,
+            "creditThreshold": 0,
+            "monthlyCredits": 8.521091762,
+            "purchasedCredits": 0,
+            "freeCredits": 0
+          },
+          "windowLimits": {
+            "limited": true,
+            "exceeded": null,
+            "fiveHour": {
+              "used": 0.0524149,
+              "cap": 3,
+              "exceeded": false,
+              "resetAt": 1788120642625
+            },
+            "weekly": {
+              "used": 1.478825062,
+              "cap": 6,
+              "exceeded": false,
+              "resetAt": 1788451558879
+            }
+          }
+        }
+      },
+      "error": null
+    }
+  ]
+}
