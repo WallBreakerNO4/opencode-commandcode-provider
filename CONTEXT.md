@@ -34,6 +34,18 @@ _Avoid_: SSE 流
 让请求在网络特征上贴近真实官方 CLI 的组件集合：设备指纹、lifecycle 事件、会话标识、project-slug、CLI 版本头、traceparent。
 _Avoid_: 反检测、作弊层
 
+**设备指纹**:
+伪装层经 `/alpha/fingerprint/record` 向网关申报的设备档案（15 个 components 字段 + thumbmark 联合哈希）。per-key 一份，进程内稳定。
+_Avoid_: 硬件指纹、机器码、设备 ID
+
+**预请求**:
+主请求之前发出的伪装上报统称（设备指纹记录 + lifecycle 事件）。是画像加分项，不是主请求可用的前置条件。
+_Avoid_: 初始化请求、预热请求、遥测前置
+
+**伪装人格**:
+伪装层对外呈现的单一设备形态（win32-x64 + 固定 osRelease + 时区池）。指纹、environment、lifecycle 的 os 字段均取自同一人格。
+_Avoid_: 假身份、多平台伪装
+
 ### 模型
 
 **模型清单**:
