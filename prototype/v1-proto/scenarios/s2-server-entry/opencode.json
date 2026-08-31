@@ -1,0 +1,4 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["file:///home/wall/self-project/other/opencode-commandcode-provider/prototype/v1-proto/pkg"]
+}
