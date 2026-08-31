@@ -42,7 +42,7 @@
 - **主路径（绑定）**：调用参数中可见 OpenCode 会话标识时，`x-session-id` 由其**确定性派生**（sha256 → 32 hex → 修补 uuid v4 的版本/变体位），无需任何存储即保证「同会话同 id、跨重启同 id」。
 - **slug（#9 校准后改写）**：真实 CLI 的 `x-project-slug` 由真实 workingDir 派生、跨会话恒定（实测 20 次 generate 跨 4 个 session id 而 slug 不变），形状为「小写字母数字短横分组 ×8 组、组长 4–11」（样本见 `capture/samples/generate.json`），与 MAXeaglet 的 `users-dev-projects-*` 算法毫无相似。确切算法未知（逐段哈希链为最像假说，调研 §11.4），插件实现取**形状一致的 workingDir 哈希近似**，不再从 sessionId 派生。
 - **回退路径**：看不到会话标识时，照抄 MAXeaglet——per-key 随机 uuid v4，12h + 0~1h 抖动惰性轮换（此路径无法区分会话边界，属尽力而为）。
-- **可见性验证**：v1/v2 调用参数里到底能不能拿到 OpenCode 会话 id，由实测票 #11/#12 验证并回填本文主路径的取值位置。
+- **可见性验证（已定案，源码级）**：#11/#12 未回答此项，2026-08-31 经源码定案补课（`docs/research/session-visibility.md`）——v1/v2 宿主均**无条件**把 OpenCode 会话 id 注入 `doStream(options).headers`：`X-Session-Id` 与 `x-session-affinity`（= sessionID，每会话稳定；v2 另有 `x-opencode-session` 同值）。**主路径取值位置**：doStream 时读上述头，任一存在即以其为种子派生；全部缺失才落回退路径（容忍宿主改头名，命中后值漂移打日志）。干扰项勿用：v1 `x-opencode-request`（消息 id，每请求唯一）、telemetry（不进调用参数）。v2 宿主不调 `doGenerate`（折叠进 doStream），主路径只需在 doStream 实现。
 - slug 旧算法（MAXeaglet `users-dev-projects-*`）整体弃用（#9 校准），其 NaN 边界问题随之消失。
 - MAXeaglet 的入站头透传（`x-session-id` / `x-claude-code-session-id`）**不适用**：插件形态没有入站 HTTP 头，其位置由上述绑定主路径取代。
 
