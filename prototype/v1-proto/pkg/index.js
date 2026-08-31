@@ -18,7 +18,9 @@ export default {
         probe("v1-config-hook", { hadCcproto: !!config.provider?.ccproto })
         config.provider ??= {}
         config.provider.ccproto = {
-          npm: process.env.CCPROTO_NPM_SPEC || "file:///dev/null",
+          // fallback 指向本包主入口（file:// 免安装直 import），不设 CCPROTO_NPM_SPEC 也能全链路跑
+          npm: process.env.CCPROTO_NPM_SPEC ||
+            "file:///home/wall/self-project/other/opencode-commandcode-provider/prototype/v1-proto/pkg/index.js",
           name: "CCProto",
           env: ["CCPROTO_TEST_KEY"],
           options: {},
