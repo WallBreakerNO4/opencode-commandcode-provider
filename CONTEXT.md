@@ -116,3 +116,9 @@ _Avoid_: 来源优先级矩阵
 **插件自举**:
 插件在运行时自己注入 provider 配置、模型清单与认证方式（v1 经 config/auth hook，v2 经 catalog.transform 与 integration），使用户除安装插件与登录外无需手写任何配置。
 _Avoid_: 自动配置、零配置魔法
+
+### 测试
+
+**人工验收**:
+真宿主人工验收——真实 OpenCode 宿主、真实 key、真实网络上由人执行的验收层，覆盖不入 bun test 的 glue 模块、分发连通性与端到端行为；与自动化测试互不重复。清单：`docs/spec/acceptance.md`。
+_Avoid_: 真机测试、集成测试、冒烟测试
