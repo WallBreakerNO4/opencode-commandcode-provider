@@ -117,6 +117,18 @@ _Avoid_: 来源优先级矩阵
 插件在运行时自己注入 provider 配置、模型清单与认证方式（v1 经 config/auth hook，v2 经 catalog.transform 与 integration），使用户除安装插件与登录外无需手写任何配置。
 _Avoid_: 自动配置、零配置魔法
 
+**provider id（`commandcode-go`）**:
+插件注册的 provider 唯一标识：v1 config 注入键、v2 `opencode.json` 空壳键、integrationID、模型 id 前缀 `commandcode-go/<wire>` 四处同名；模型 reference 按首个 `/` 切分，wire id 可含 `/` 原样透传。
+_Avoid_: CCProto（原型残留）、`commandcode`（brent 包占用）
+
+**Command Code (Go)**:
+provider 的显示名，v1 `/connect` 列表项、v2 目录与 provider 列表、v2 integration name 三处同用。
+_Avoid_: CCProto、Command Code (proto)（原型残留）
+
+**认证方法 label**:
+`/connect` 认证输入框的标题文案，固定为「Command Code API Key」，v1 auth hook 与 v2 integration key method 同文案；env 方法不使用 label。
+_Avoid_: API Key 文案（泛称时）
+
 ### 测试
 
 **人工验收**:
