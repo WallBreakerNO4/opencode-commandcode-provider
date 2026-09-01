@@ -44,7 +44,7 @@
 |---|---|---|
 | `schemaVersion` | ✅ | 整数，当前 `1` |
 | `generatedAt` | ✅ | ISO 8601 UTC，产物生成时刻 |
-| `sourceCliVersion` | ✅ | 解析所用的 `command-code` 版本，仅作溯源；伪装层的 `x-command-code-version` 头不从它取（伪装层独立从 npm registry 拉 latest，此字段只作离线兜底） |
+| `sourceCliVersion` | ✅ | 解析所用的 `command-code` 版本，仅作溯源；伪装层版本头兜底链第 ③ 层——npm/jsDelivr 均不可达且无落盘缓存时，读运行时已拉取产物的此字段（只读内存、不触发拉取；见 `docs/spec/disguise.md` §6，#19 修订） |
 | `models` | ✅ | 模型数组，**仅含 Go plan 可用子集**（见 §2） |
 
 per-model：

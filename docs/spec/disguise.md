@@ -2,7 +2,7 @@
 
 > 状态：定稿（2026-08-30）。决策票：[WallBreakerNO4/opencode-commandcode-provider#7](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/7)。
 > 事实输入：`docs/research/disguise-spec.md`（MAXeaglet/commandcode-proxy 逆向提炼，下称「调研」）。
-> 范围：伪装模块的运行时行为契约——状态管理、预请求时机、会话与 lifecycle 语义、失败降级、版本头策略、日志脱敏、伪装人格。指纹 / slug / traceparent 的**算法本身**以调研 §1–§7 为准，本文只约束「怎么跑」，不重复「怎么算」。
+> 范围：伪装模块的运行时行为契约——状态管理、预请求时机、会话与 lifecycle 语义、失败降级、版本头策略、日志脱敏、伪装人格、generate 信封 `config` 块取值（§9，#19）。指纹 / slug / traceparent 的**算法本身**以调研 §1–§7 为准，本文只约束「怎么跑」，不重复「怎么算」。
 > 校准状态：抓包校准已完成（2026-08-30，工单 #9）。事实输入升级为「逆向提炼 + 抓包 ground truth」双层，凡两者冲突处以调研文档 **§11 抓包校准** 为准；本文受影响条款已就地修订，修订点标注「（#9 校准）」。
 
 ## 0. 决策总览
@@ -14,9 +14,10 @@
 | D3 | 会话身份 | 绑定 OpenCode 会话（1 会话 = 1 sessionId）；不可见时回退 per-key uuid 12–13h 轮换 |
 | D4 | lifecycle | 每进程启动发一次（真实语义，#9 校准）；metadata.sessionId 为与 x-session-id 无关的随机 `sess_<16hex>`（#9 校准：真实 CLI 就是两套 ID） |
 | D5 | 失败降级 | 主请求永不因预请求受阻；网络错误/5xx 短退避重试，4xx 长冷却 |
-| D6 | 版本头 | 全局单值；首请求前 1.5s 竞速；24h 惰性刷新；落盘值 → 包内快照双兜底 |
+| D6 | 版本头 | 全局单值；首请求前 1.5s 竞速；24h 惰性刷新；兜底链 = 落盘值 → 构建产物 `sourceCliVersion` → 包内快照（#19 修订） |
 | D7 | 日志脱敏 | key 只以短哈希出现；伪标识符截断；Authorization 永不整串输出 |
 | D8 | 伪装人格 | **如实上报真实机器**：指纹各字段取真机真值，`config.environment` 报真实 platform（#9 校准：真实 CLI 不伪装 Windows，MAXeaglet 的 win32 假人格纯属它的发明） |
+| D9 | config 块取值 | 逐字段照抄官方 CLI 实现（源码调研 #23 定案）：非 git 显式空值九字段齐全、date=UTC、mainBranch=远程 HEAD 推断、structure 单层+黑名单、gitStatus 空/失败→"Working tree clean"；仅两处防御偏离（git 查询 2s 超时、进程级冻结 + 24h 过期重采），均不改线上形状（§9，#19） |
 
 ## 1. 状态模型（D1）
 
@@ -73,9 +74,9 @@
 - **首请求前 1.5s 竞速**（D6b）：进程内首次需要该值时，给 npm 查询 1.5s 上限——抢到用新值，抢不到先用兜底值放行、查询转后台继续。修 MAXeaglet fire-and-forget 的「初期请求带陈旧兜底值」瑕疵，同时不让被墙的 npm 拖住首请求。
 - **24h 惰性刷新**（D6c）：每次主请求前比对「距上次成功拉取是否超 24h」，超时后台触发拉取。不挂 `setInterval`（插件生命周期负担），**不加抖动**（各进程启动时间天然分散，无收益）。
 - **数据源顺序**：npm registry 直连（1.5s 上限）→ jsDelivr 镜像 `cdn.jsdelivr.net/npm/command-code/package.json`（1.5s 上限，国内可达性好）。
-- **取值兜底链**（都拉不到时）：① 落盘的「上次成功拉取值」→ ② 包内快照的 `sourceCliVersion` 字段（`docs/spec/model-pipeline.md` §1.1 预留的离线兜底接口，随插件发版更新，不会烂在代码里）。
+- **取值兜底链**（#19 修订，全链序）：① npm/jsDelivr 竞速成功值（内存）→ ② 落盘的「上次成功拉取值」→ ③ 运行时已拉取构建产物的 `sourceCliVersion` → ④ 包内快照的 `sourceCliVersion`（`docs/spec/model-pipeline.md` §1.1，随插件发版更新，不会烂在代码里）。③ 只读模型管线**内存中已有**的产物——不触发额外拉取、不等待；③ 的值**不回写**落盘缓存（② 的语义 = npm/jsDelivr 一手拉取值）。
+- **重估时机（#19）**：版本值只在两个时刻重估——初解析（首请求 1.5s 竞速 + 后台查询落地更新）与 24h 惰性刷新；期间模型管线的产物刷新**不**引起版本头翻转（防抖动）。
 - 落盘物：`<缓存目录>/opencode-commandcode/version-cache.json`（`XDG_CACHE_HOME` 优先，默认 `~/.cache`），内容 `{version, fetchedAt}`，原子写（临时文件 + rename）。这是伪装模块**唯一**的磁盘 IO（D1）。
-- 预留：#10 分发渠道拍板后，构建产物可直接携带 cliVersion 成为兜底链新层级，届时修订本节。
 
 ## 7. 日志脱敏（D7）
 
@@ -98,7 +99,47 @@
 - **`config.environment`**：报真实 `platform` 单词（实测恒 `"linux"`），无 arch、无 Node 版本——MAXeaglet 的 `${platform}-${arch}, Node.js ${version}` 拼接格式弃用。原「报人格值修自相矛盾」条款随之作废：如实上报天然自洽。
 - 时区读真实时区，不做随机池。
 
-## 9. 照抄 / 修写 / 不适用 对照表
+## 9. generate 信封 `config` 块取值（D9，#19 定稿）
+
+> 事实输入：官方 CLI 源码调研 `docs/research/cli-config-collection.md`（`command-code` 1.38.2 `dist/cli.mjs` 字节偏移级还原，下称「源码调研」，工单 #23）；抓包样本 `capture/samples/generate.json`。
+> 总则：**逐字段照抄官方实现**（老板拍板「人家代码怎么办，我们怎么办」）；仅两处纯客户端防御性偏离（§9.3），均不改变请求线上形状。
+
+### 9.1 逐字段取值（官方实现照抄）
+
+| 字段 | 取值 |
+|---|---|
+| `workingDir` | `process.cwd()` 原样（官方 `createNodeRuntime().cwd()` 即此）；与 §3 的 slug 派生共用同一来源 |
+| `date` | **UTC** 日期：`(new Date).toISOString().split("T")[0] ?? ""` → `YYYY-MM-DD`（官方即 UTC，非本地时区） |
+| `environment` | `process.platform` 单词（实测恒 `"linux"`，与 §8 同源） |
+| `structure` | 见 §9.2 |
+| `isGitRepo` | `git rev-parse --git-dir` 有输出 → `true`；空输出/失败（非 git 目录、git 未装同形）→ `false` |
+| `currentBranch` | `git branch --show-current`；失败 → `""` |
+| `mainBranch` | 三级推断（从不直接取当前分支）：`git symbolic-ref --short refs/remotes/origin/HEAD` 成功 → 去 `origin/` 前缀；失败 → `git branch -r` 输出含 `origin/main` → `"main"`、含 `origin/master` → `"master"`；兜底 `"main"` |
+| `gitStatus` | `git status --porcelain` stdout 仅 trim 首尾、行间原样；**空输出或失败** → `"Working tree clean"`（官方语义：失败与干净工作区在 wire 上不可区分，照抄接受） |
+| `recentCommits` | `git log --oneline -3` stdout 按行 split；空/失败 → `[]`（勿与官方 system prompt 侧另一条 `-5` 路径混淆，那不进 config） |
+| 顶层 `permissionMode` | 恒 `"standard"`（抓包 ground truth；与 OpenCode 自身权限模式无关，照抄） |
+
+**非 git 仓库 / git 未装**：`rev-parse --git-dir` 为空即提前返回——九字段**齐全**的显式空值形状（`isGitRepo: false`、`currentBranch`/`mainBranch`/`gitStatus` 空串、`recentCommits: []`），`workingDir/date/environment/structure` 照常采集（structure 先于 git 判定，非 git 目录也有内容）。**不省略字段**（源码调研推翻 #19 访谈的「省略」拍板）。
+
+### 9.2 `structure` 采集
+
+- `readdir(workingDir)` **仅单层**，无递归，文件与目录混排。
+- 过滤：名字 `.` 开头的条目 + 14 项黑名单 `["node_modules","dist","build",".git",".svn",".hg","coverage",".nyc_output",".cache","tmp","temp",".next",".nuxt","out"]`（黑名单内点开头项与第一条规则重叠，属官方冗余保险，照抄）。**不读 .gitignore**，不区分文件/目录。
+- 排序：默认字典序（`.sort()`，UTF-16 码元序，大写在小写前——抓包样本 `AGENTS.md, CONTEXT.md, capture, …` 正是此特征）。
+- 无数量上限。
+- **尾部 scope 标签**：额外工作区目录（`workspaceRoots()` 中非 cwd 者）逐个格式化为 `scope:<路径>` 追加在数组**末尾**、不参与排序；格式化语义：目录即 cwd → `"."`；在 cwd 下 → `"./xxx"`；即 home → `"~"`；在 home 下 → `"~/xxx"`；否则原样绝对路径。OpenCode 单工作区场景通常无 scope 标签。readdir 抛异常 → 返回仅含 scope 标签的数组。
+
+### 9.3 采集节奏与两处防御性偏离
+
+- **官方语义（照抄）**：config **进程级只构建一次**（首次需要时构建并冻结复用），git/status/log/structure 各跑一次；git 查询**顺序 await、无并发**；`shellOutput` try/catch 全包——非零退出码/异常 → `""`，逐字段独立降级、绝不抛错；失败结果同样冻结复用。
+- **偏离 a（防御超时）**：官方 git 查询无超时（官方进程短命无碍）；插件为长驻进程，每条 git 查询加 **2s** 上限，到点按失败处理（`""`）——纯客户端防御，不改请求形状。
+- **偏离 b（过期重采）**：官方进程每任务重启，冻结无感；插件会话可长跑数日，冻结过久的 config 在真实用户群体中罕见。在冻结语义上加 **24h 过期重采**（与 §6 版本头惰性刷新同节奏）：距上次构建超 24h 的首次 generate 触发后台重采，期间沿用旧值、主请求不等待。cache 仍为纯内存态，不落盘（D1 不变）。
+
+### 9.4 与协议核心的边界
+
+`config` 块与顶层 `permissionMode` 的取值由伪装模块提供，协议核心（`docs/spec/protocol.md` §1）构造信封时填充；`threadId` 来自 §3 会话身份。协议核心对 `config` 内容零知识、只留填充点。
+
+## 10. 照抄 / 修写 / 不适用 对照表
 
 **照抄（逐字，#9 校准后以调研 §11 为准）**：thumbmark/components 的 15 字段结构与哈希算法（输入换真机真值）；traceparent 生成（`00-<32hex>-<16hex>-01` 逐请求新造，实测吻合）；请求头集合与取值（`x-cli-environment: production`、`x-taste-learning: true`、`User-Agent: cli`、accept 家族，全集见调研 §11.3）；两套 session id 并存（`x-session-id` uuid v4 + lifecycle `sess_<16hex>` 无关随机）；lifecycle 事件类型与 metadata 形状；回退路径会话寿命 12–13h；per-key KeyState 结构。
 
@@ -122,18 +163,20 @@
 
 **不适用 / 丢弃**：本地反代服务器形态（架构主判例是进程内转换，不起本地服务）；入站 session 头透传（插件无入站 HTTP 头，由会话绑定主路径取代，见 §3）；指纹随机池（假人格弃用，见 §8）；`x-co-flag` 头（真实 CLI 不发送）。另注：MAXeaglet 的「死代码 threadId」其实是真协议字段——generate body 顶层的 `threadId` 等于 `x-session-id`（#9 证实），协议模块（#8）实现 generate 信封时需带上。
 
-## 10. 参数速查
+## 11. 参数速查
 
 | 参数 | 值 |
 |---|---|
 | 预请求独立超时 | 3s |
 | 版本竞速上限 / jsDelivr 尝试上限 | 1.5s / 1.5s |
 | 版本惰性刷新间隔 | 24h |
+| config 重采间隔（偏离官方冻结语义，#19）| 24h |
+| git 查询防御超时（偏离官方无超时，#19）| 2s/条 |
 | 指纹重报节奏（成功后）/ 4xx 长冷却 | 8h + rand×2h（未获 ground truth 证实，保守保留，#9） |
 | 回退路径会话寿命 | 12h + rand×1h |
 | 瞬时失败退避 | 60s × 2^n，上限 15min |
 
-## 11. 备选与否决记录
+## 12. 备选与否决记录
 
 | 备选 | 否决 / 推迟理由 |
 |---|---|
@@ -147,3 +190,8 @@
 | lifecycle 照抄现造 sess id | 明知两套 ID 互不引用是破绽还自己造一个 |
 | 多平台人格池 | 无 ground truth 的纯发明；单一 win32 与被逆向对象同构 |
 | 日志输出 raw key / 完整伪标识符 | 老板红线：不泄露敏感信息 |
+| config 块逐请求现采 / 5min 缓存（#19 访谈提案） | 官方为进程级构建一次冻结复用；照抄 + 24h 过期重采即可，中间态发明无证据支撑 |
+| 非 git 目录省略 git 字段（#19 访谈拍板） | 官方九字段齐全显式空值；省略是形状偏离（源码调研 #23 推翻） |
+| date 报本地时区（#19 访谈拍板） | 官方 `toISOString()` 恒 UTC；照抄 |
+| mainBranch 报当前分支（#19 访谈拍板） | 官方为远程 HEAD 推断（symbolic-ref → branch -r → 兜底 main），与当前分支语义不同 |
+| gitStatus 行数/字节上限 | 官方无上限；加限是发明 |

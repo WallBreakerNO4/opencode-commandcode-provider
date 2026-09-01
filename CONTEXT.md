@@ -24,7 +24,11 @@ Command Code 的标准 OpenAI 兼容端点（`/provider/v1/*`）。Go plan 调�
 _Avoid_: 反代端点、私有 API
 
 **CLI 信封**:
-`/alpha/generate` 的请求体结构 `{config, memory, taste, skills, permissionMode, params}`；语义集中在 `params`（模型、消息、工具、采样参数）。
+`/alpha/generate` 的请求体七键结构 `{config, memory, taste, skills, permissionMode, threadId, params}`；语义集中在 `params`（模型、消息、工具、采样参数），`threadId` 与 `x-session-id` 同值（#9 抓包定案）。
+
+**config 块**:
+CLI 信封顶部的工作环境简报，九字段 `workingDir / date / environment / structure / isGitRepo / currentBranch / mainBranch / gitStatus / recentCommits`；逐字段照抄官方 CLI 采集实现，非 git 仓库显式空值、不省略字段。规格见 `docs/spec/disguise.md` §9。
+_Avoid_: 环境上报、上下文块、环境简报
 
 **NDJSON 事件流**:
 `/alpha/generate` 的响应格式——每行一个 JSON 事件对象（`text-delta` / `tool-call` / `finish-step` / `finish` 等），非 SSE `data:` 帧。
@@ -59,8 +63,8 @@ _Avoid_: 总超时、请求超时
 _Avoid_: 空响应、防计费（订阅制下理由已弱化）
 
 **伪装人格**:
-伪装层对外呈现的单一设备形态（win32-x64 + 固定 osRelease + 时区池）。指纹、environment、lifecycle 的 os 字段均取自同一人格。
-_Avoid_: 假身份、多平台伪装
+伪装层对外呈现的设备形态：**如实上报用户真实机器**——平台、内核版本、CPU/内存、时区、网卡哈希均取真值，不构造假人格。指纹、environment、lifecycle 的 os 字段同源取真实值（#9 抓包校准，win32 假人格已弃用）。
+_Avoid_: 假身份、多平台伪装、win32 假人格（已弃用）
 
 ### 模型
 
@@ -90,6 +94,10 @@ _Avoid_: 内置目录、静态目录
 **数据包**:
 只承载构建产物的独立 npm 包（`@wallbreakerno4/opencode-commandcode-models`），与插件主包分离发版，为构建产物提供大陆直连可达的分发副本。
 _Avoid_: models 包、数据 npm 包
+
+**files 白名单**:
+npmmirror 对 files 端点（`registry.npmmirror.com/<pkg>/latest/files/*`）的按包准入机制：仅放行 cnpm/unpkg-white-list 仓库登记的包（PR 制，合并后约 5 分钟生效），未登记包一律 403；数据包登记后方能充任默认 URL 列表的 npmmirror 渠道。
+_Avoid_: CDN 限流、同步黑名单
 
 **默认 URL 列表**:
 客户端内置的构建产物拉取地址序列，按序尝试、首个成功者胜；用户配置可覆盖。包内快照独立于列表，始终是最后兜底层。
