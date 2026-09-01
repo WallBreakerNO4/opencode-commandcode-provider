@@ -101,7 +101,7 @@
 
 ## 9. generate 信封 `config` 块取值（D9，#19 定稿）
 
-> 事实输入：官方 CLI 源码调研 `docs/research/cli-config-collection.md`（`command-code` 1.38.2 `dist/cli.mjs` 字节偏移级还原，下称「源码调研」，工单 #23）；抓包样本 `capture/samples/generate.json`。
+> 事实输入：官方 CLI 源码调研 `docs/research/cli-config-collection.md`（`command-code` 1.38.2 `dist/cli.mjs` 字节偏移级还原，下称「源码调研」，工单 #23）；信封三键（memory/taste/skills）取证 `docs/research/envelope-trio-keys.md`（分支 `research/envelope-trio-keys`，工单 #25，下称「三键取证」）；抓包样本 `capture/samples/generate.json`。
 > 总则：**逐字段照抄官方实现**（老板拍板「人家代码怎么办，我们怎么办」）；仅两处纯客户端防御性偏离（§9.3），均不改变请求线上形状。
 
 ### 9.1 逐字段取值（官方实现照抄）
@@ -118,8 +118,13 @@
 | `gitStatus` | `git status --porcelain` stdout 仅 trim 首尾、行间原样；**空输出或失败** → `"Working tree clean"`（官方语义：失败与干净工作区在 wire 上不可区分，照抄接受） |
 | `recentCommits` | `git log --oneline -3` stdout 按行 split；空/失败 → `[]`（勿与官方 system prompt 侧另一条 `-5` 路径混淆，那不进 config） |
 | 顶层 `permissionMode` | 恒 `"standard"`（抓包 ground truth；与 OpenCode 自身权限模式无关，照抄） |
+| 顶层 `memory` | 恒 `null`（官方为字面量死键，任何环境/模式均不填；AGENTS.md 类数据由客户端拼进 `params.system` 的 `<instructions>` 块，不进信封，三键取证） |
+| 顶层 `taste` | 恒 `null`（字面量死键；taste 数据由客户端拼进 `params.system` 的 `<taste>` 块且空态也渲染，三键取证） |
+| 顶层 `skills` | 恒 `null`（字面量死键；技能经 `params.system` 的 `<skills>`/`<available_skills>` 目录块与 `activate_skill` 工具枚举投递，全文不进请求，三键取证） |
 
 **非 git 仓库 / git 未装**：`rev-parse --git-dir` 为空即提前返回——九字段**齐全**的显式空值形状（`isGitRepo: false`、`currentBranch`/`mainBranch`/`gitStatus` 空串、`recentCommits: []`），`workingDir/date/environment/structure` 照常采集（structure 先于 git 判定，非 git 目录也有内容）。**不省略字段**（源码调研推翻 #19 访谈的「省略」拍板）。
+
+**三键为死键（三键取证定案）**：官方唯一信封构造点上是硬编码 `null` 字面量，无赋值路径、无条件分支——抓包中连 taste 学习调用（`mode:"learning"`）的记录三键也全 `null`，故「空项目恒 null」系「CLI 从不填」而非环境缺数据。插件照抄常量 `null`，**勿从任何数据源（AGENTS.md / skills / taste 等）填充**——这些数据在官方走 `params.system` 拼装块与 `params.tools` 工具枚举，而插件的 `params` 由协议核心按其规格构造（`docs/spec/protocol.md` §1），不另行复刻官方 system prompt 拼装块。
 
 ### 9.2 `structure` 采集
 
@@ -137,7 +142,7 @@
 
 ### 9.4 与协议核心的边界
 
-`config` 块与顶层 `permissionMode` 的取值由伪装模块提供，协议核心（`docs/spec/protocol.md` §1）构造信封时填充；`threadId` 来自 §3 会话身份。协议核心对 `config` 内容零知识、只留填充点。
+`config` 块与顶层 `permissionMode`、顶层 `memory`/`taste`/`skills`（恒 `null`，§9.1）的取值由伪装模块提供，协议核心（`docs/spec/protocol.md` §1）构造信封时填充；`threadId` 来自 §3 会话身份。协议核心对 `config` 内容零知识、只留填充点。
 
 ## 10. 照抄 / 修写 / 不适用 对照表
 

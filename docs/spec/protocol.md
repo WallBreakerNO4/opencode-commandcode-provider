@@ -16,7 +16,7 @@ OpenCode ◀─stream part── 协议核心 ◀─NDJSON 事件── 上游�
 ## 1. 请求信封
 
 - `POST https://api.commandcode.ai/alpha/generate`，`stream: true` 恒真。
-- 信封骨架为 **7 键** `{config, memory, taste, skills, permissionMode, threadId, params}`（#9 抓包定案：`threadId` 为真协议字段、与 `x-session-id` 同值，由伪装模块的会话身份提供；MAXeaglet 的「死代码 threadId」实为真字段，见 `docs/research/disguise-spec.md` §11.2）。骨架中的伪装字段（`config.*`、`permissionMode` 等）取值由伪装模块提供（逐字段规格见 `docs/spec/disguise.md` §9），协议核心只留填充点。
+- 信封骨架为 **7 键** `{config, memory, taste, skills, permissionMode, threadId, params}`（#9 抓包定案：`threadId` 为真协议字段、与 `x-session-id` 同值，由伪装模块的会话身份提供；MAXeaglet 的「死代码 threadId」实为真字段，见 `docs/research/disguise-spec.md` §11.2）。骨架中除 `threadId` 外的伪装字段（`config.*`、顶层 `permissionMode`，以及恒 `null` 的 `memory`/`taste`/`skills`）取值均由伪装模块提供，逐字段规格见 `docs/spec/disguise.md` §9（三键死键定案见其三键取证），协议核心只留填充点。
 - `params` 语义字段：`model`（wire id）、`messages`、`system`、`tools`、`tool_choice`、`max_tokens`、`stream`、`temperature`、`top_p`、`top_k`、`reasoning_effort`。
 
 ### 1.1 消息转换
