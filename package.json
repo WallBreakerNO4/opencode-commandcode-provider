@@ -36,6 +36,7 @@
   ],
   "packageManager": "pnpm@11.25.0",
   "devDependencies": {
+    "@ai-sdk/provider": "3.0.8",
     "@opencode-ai/plugin": "beta",
     "@types/bun": "^1.4.0",
     "typescript": "^5.9.3"
