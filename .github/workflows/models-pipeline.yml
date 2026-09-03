@@ -1,0 +1,195 @@
+name: Models pipeline
+
+# 构建侧全自动流水线（issue #28；规格 docs/spec/model-pipeline.md §2 + ADR docs/adr/0001）：
+# cron 轮询上游 command-code 版本与 models.dev 内容 hash，相对上次成功构建有变化才触发
+# 解析；三渠道（Release asset / npm 数据包 / data 分支）一次运行同步发布。
+
+on:
+  schedule:
+    # 每 15 分钟轮询；上游发版到检测平均 ~7.5 分钟延迟，为 ≤30 分钟全网可见 SLA 留出构建与同步时间
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 忽略变更检测，强制完整构建并发布
+        type: boolean
+        default: false
+      drill-prev-distribution:
+        description: 对账断言演练：注入伪造的上次分布 JSON（如 {"Go":999,"GOAT":0,"Pro":0,"Max":0}），构建应失败并自动开 issue、不出产物
+        type: string
+        default: ""
+
+# 串行化是数据包版本（0.0.<Unix 秒 UTC>）严格单调的保证（ADR-0001 修订）：
+# 排队而非取消，两次发布不可能落在同一秒。
+concurrency:
+  group: models-pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: write # Release 与 data 分支 force-push
+  issues: write # 对账断言失败自动开 issue
+
+jobs:
+  pipeline:
+    name: 解析 · 对账 · 三渠道发布
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 安装 bun（测试运行器 + 构建脚本运行时）
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: 变更检测（上游 CLI 版本 × models.dev 内容 hash）
+        id: detect
+        env:
+          FORCE: ${{ inputs.force }}
+        run: |
+          set -euo pipefail
+          LATEST=$(curl -fsSL https://registry.npmjs.org/command-code/latest | jq -r .version)
+          DEV_HASH=$(curl -fsSL https://models.dev/api.json | sha256sum | cut -d' ' -f1)
+          PREV_CLI=""; PREV_HASH=""
+          # data 分支的 build-meta.json = 上次成功构建的基准；同文件兼作下次构建的分布基线
+          if curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/data/build-meta.json" -o prev-meta.json; then
+            PREV_CLI=$(jq -r .sourceCliVersion prev-meta.json)
+            PREV_HASH=$(jq -r .modelsDevSha256 prev-meta.json)
+          else
+            rm -f prev-meta.json
+          fi
+          SHOULD=false; REASON=""
+          if [ "$FORCE" = "true" ]; then
+            SHOULD=true; REASON="手动强制"
+          elif [ -z "$PREV_CLI" ] || [ "$PREV_CLI" = "null" ]; then
+            SHOULD=true; REASON="首次构建（无上次成功基准）"
+          elif [ "$PREV_CLI" != "$LATEST" ]; then
+            SHOULD=true; REASON="command-code 发版 ${PREV_CLI} → ${LATEST}"
+          elif [ "$PREV_HASH" != "$DEV_HASH" ]; then
+            SHOULD=true; REASON="models.dev 内容变化（上游未发版，limits 数据更新）"
+          fi
+          echo "cli-version=${LATEST}" >> "$GITHUB_OUTPUT"
+          echo "should-build=${SHOULD}" >> "$GITHUB_OUTPUT"
+          echo "reason=${REASON}" >> "$GITHUB_OUTPUT"
+          echo "变更检测：should=${SHOULD} reason=${REASON}（上次 CLI ${PREV_CLI}，本次 ${LATEST}）"
+
+      - name: 对账断言演练（注入伪造的上次分布）
+        if: inputs.drill-prev-distribution != ''
+        env:
+          DRILL_DIST: ${{ inputs.drill-prev-distribution }}
+        run: |
+          set -euo pipefail
+          jq -n --argjson dist "$DRILL_DIST" \
+            '{schemaVersion: 1, sourceCliVersion: "drill", generatedAt: "1970-01-01T00:00:00Z", modelsDevSha256: "drill", modelsJsonSha256: "drill", planDistribution: $dist, modelsCount: 0}' \
+            > drill-prev-meta.json
+          echo "演练用伪造 prev-meta：$(cat drill-prev-meta.json)"
+
+      - name: 构建（tarball 文本解析 → 对账断言 → 产物）
+        if: steps.detect.outputs.should-build == 'true'
+        run: |
+          set -o pipefail
+          PREV=""
+          if [ -f drill-prev-meta.json ]; then PREV="--prev-meta drill-prev-meta.json"
+          elif [ -f prev-meta.json ]; then PREV="--prev-meta prev-meta.json"
+          fi
+          bun scripts/build-models/main.ts --out-dir artifact --cli-version "${{ steps.detect.outputs.cli-version }}" $PREV 2>&1 | tee build.log
+
+      - name: 对账失败自动开 issue（不静默出产物）
+        if: failure() && steps.detect.outputs.should-build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [ -f build.log ] || echo "（构建在写日志前即失败）" > build.log
+          BODY=$(mktemp)
+          {
+            echo "构建流水线对账断言失败，本次运行未产出任何产物。"
+            echo
+            echo "- Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "- 上游 CLI 版本：${{ steps.detect.outputs.cli-version }}"
+            echo "- 触发原因：${{ steps.detect.outputs.reason }}"
+            echo
+            echo '<details><summary>构建日志（尾部 100 行）</summary>'
+            echo
+            echo '```'
+            tail -100 build.log
+            echo '```'
+            echo '</details>'
+          } > "$BODY"
+          TITLE="构建流水线对账断言失败"
+          OPEN=$(gh issue list --search "${TITLE} in:title state:open" --json number --jq 'length')
+          if [ "$OPEN" -gt 0 ]; then
+            # 已有未关闭的对账 issue：追加评论而非新建，防轮询周期刷屏
+            NUM=$(gh issue list --search "${TITLE} in:title state:open" --json number --jq '.[0].number')
+            gh issue comment "$NUM" --body-file "$BODY"
+          else
+            gh issue create --title "${TITLE}（$(date -u +%Y-%m-%d)）" --body-file "$BODY" --label 需人工实现
+          fi
+
+      - name: 发布版本号（0.0.<Unix 秒 UTC>）
+        id: version
+        if: steps.detect.outputs.should-build == 'true'
+        env:
+          PKG: "@wallbreakerno4/opencode-commandcode-models"
+        run: |
+          set -euo pipefail
+          TS=$(date -u +%s)
+          # concurrency 串行已排除本流水线的同秒碰撞；此查询只是对仓库外已发布版本的廉价保险
+          if npm view "${PKG}@0.0.${TS}" version >/dev/null 2>&1; then
+            TS=$((TS + 1))
+          fi
+          echo "npm-version=0.0.${TS}" >> "$GITHUB_OUTPUT"
+          echo "数据包版本：0.0.${TS}"
+
+      # 三渠道顺序发布：任一渠道中途失败，本次 run 即失败退出，data 分支（含 build-meta）
+      # 未更新 → 下一轮 cron 重新触发构建 → 新版本号整体重发，最终一致；
+      # 途中多出的 Release / npm 版本留作审计痕迹，无需补偿逻辑。
+      - name: 渠道 1 · GitHub Release asset（releases/latest/download/models.json 主源）
+        if: steps.detect.outputs.should-build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.npm-version }}
+        run: |
+          set -euo pipefail
+          gh release create "models-${VERSION}" artifact/models.json \
+            --title "模型目录 ${VERSION}" \
+            --notes "command-code@${{ steps.detect.outputs.cli-version }} 的构建产物（schema v1，Go plan 子集）。与 npm 数据包 ${VERSION}、data 分支同轮发布，三渠道内容一致（sha256=$(sha256sum artifact/models.json | cut -d' ' -f1)）。"
+
+      - name: 渠道 2 · npm 数据包（npmmirror files 同步源）
+        if: steps.detect.outputs.should-build == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          VERSION: ${{ steps.version.outputs.npm-version }}
+        run: |
+          set -euo pipefail
+          mkdir -p publish
+          cp artifact/models.json publish/models.json
+          cat > publish/package.json <<JSON
+          {
+            "name": "@wallbreakerno4/opencode-commandcode-models",
+            "version": "${VERSION}",
+            "description": "Command Code Go plan 模型目录数据包：构建流水线产物，供 OpenCode 插件运行时经 npmmirror files / unpkg 匿名拉取。",
+            "files": ["models.json"],
+            "license": "UNLICENSED",
+            "repository": {
+              "type": "git",
+              "url": "git+https://github.com/WallBreakerNO4/opencode-commandcode-provider.git"
+            }
+          }
+          JSON
+          # 只打 latest tag（ADR-0001：无人类消费场景，溯源走 packument 的 time 字段）
+          echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > publish/.npmrc
+          cd publish && npm publish
+
+      - name: 渠道 3 · data 分支 force-push（raw 灾备）
+        if: steps.detect.outputs.should-build == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name "models-pipeline[bot]"
+          git config user.email "models-pipeline[bot]@users.noreply.github.com"
+          git checkout --orphan data-publish
+          git rm -rf --quiet .
+          cp artifact/models.json artifact/build-meta.json .
+          git add -f models.json build-meta.json
+          git commit -m "构建产物发布 ${{ steps.version.outputs.npm-version }}（command-code@${{ steps.detect.outputs.cli-version }}）"
+          git push --force origin data-publish:data

@@ -18,7 +18,8 @@
   "scripts": {
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "build": "tsc -p tsconfig.build.json"
+    "build": "tsc -p tsconfig.build.json",
+    "build:models": "bun scripts/build-models/main.ts"
   },
   "repository": {
     "type": "git",
