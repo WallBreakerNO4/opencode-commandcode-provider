@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "@wallbreakerno4/opencode-commandcode",
+  "version": "0.0.0",
+  "description": "OpenCode provider plugin for the Command Code Go plan: an in-process bridge to the /alpha/generate gateway.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WallBreakerNO4/opencode-commandcode-provider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues"
+  },
+  "homepage": "https://github.com/WallBreakerNO4/opencode-commandcode-provider#readme",
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "provider",
+    "commandcode"
+  ],
+  "packageManager": "pnpm@11.25.0",
+  "devDependencies": {
+    "@opencode-ai/plugin": "beta",
+    "@types/bun": "^1.4.0",
+    "typescript": "^5.9.3"
+  }
+}

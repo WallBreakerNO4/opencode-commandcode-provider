@@ -1,0 +1,5 @@
+# pnpm 11 的项目设置文件（单包项目也用它承载设置，不再读 package.json 的 pnpm 字段）。
+# msgpackr-extract 是 @opencode-ai/plugin 的传递依赖，插件入口运行时不 import 它，
+# 其原生构建脚本无存在必要——显式拒绝，保住零构建脚本的供应链面。
+allowBuilds:
+  msgpackr-extract: false
