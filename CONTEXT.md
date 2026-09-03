@@ -24,7 +24,7 @@ Command Code 的标准 OpenAI 兼容端点（`/provider/v1/*`）。Go plan 调�
 _Avoid_: 反代端点、私有 API
 
 **CLI 信封**:
-`/alpha/generate` 的请求体七键结构 `{config, memory, taste, skills, permissionMode, threadId, params}`；语义集中在 `params`（模型、消息、工具、采样参数），`threadId` 与 `x-session-id` 同值（#9 抓包定案）。
+`/alpha/generate` 的请求体七键结构 `{config, memory, taste, skills, permissionMode, threadId, params}`；语义集中在 `params`（模型、消息、工具、采样参数），`threadId` 与 `x-session-id` 同值（#9 抓包定案），`memory` / `taste` / `skills` 为官方硬编码 `null` 死键（#25 源码定案）。
 
 **config 块**:
 CLI 信封顶部的工作环境简报，九字段 `workingDir / date / environment / structure / isGitRepo / currentBranch / mainBranch / gitStatus / recentCommits`；逐字段照抄官方 CLI 采集实现，非 git 仓库显式空值、不省略字段。规格见 `docs/spec/disguise.md` §9。
@@ -100,8 +100,8 @@ npmmirror 对 files 端点（`registry.npmmirror.com/<pkg>/latest/files/*`）的
 _Avoid_: CDN 限流、同步黑名单
 
 **默认 URL 列表**:
-客户端内置的构建产物拉取地址序列，按序尝试、首个成功者胜；用户配置可覆盖。包内快照独立于列表，始终是最后兜底层。
-_Avoid_: 源列表、fallback 链
+客户端内置的构建产物拉取地址序列，按序尝试、首个成功者胜；用户可经 v1 `provider…options.modelsUrls` / v2 `providers…settings.modelsUrls` / 环境变量 `COMMANDCODE_MODELS_URLS` 以**整列表替换**方式覆盖（config > env > 默认），非法值回退默认列表并告警、不阻断启动。包内快照独立于列表，始终是最后兜底层。
+_Avoid_: 源列表、fallback 链、URL 追加/插位
 
 **变体**:
 同一模型按推理档位派生的可选形态（如 low / high / max），来自构建产物的 efforts 字段；缺档位不造变体，未选变体即基础形态（不发送 reasoning_effort）。

@@ -148,6 +148,8 @@
 
 **照抄（逐字，#9 校准后以调研 §11 为准）**：thumbmark/components 的 15 字段结构与哈希算法（输入换真机真值）；traceparent 生成（`00-<32hex>-<16hex>-01` 逐请求新造，实测吻合）；请求头集合与取值（`x-cli-environment: production`、`x-taste-learning: true`、`User-Agent: cli`、accept 家族，全集见调研 §11.3）；两套 session id 并存（`x-session-id` uuid v4 + lifecycle `sess_<16hex>` 无关随机）；lifecycle 事件类型与 metadata 形状；回退路径会话寿命 12–13h；per-key KeyState 结构。
 
+> 注（#25 留档）：`x-taste-learning` 在官方源码为动态值（`tasteLearningEnabled.toString()`：BYOK 模型或用户关闭 learning 时为 `"false"`）；本插件人格（订阅 key、无学习开关）下按官方规则恒 `"true"`，照抄不改。
+
 **修写（相对 MAXeaglet）**：
 
 | 项 | 改法 | 理由 |

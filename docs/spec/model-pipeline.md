@@ -71,6 +71,13 @@ per-model：
 
 - schema 与客户端代码不得包含渠道特有概念（如 gist revision、Release tag 语义）。
 - 客户端按**有序 URL 列表**拉取产物：代码内置默认列表（由「分发渠道选型」票确定），用户配置可覆盖；按序尝试，首个成功者胜。
+- **覆盖机制**（键名统一 `modelsUrls`，值 = http(s) URL 有序列表，接受字符串数组或逗号分隔字符串；#17 终审拍板，调研 `docs/research/models-url-override.md`）：
+  - v1：用户 `opencode.json` 的 `provider.commandcode-go.options.modelsUrls`；v1 config hook 注入 provider 块时必须非破坏合并，用户已写键优先。
+  - v2：用户 `opencode.json` 的 `providers.commandcode-go.settings.modelsUrls`（空壳升级为 settings 壳）；值经宿主内置 transform 进入目录并在工厂 options 中以顶层键出现。
+  - 统一环境变量兜底：`COMMANDCODE_MODELS_URLS`（逗号分隔），v1/v2 插件进程内直读。优先级 config > env > 默认列表。该变量是用户配置面，非测试通道；测试仍经工厂 `options.fetch` 接缝注入（testing.md §2/§3）。
+  - **语义为整列表替换**：不与默认列表拼接、不提供插位；包内快照不占列表位，仍是失败兜底层。
+  - **非法值处理**：逐项校验（可解析且 http/https 的绝对 URL），非法项丢弃 + 逐项 warn；非数组或合法项为零时整体回退默认列表 + warn；任何情况下不阻断启动。解析结果与来源（config/env/default）打日志。
+  - **新鲜度边界**：≤30 分钟 SLA 只约束默认渠道的发布管线；用户覆盖渠道无新鲜度保证，存活但滞后的镜像会按首个成功者胜持续生效（新模型延迟可见，存量不受影响），客户端不做跨渠道新鲜度仲裁。
 
 ## 2. 构建侧契约
 
