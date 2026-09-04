@@ -59,8 +59,12 @@ jobs:
             rm -f prev-meta.json
           fi
           SHOULD=false; REASON=""
+          DRILL="${{ inputs.drill-prev-distribution }}"
           if [ "$FORCE" = "true" ]; then
             SHOULD=true; REASON="手动强制"
+          elif [ -n "$DRILL" ]; then
+            # 演练必须穿过变更检测门槛进构建步，否则基准刚更新过时演练会被跳过
+            SHOULD=true; REASON="对账断言演练"
           elif [ -z "$PREV_CLI" ] || [ "$PREV_CLI" = "null" ]; then
             SHOULD=true; REASON="首次构建（无上次成功基准）"
           elif [ "$PREV_CLI" != "$LATEST" ]; then
