@@ -177,9 +177,10 @@ jobs:
             }
           }
           JSON
-          # 只打 latest tag（ADR-0001：无人类消费场景，溯源走 packument 的 time 字段）
+          # 只打 latest tag（ADR-0001：无人类消费场景，溯源走 packument 的 time 字段）；
+          # 作用域包默认 restricted，免费账号首次发布必须显式 --access public，否则 402（npm scope 文档）
           echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > publish/.npmrc
-          cd publish && npm publish
+          cd publish && npm publish --access public
 
       - name: 渠道 3 · data 分支 force-push（raw 灾备）
         if: steps.detect.outputs.should-build == 'true'
