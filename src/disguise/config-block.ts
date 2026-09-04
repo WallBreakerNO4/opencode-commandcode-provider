@@ -28,6 +28,11 @@ const execAsync = promisify(exec)
 /** 每条 git 查询的防御超时（§11 参数速查：2s/条，到点按失败处理） */
 export const GIT_QUERY_TIMEOUT_MS = 2000
 
+/** 信封 `date` 字段取值（§9.1）：恒 UTC 的 `YYYY-MM-DD`（官方 `toISOString()` 即 UTC，非本地时区） */
+export function currentUtcDate(): string {
+  return new Date().toISOString().split("T")[0] ?? ""
+}
+
 /** 信封顶层 `permissionMode`：恒 `"standard"`（#9 抓包 ground truth，与 OpenCode 自身权限模式无关） */
 export const PERMISSION_MODE = "standard"
 
@@ -135,7 +140,7 @@ export async function collectStructure(runtime: ConfigRuntime): Promise<string[]
 export async function collectConfigBlock(runtime: ConfigRuntime): Promise<ConfigBlock> {
   // 官方顺序：structure 最先（先于 git 判定），date/environment/workingDir 同步取
   const structure = await collectStructure(runtime)
-  const date = new Date().toISOString().split("T")[0] ?? ""
+  const date = currentUtcDate()
   const environment = runtime.platform()
   const workingDir = runtime.cwd()
 
