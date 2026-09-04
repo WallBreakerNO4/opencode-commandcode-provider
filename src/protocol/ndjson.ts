@@ -13,7 +13,8 @@
  * `error` 不吞错、未知 type 静默忽略。
  *
  * 半行残片两结局（§2 / §3 行 8）：EOF 时已收 `finish-step` 则忽略残片并补发收据
- * finish part；未收到则并入截断错误（APICallError 形态的映射归协议核心 II）。
+ * finish part；未收到则并入截断错误（errors.ts 的 StreamTruncatedError，APICallError
+ * 形态、可重试，本模块 re-export 保持消费面）。
  */
 
 import type {
@@ -25,22 +26,9 @@ import type {
   SharedV3Warning,
 } from "@ai-sdk/provider"
 import { asRecord } from "./json.js"
+import { streamError, StreamTruncatedError } from "./errors.js"
 
-/** 流关闭但未收到 `finish-step`：无法确认回复完整（§3 行 8，jiesou 的 STREAM_CLOSED）。
- * 重试交 OpenCode 决定，provider 不自行重试。 */
-export class StreamTruncatedError extends Error {
-  readonly code = "STREAM_CLOSED"
-  readonly retriable = true
-  /** EOF 时未完结的半行残片，并入错误供排查 */
-  readonly partialLine: string
-
-  constructor(partialLine: string, modelId: string) {
-    const tail = partialLine ? `，截断残片：${clip(partialLine, 200)}` : ""
-    super(`[${modelId}] 上游流在 finish-step 之前关闭，回复可能不完整${tail}`)
-    this.name = "StreamTruncatedError"
-    this.partialLine = partialLine
-  }
-}
+export { StreamTruncatedError } from "./errors.js"
 
 export interface NdjsonStreamContext {
   /** wire id——错误 message 需含 model id（§3） */
@@ -80,8 +68,12 @@ export function createNdjsonEventStream(context: NdjsonStreamContext): NdjsonEve
     return { type: "error", error }
   }
 
-  function withModelId(message: string): string {
-    return `[${context.modelId}] ${message}`
+  /**
+   * §3 总则：流内错误一律 APICallError 形态。`streamError` 工厂负责打形态标记
+   * 与拼 model id 前缀，本层只供错误正文。
+   */
+  function streamErrorPart(message: string, opts?: { isRetryable?: boolean; code?: string }): LanguageModelV3StreamPart {
+    return errorPart(streamError(context.modelId, message, opts))
   }
 
   function translateLine(line: string): LanguageModelV3StreamPart[] {
@@ -93,7 +85,7 @@ export function createNdjsonEventStream(context: NdjsonStreamContext): NdjsonEve
     } catch (error) {
       abortedByError = true
       const reason = error instanceof Error ? error.message : String(error)
-      return [errorPart(new Error(withModelId(`上游 NDJSON 行无法解析：${clip(line, 200)}（${reason}）`)))]
+      return [streamErrorPart(`上游 NDJSON 行无法解析：${clip(line, 200)}（${reason}）`)]
     }
 
     const record = asRecord(parsed)
@@ -101,7 +93,7 @@ export function createNdjsonEventStream(context: NdjsonStreamContext): NdjsonEve
     if (record === null || type === undefined) {
       // 无事件形状的 JSON（数组、标量、缺 type 的对象）：严格 NDJSON 下视为行级损坏
       abortedByError = true
-      return [errorPart(new Error(withModelId(`上游 NDJSON 行不是事件对象：${clip(line, 200)}`)))]
+      return [streamErrorPart(`上游 NDJSON 行不是事件对象：${clip(line, 200)}`)]
     }
 
     switch (type) {
@@ -182,7 +174,7 @@ export function createNdjsonEventStream(context: NdjsonStreamContext): NdjsonEve
       case "error": {
         // §3 行 9：流中 error 事件不吞错，已收 delta 保留，错误浮出后终止翻译
         abortedByError = true
-        return [errorPart(new Error(withModelId(extractErrorMessage(record))))]
+        return [streamErrorPart(extractErrorMessage(record))]
       }
       default:
         // 未知 type 静默忽略——消费端向前兼容基本功（§2）
