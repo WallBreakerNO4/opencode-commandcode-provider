@@ -121,6 +121,8 @@ jobs:
             echo '</details>'
           } > "$BODY"
           TITLE="构建流水线对账断言失败"
+          # 标签缺失不应炸掉失败路径：缺则自建（需 issues:write，本 run 已有）
+          gh label create "需人工实现" --color F9D0C4 --description "需要人类亲自实现" --force >/dev/null 2>&1 || true
           OPEN=$(gh issue list --search "${TITLE} in:title state:open" --json number --jq 'length')
           if [ "$OPEN" -gt 0 ]; then
             # 已有未关闭的对账 issue：追加评论而非新建，防轮询周期刷屏
