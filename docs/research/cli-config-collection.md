@@ -117,7 +117,7 @@ async function resolveMainBranch(e) {
 **结论**：
 
 - **深度**：`fs.readdir(process.cwd())` **仅当前目录单层**，无递归、无 glob、无深度参数。文件与目录混排（不区分类型，`readdir` 返回纯文件名数组）。
-- **过滤**：`!name.startsWith(".")`（全部点开头条目）+ `!tw.has(name)`；`tw` 黑名单（偏移 **1629355**）：`node_modules, dist, build, .git, .svn, .hg, coverage, .nyc_output, .cache, tmp, temp, .next, .nuxt, out`（15 项；其中点开头的被第一条规则覆盖，属冗余保险）。**不读 .gitignore**（`ignore` 包在依赖里但此链路不用），也**不区分文件/目录**。
+- **过滤**：`!name.startsWith(".")`（全部点开头条目）+ `!tw.has(name)`；`tw` 黑名单（偏移 **1629355**）：`node_modules, dist, build, .git, .svn, .hg, coverage, .nyc_output, .cache, tmp, temp, .next, .nuxt, out`（14 项；其中点开头的被第一条规则覆盖，属冗余保险）。**不读 .gitignore**（`ignore` 包在依赖里但此链路不用），也**不区分文件/目录**。
 - **数量上限**：**无**。
 - **排序**：`.sort()` 默认字典序（UTF-16 码元序，大写字母在小写前）。
 - **尾部追加 scope 标签**：`scopeDirLabels`（偏移 **698768**）把 `workspaceRoots()` 里非 cwd 的额外工作区目录格式化为 `"scope:" + formatScopeDir(...)` 追加在数组**末尾**（不参与 sort）。`formatScopeDir`（偏移 **698460**）：目录即 cwd → `"."`；在 cwd 下 → `"./xxx"`；即 home → `"~"`；在 home 下 → `"~/xxx"`；否则原样绝对路径。readdir 抛异常 → 返回仅含 scope 标签的数组。
@@ -184,7 +184,7 @@ async function readStructure(e) {
 | `mainBranch` | symbolic-ref origin/HEAD → 去 `origin/`；fallback `branch -r` 找 main/master；兜底 `main` | 报当前分支 | ✅ 纠偏 |
 | 非 git 形状 | 九字段齐全，空串/空数组/`false`，不省略 | 省略 | ✅ 纠偏 |
 | 失败处理 | 逐字段 `""`/`[]` 降级；无 try/catch 传播、无超时、无并发；进程级缓存 | — | 新信息 |
-| `structure` | cwd 单层；滤点开头 + 15 项黑名单；不读 .gitignore；无上限；默认 `sort()`；尾部 scope 标签 | — | 新信息 |
+| `structure` | cwd 单层；滤点开头 + 14 项黑名单；不读 .gitignore；无上限；默认 `sort()`；尾部 scope 标签 | — | 新信息 |
 | `date` | UTC `YYYY-MM-DD`（`toISOString`） | — | 确认 |
 | `gitStatus` | `git status --porcelain` trim；空/失败 → `"Working tree clean"`；无截断 | — | 确认 |
 | `recentCommits` | `git log --oneline -3` split 行；`<短哈希> <主题>` | — | 确认（勿与 prompt 侧 `-5` 混淆） |
