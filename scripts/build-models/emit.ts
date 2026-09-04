@@ -4,6 +4,8 @@
  * per-model {id, name, reasoning, inputModalities, efforts?, context, maxOutput}。
  * 无价格字段（v1 明确砍掉）；efforts 无档位不写字段、不造空数组；reasoning 缺省
  * 显式写 false；同版本内只许新增可选字段——本文件是产物形状的唯一出口。
+ * 运行时消费侧的解析与同形类型在 `src/models/artifact.ts`（跨构建/运行时边界
+ * 独立定义），改 schema 时两边同步。
  */
 
 import type { CatalogEntry } from "./bundle.ts"
