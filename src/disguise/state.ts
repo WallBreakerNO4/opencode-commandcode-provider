@@ -41,7 +41,7 @@ export const SESSION_TTL_JITTER_MS = 60 * 60 * 1000
 export interface DisguiseStateOptions {
   /** 出网接缝（工厂 options.fetch；预请求与版本查询全部经此注入 mock） */
   fetch?: FetchLike
-  /** 注入式 logger（§7；v2 glue 注 client.app.log 适配器，v1/独立调用退化 console） */
+  /** 注入式 logger（§7；v1 注 client.app.log，v2 ctx 无 log 域走 console） */
   logger?: DisguiseLogger
   /** config 采集 runtime 接缝（生产 createNodeConfigRuntime()，测试注 fake） */
   configRuntime?: ConfigRuntime

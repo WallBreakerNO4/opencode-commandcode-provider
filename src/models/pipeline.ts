@@ -85,6 +85,16 @@ export interface ModelPipeline {
   /** 显式到期检查并触发后台刷新；返回在途轮次的落定 promise（宿主无读机会时的兜底触发点） */
   refreshIfDue(): Promise<void>
   /**
+   * modelsUrls config 通道的运行时接驳（model-pipeline.md §1.3，#36）：v2 宿主把
+   * `settings.modelsUrls` 合并进工厂 options 顶层——但那要等首次工厂调用才可见
+   * （beta-18684 实测：transform 草稿不带 config settings，插件侧构造时拿不到），
+   * 构造时管线只能按 env/默认列表启动。本方法在工厂调用时把 config 值重绑定进
+   * 管线：原值未变零开销跳过（宿主逐请求调工厂）；解析列表真变了才替换并立即
+   * 触发一轮产物拉取（不等 TTL——用户切换镜像不该等 1h）；非法值按 §1.3 回退并
+   * warn。v1 形态（无后台刷新）不接驳。
+   */
+  rebindModelsUrls(config: unknown): void
+  /**
    * 版本头兜底链 ③（disguise.md §6）：内存中已拉取构建产物的 `sourceCliVersion`。
    * 只读内存——不触发拉取、不等待；产物从未成功时 undefined（调用方落 ④ 快照层）。
    */
@@ -114,11 +124,15 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
   // modelsUrls 三通道解析（config > env > 默认）在构造时完成一次；解析永不失败、
   // 不阻断启动（urls.ts）。env 直读进程环境（models-url-override.md §3.1：v1/v2
   // 插件均在宿主进程内），测试以 config 通道与解析器参数注入直测，不碰该变量。
-  const { urls } = resolveModelsUrls({
+  // config 值的运行时接驳见 rebindModelsUrls（#36：v2 的 config settings 经工厂
+  // options 才可见，构造时通常缺席）。
+  let { urls } = resolveModelsUrls({
     config: options.modelsUrls,
     env: process.env[MODELS_URLS_ENV_VAR],
     logger,
   })
+  /** 上次重绑定的 config 原值：宿主逐请求透传同一 settings，原值相等即零开销跳过 */
+  let modelsUrlsRaw: unknown = options.modelsUrls
 
   const snapshot = options.snapshot
 
@@ -319,6 +333,28 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
     return roundInFlight ?? Promise.resolve()
   }
 
+  function rebindModelsUrls(config: unknown): void {
+    if (mode !== "v2") return
+    if (config === undefined) return
+    // 原值未变（宿主逐请求透传同一 settings）→ 不重解析不打日志
+    if (JSON.stringify(config) === JSON.stringify(modelsUrlsRaw)) return
+    modelsUrlsRaw = config
+    const resolved = resolveModelsUrls({
+      config,
+      env: process.env[MODELS_URLS_ENV_VAR],
+      logger,
+    })
+    if (resolved.urls.join("\n") === urls.join("\n")) {
+      urls = resolved.urls
+      return
+    }
+    urls = resolved.urls
+    // 用户显式替换列表：立即补一轮产物拉取（TTL 未到点也拉——镜像切换不该等 1h）；
+    // 在途轮次仍用旧列表跑完，下一轮起走新列表（stale-while-revalidate）
+    state.nextArtifactAttemptAt = 0
+    void runRound()
+  }
+
   return {
     start(): CascadeResult {
       if (mode !== undefined) {
@@ -351,6 +387,7 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
     },
 
     refreshIfDue,
+    rebindModelsUrls,
 
     artifactSourceCliVersion(): string | undefined {
       return state.artifact?.sourceCliVersion

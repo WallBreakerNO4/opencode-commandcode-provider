@@ -548,6 +548,65 @@ describe("modelsUrls 覆盖（整列表替换在管线层生效）", () => {
   })
 })
 
+describe("rebindModelsUrls（#36：v2 config 通道经工厂 options 运行时接驳）", () => {
+  test("原值未变（宿主逐请求透传同一 settings）：零开销跳过——不重解析、不加轮次", async () => {
+    const harness = makeHarness((url) => (url === MODELS_API_URL ? jsonResponse(API_A) : jsonResponse(ARTIFACT_A)), {
+      modelsUrls: [URL_A, URL_B],
+    })
+    harness.pipeline.start()
+    await harness.pipeline.refreshIfDue()
+    const fetchesAfterFirstRound = harness.requests.length
+    const sourceLogs = harness.debugs.filter((message) => message.includes("生效来源")).length
+
+    harness.pipeline.rebindModelsUrls([URL_A, URL_B]) // 新数组实例、同值
+    harness.pipeline.rebindModelsUrls([URL_A, URL_B])
+    await harness.pipeline.refreshIfDue()
+    expect(harness.requests.length).toBe(fetchesAfterFirstRound)
+    expect(harness.debugs.filter((message) => message.includes("生效来源")).length).toBe(sourceLogs)
+  })
+
+  test("config 值变了：列表替换 + TTL 未到点也立即补拉新渠道，来源=config 打日志", async () => {
+    const harness = makeHarness((url) => (url === MODELS_API_URL ? jsonResponse(API_A) : jsonResponse(ARTIFACT_A)))
+    harness.pipeline.start()
+    await harness.pipeline.refreshIfDue()
+    expect(artifactFetches(harness.requests).every((request) => request.url === URL_A)).toBe(true)
+
+    harness.pipeline.rebindModelsUrls("https://mirror.example/models.json")
+    await harness.pipeline.refreshIfDue()
+    const postRebind = artifactFetches(harness.requests).slice(-1)
+    expect(postRebind.map((request) => request.url)).toEqual(["https://mirror.example/models.json"])
+    expect(harness.debugs.some((message) => message.includes("生效来源=config"))).toBe(true)
+  })
+
+  test("重绑定非法值：按 §1.3 整体回退默认列表 + warn，不抛错不阻断", async () => {
+    const seen: string[] = []
+    const harness = makeHarness((url) => {
+      seen.push(url)
+      return url === MODELS_API_URL ? jsonResponse(API_A) : jsonResponse(ARTIFACT_A)
+    })
+    harness.pipeline.start()
+    await harness.pipeline.refreshIfDue()
+
+    harness.pipeline.rebindModelsUrls({ not: "a url list" })
+    await harness.pipeline.refreshIfDue()
+    expect(harness.warns.some((message) => message.includes("回退内置默认列表"))).toBe(true)
+    // 回退后按默认列表续拉（默认首渠道命中 fixture 产物）
+    expect(artifactFetches(harness.requests).at(-1)!.url).toBe(DEFAULT_MODELS_URLS[0]!)
+  })
+
+  test("v1 形态不接驳：rebind 不触发任何刷新（v1 无后台刷新）", async () => {
+    const harness = makeHarness((url) => (url === MODELS_API_URL ? jsonResponse(API_A) : jsonResponse(ARTIFACT_A)))
+    await harness.pipeline.initializeOnce()
+    const total = harness.requests.length
+    const sourceLogs = harness.debugs.filter((message) => message.includes("生效来源")).length
+
+    harness.pipeline.rebindModelsUrls("https://mirror.example/models.json")
+    await harness.pipeline.refreshIfDue()
+    expect(harness.requests.length).toBe(total)
+    expect(harness.debugs.filter((message) => message.includes("生效来源"))).toHaveLength(sourceLogs)
+  })
+})
+
 describe("入口防护与回调健壮性", () => {
   test("start() 重复调用被忽略（不重复发起首轮）", async () => {
     const harness = makeHarness((url) => (url === MODELS_API_URL ? jsonResponse(API_A) : jsonResponse(ARTIFACT_A)))

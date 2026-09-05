@@ -45,6 +45,7 @@ import { buildGenerateHeaders } from "../disguise/headers.js"
 import { consoleLogger, type DisguiseLogger } from "../disguise/logger.js"
 import { createDisguiseState, type DisguiseState } from "../disguise/state.js"
 import { parseArtifact, type Artifact } from "../models/artifact.js"
+import { mergeModelLayers, type CascadeResult } from "../models/cascade.js"
 import { createModelPipeline, type ModelPipeline } from "../models/pipeline.js"
 import { PACKAGE_SNAPSHOT_JSON } from "../models/snapshot.js"
 import { buildEnvelope, PROVIDER_ID, splitModelReference } from "../protocol/envelope.js"
@@ -67,13 +68,14 @@ export interface CommandCodeFactoryOptions {
   readonly fetch?: FetchLike
   /**
    * modelsUrls 覆盖通道原样值（model-pipeline.md §1.3）：v1 `options.modelsUrls` /
-   * v2 `settings.modelsUrls` 经宿主透传后在工厂 options 中以顶层键出现。
-   * 仅运行时首次构造时生效（管线构造时解析一次）。
+   * v2 `settings.modelsUrls` 经宿主透传后在工厂 options 中以顶层键出现。构造时作
+   * 初值；其后的调用经管线 rebindModelsUrls 重绑定（v2 的 config settings 首次
+   * 工厂调用才可见，#36）。
    */
   readonly modelsUrls?: unknown
   /**
-   * 注入式 logger（disguise.md §7 官方接缝）：v2 glue 注 client.app.log 适配器，
-   * v1 与独立调用退化 console，测试注 no-op。逐次工厂调用重指向最新注入值。
+   * 注入式 logger（disguise.md §7 官方接缝；通道结论以 logger.ts 头注为准）。
+   * 逐次工厂调用重指向最新注入值。
    */
   readonly logger?: DisguiseLogger
 }
@@ -106,6 +108,14 @@ interface ProviderRuntime {
 
 let runtime: ProviderRuntime | undefined
 
+/**
+ * 模型数据变更分发器：管线构造时只订阅这个稳定跳板，真实回调经
+ * `ensureProviderRuntime` 注册（最后写入者生效）——v2 glue 接 `catalog.reload()`；
+ * 插件热重载（setup 重跑）时旧 ctx 失效，重设让 reload 打到活 ctx 上。运行时由
+ * 工厂先行构造（独立调用 / v1 形态）时无人注册，分发为 no-op。
+ */
+let onModelDataChange: ((cascade: CascadeResult) => void) | undefined
+
 function loadPackageSnapshot(logger: DisguiseLogger): Artifact {
   const parsed = parseArtifact(PACKAGE_SNAPSHOT_JSON)
   if (parsed.ok) return parsed.artifact
@@ -114,21 +124,42 @@ function loadPackageSnapshot(logger: DisguiseLogger): Artifact {
   return { schemaVersion: 1, generatedAt: "", sourceCliVersion: "", models: [] }
 }
 
-function getRuntime(options: CommandCodeFactoryOptions): ProviderRuntime {
+/** 快照解析记忆化：latestCascade 的「运行时未构造」路径与运行时构造共用同一份；
+ * 解析异常走 console warn（§7 生产退化通道——此路径无宿主 logger 可注入） */
+let snapshotMemo: Artifact | undefined
+
+function packageSnapshot(): Artifact {
+  snapshotMemo ??= loadPackageSnapshot(consoleLogger())
+  return snapshotMemo
+}
+
+/** 运行时构造参数：全部仅首次构造生效（幂等构造，后续调用忽略）；fetch/headers/
+ * logger 构造后仍有逐次调用重指向的活接缝，modelsUrls 没有（管线构造时解析一次） */
+export interface RuntimeInit {
+  /** modelsUrls 的 config 通道原样值（v2 = settings.modelsUrls，glue 从 transform 捕获） */
+  readonly modelsUrls?: unknown
+  readonly fetch?: FetchLike
+  readonly headers?: Record<string, string>
+  readonly logger?: DisguiseLogger
+  /** 模型数据变更回调（v2 glue 接 catalog.reload()）；不受幂等构造限制，任意时刻可重设 */
+  readonly onModelDataChange?: (cascade: CascadeResult) => void
+}
+
+function getRuntime(init: RuntimeInit): ProviderRuntime {
   if (runtime !== undefined) return runtime
   const seam: ProviderSeam = {
-    fetch: options.fetch ?? globalThis.fetch,
-    headers: options.headers ?? {},
-    logger: options.logger ?? consoleLogger(),
+    fetch: init.fetch ?? globalThis.fetch,
+    headers: init.headers ?? {},
+    logger: init.logger ?? consoleLogger(),
   }
   // 稳定出网跳板：伪装状态与管线构造时捕获本函数，全部出网路径（预请求 / models /
   // 产物 / 版本查询 / 图片下载 / generate）经它逐次转发到 seam.fetch 最新注入值
-  const trampoline: FetchLike = (input, init) => seam.fetch(input, init)
+  const trampoline: FetchLike = (input, requestInit) => seam.fetch(input, requestInit)
   const trampolineLogger: DisguiseLogger = {
     debug: (message) => seam.logger.debug(message),
     warn: (message) => seam.logger.warn(message),
   }
-  const snapshot = loadPackageSnapshot(trampolineLogger)
+  const snapshot = packageSnapshot()
   const state = createDisguiseState({
     fetch: trampoline,
     logger: trampolineLogger,
@@ -139,15 +170,37 @@ function getRuntime(options: CommandCodeFactoryOptions): ProviderRuntime {
   })
   const pipeline = createModelPipeline({
     snapshot,
-    modelsUrls: options.modelsUrls,
+    modelsUrls: init.modelsUrls,
     fetch: trampoline,
     logger: trampolineLogger,
+    // 变更分发走模块级跳板：真实回调（catalog.reload）由 glue 注册、可随热重载重设
+    onChange: (cascade) => onModelDataChange?.(cascade),
   })
   // v2 形态启动：零阻塞，首轮拉取转后台；级联初始为快照层（stale-while-revalidate）。
   // v1 形态（initializeOnce 启动拉取）的入口协商归 v1 glue 票，运行时侧先以 v2 节奏跑。
   pipeline.start()
   runtime = { state, pipeline, snapshot, seam, trampoline }
   return runtime
+}
+
+/**
+ * v2 glue（#36）的运行时入口：幂等构造 + 变更回调注册。setup 语义下 modelsUrls
+ * 的 config 通道（settings.modelsUrls）由 glue 在 transform 内捕获后传入；工厂侧
+ * 宿主透传值只在工厂先行构造（独立调用 / v1 形态）时作构造初值。
+ */
+export function ensureProviderRuntime(init: RuntimeInit): void {
+  if (init.onModelDataChange !== undefined) onModelDataChange = init.onModelDataChange
+  getRuntime(init)
+}
+
+/**
+ * 当前级联（v2 glue 的 transform 回放数据源）：运行时已构造时读管线实时值（读时
+ * 惰性检查 TTL，reload 回放顺带充当显式到期触发点）；未构造时为纯快照层——启动
+ * 零阻塞的注册序：transform 先注册快照，后台拉取的变更经 reload 回放本函数更新。
+ */
+export function latestCascade(): CascadeResult {
+  if (runtime !== undefined) return runtime.pipeline.getModels()
+  return mergeModelLayers({ snapshot: packageSnapshot() })
 }
 
 // ---------------------------------------------------------------------------
@@ -160,6 +213,10 @@ export function createCommandCode(options: CommandCodeFactoryOptions): CommandCo
   rt.seam.fetch = options.fetch ?? globalThis.fetch
   rt.seam.headers = options.headers ?? {}
   rt.seam.logger = options.logger ?? consoleLogger()
+  // modelsUrls config 通道接驳（model-pipeline.md §1.3 + #36 实测）：v2 宿主把
+  // settings.modelsUrls 合并进工厂 options，但首次工厂调用前插件侧不可见——管线
+  // 构造时按 env/默认列表启动，这里逐次把 config 值重绑定进管线（原值不变零开销）
+  if (options.modelsUrls !== undefined) rt.pipeline.rebindModelsUrls(options.modelsUrls)
   const apiKey = options.apiKey ?? ""
   return {
     languageModel(modelID: string): LanguageModelV3 {
