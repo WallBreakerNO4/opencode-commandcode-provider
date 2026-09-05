@@ -6,10 +6,11 @@
  *   default 带 `id` 时要求 `server` 也在场，缺 `server` 则整模块跳过并忽略全部
  *   命名导出（#11 真机实测），三键缺一不可。
  * - `createCommandCode` 工厂——v1/v2 共用的 provider 运行时入口，宿主按「模块
- *   第一个 `create*` 前缀导出」判据发现它，不得引入排位更靠前的 `create*` 导出。
+ *   第一个 `create*` 前缀导出」判据发现它，不得引入排位更靠前的 `create*` 导出；
+ *   实现与其 options/provider 契约类型见 src/provider/model.ts（#35 工厂装配）。
  *
  * 入口保持零运行时依赖：不 import `@opencode-ai/plugin`（v2 的 define() 是恒等
- * 函数），契约用本文件的结构类型表达，避免被宿主 beta API 漂移绑架。
+ * 函数），避免被宿主 beta API 漂移绑架。
  */
 
 /**
@@ -25,16 +26,7 @@ export interface CommandCodePlugin {
   readonly server: (input: unknown, options: unknown) => Promise<Record<string, never>>
 }
 
-/**
- * 工厂入参：宿主调工厂时注入的 options（定案为 `{name, apiKey, headers, fetch}`，
- * 无 body）。`fetch` 是宿主包装过的实例，超时与 chunk 处理由宿主侧完成。
- */
-export interface CommandCodeFactoryOptions {
-  readonly name?: string
-  readonly apiKey?: string
-  readonly headers?: Record<string, string>
-  readonly fetch?: typeof globalThis.fetch
-}
+export { createCommandCode, type CommandCodeFactoryOptions, type CommandCodeProvider } from "./provider/model.js"
 
 export default {
   id: "commandcode-go",
@@ -43,9 +35,3 @@ export default {
     return {}
   },
 } satisfies CommandCodePlugin
-
-export function createCommandCode(_options: CommandCodeFactoryOptions): never {
-  // 工厂被宿主调用的唯一出口是拿到 provider 实例，空壳无处可退，fail-fast 显错
-  // 优于把半成品实例递给宿主后再在下游炸出无关报错。
-  throw new Error("createCommandCode 尚未实现")
-}

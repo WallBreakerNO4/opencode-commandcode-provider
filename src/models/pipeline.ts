@@ -84,6 +84,11 @@ export interface ModelPipeline {
   getModels(): CascadeResult
   /** 显式到期检查并触发后台刷新；返回在途轮次的落定 promise（宿主无读机会时的兜底触发点） */
   refreshIfDue(): Promise<void>
+  /**
+   * 版本头兜底链 ③（disguise.md §6）：内存中已拉取构建产物的 `sourceCliVersion`。
+   * 只读内存——不触发拉取、不等待；产物从未成功时 undefined（调用方落 ④ 快照层）。
+   */
+  artifactSourceCliVersion(): string | undefined
 }
 
 interface SourceOutcome {
@@ -346,5 +351,9 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
     },
 
     refreshIfDue,
+
+    artifactSourceCliVersion(): string | undefined {
+      return state.artifact?.sourceCliVersion
+    },
   }
 }

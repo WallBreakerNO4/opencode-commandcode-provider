@@ -1,0 +1,21 @@
+{"type":"start"}
+{"type":"start-step","request":{"body":{"maxOutputTokens":32000,"stream":true}}}
+: keep-alive comment line, must be skipped
+
+{"type":"reasoning-start","id":"reasoning-0","providerMetadata":{"gateway":{"generationId":"gen_01FIXTUREGENERATION00000"}}}
+{"type":"reasoning-delta","id":"reasoning-0","text":"The user asked"}
+{"type":"reasoning-delta","id":"reasoning-0","text":" for a pong."}
+{"type":"text-start","id":"txt-0"}
+{"type":"text-delta","id":"txt-0","text":"pong"}
+{"type":"text-end","id":"txt-0"}
+{"type":"reasoning-end","id":"reasoning-0"}
+{"type":"tool-input-start","id":"toolu-0","toolName":"read_file"}
+{"type":"tool-input-delta","id":"toolu-0","delta":"{\"file_path\":"}
+{"type":"tool-input-delta","id":"toolu-0","delta":"\"src/index.ts\"}"}
+{"type":"tool-input-end","id":"toolu-0"}
+{"type":"tool-call","toolCallId":"toolu-0","toolName":"read_file","input":{"file_path":"src/index.ts"}}
+{"type":"response-metadata","id":"resp_fixture_1","timestamp":"2026-09-05T00:00:00.000Z","modelId":"deepseek-v4-flash"}
+{"type":"finish-step","finishReason":"stop","rawFinishReason":"stop","usage":{"inputTokens":16977,"inputTokenDetails":{"noCacheTokens":11601,"cacheReadTokens":5376},"outputTokens":27,"outputTokenDetails":{"textTokens":2,"reasoningTokens":25},"totalTokens":17004},"providerMetadata":{"deepseek":{"promptCacheHitTokens":5376,"promptCacheMissTokens":11601,"responseObject":"chat.completion.chunk"}},"response":{"id":"resp_fixture_1","timestamp":"2026-09-05T00:00:00.000Z","modelId":"deepseek-v4-flash"}}
+{"type":"finish","finishReason":"stop","rawFinishReason":"stop","totalUsage":{"inputTokens":16977,"inputTokenDetails":{"noCacheTokens":11601,"cacheReadTokens":5376},"outputTokens":27,"outputTokenDetails":{"textTokens":2,"reasoningTokens":25},"totalTokens":17004}}
+{"type":"provider-metadata","providerMetadata":{"deepseek":{"responseObject":"chat.completion.chunk"}}}
+{"type":"future-unknown-event","data":{"next":"thing"}}
