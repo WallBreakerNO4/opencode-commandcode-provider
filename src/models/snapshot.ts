@@ -3,16 +3,16 @@
  * 良好产物」，随插件发版从最新产物复制进来，是运行时永远可用的兜底层——不占
  * modelsUrls 列表位，产物/API 全部失败或从未成功时顶替产物角色（§5 降级表）。
  *
- * 发布流水线在插件打包前用最新构建产物整文件覆盖本常量；仓库内当前为占位空
- * 清单——正式产物由 models-pipeline（#28）按上游发版节奏产出。空 `models` 数组
- * 经 parseArtifact 合法（注册 0 个模型），运行时任何降级路径都不会因快照缺位
- * 而崩；版本头兜底链 ④ 取本快照的 `sourceCliVersion`（disguise.md §6）。
+ * 产物原文在同目录 `snapshot.json`（逐字节来自构建产物，sha256 可与渠道产物对
+ * 账）；刷新走 `pnpm embed-snapshot`（scripts/embed-snapshot.ts：运行时同款
+ * parseArtifact schema 校验通过才写入，发布流程见 docs/release/release-process.md）。
+ * build 脚本在 tsc 之后 `cp` 一份原文进 dist——tsc 自带的 JSON 复制会重排版，
+ * 逐字节一致靠 cp 保住。空快照占位形态不存在——校验拒绝空清单入库；运行时任何
+ * 降级路径都不会因快照缺位而崩（loadPackageSnapshot 的防御分支兜底）。
+ * 快照 `sourceCliVersion` 同时是版本头兜底链 ④（disguise.md §6）。
  */
 
-/** 包内快照原文（与产物 schema v1 逐键一致，构建侧 emit.ts 为组装权威） */
-export const PACKAGE_SNAPSHOT_JSON = {
-  schemaVersion: 1,
-  generatedAt: "1970-01-01T00:00:00Z",
-  sourceCliVersion: "0.0.0",
-  models: [],
-} as const
+import snapshotJson from "./snapshot.json" with { type: "json" }
+
+/** 包内快照原文（unknown：非可信数据，消费方一律经 parseArtifact 解析） */
+export const PACKAGE_SNAPSHOT_JSON: unknown = snapshotJson

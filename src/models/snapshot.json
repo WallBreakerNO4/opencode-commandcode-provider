@@ -1,0 +1,535 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-05T15:32:32.043Z",
+  "sourceCliVersion": "1.49.1",
+  "models": [
+    {
+      "id": "deepseek/deepseek-v4-pro",
+      "name": "DeepSeek V4 Pro (latest)",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "efforts": [
+        "high",
+        "max"
+      ],
+      "context": 1000000,
+      "maxOutput": 384000
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash",
+      "name": "DeepSeek V4 Flash (latest)",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "efforts": [
+        "high",
+        "max"
+      ],
+      "context": 1000000,
+      "maxOutput": 384000
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash-vision-exp",
+      "name": "DeepSeek V4 Flash Vision (exp)",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "high",
+        "max"
+      ],
+      "context": 1000000,
+      "maxOutput": 384000
+    },
+    {
+      "id": "deepseek/deepseek-v4-flash-fast",
+      "name": "DeepSeek V4 Flash Fast",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "efforts": [
+        "low",
+        "high",
+        "max"
+      ],
+      "context": 1000000,
+      "maxOutput": 32000
+    },
+    {
+      "id": "moonshotai/Kimi-K3",
+      "name": "Kimi K3",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "low",
+        "high",
+        "max"
+      ],
+      "context": 1000000,
+      "maxOutput": 131072
+    },
+    {
+      "id": "moonshotai/Kimi-K2.7-Code",
+      "name": "Kimi K2.7 Code",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 256000,
+      "maxOutput": 262144
+    },
+    {
+      "id": "moonshotai/Kimi-K2.7-Code-Highspeed",
+      "name": "Kimi K2.7 Code HighSpeed",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 262000,
+      "maxOutput": 262144
+    },
+    {
+      "id": "moonshotai/Kimi-K2.6",
+      "name": "Kimi K2.6",
+      "reasoning": false,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 256000,
+      "maxOutput": 262144
+    },
+    {
+      "id": "moonshotai/Kimi-K2.5",
+      "name": "Kimi K2.5",
+      "reasoning": false,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 256000,
+      "maxOutput": 262144
+    },
+    {
+      "id": "z-ai/glm-5.3-flash",
+      "name": "GLM-5.3 Flash",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "low",
+        "high",
+        "max"
+      ],
+      "context": 1048576,
+      "maxOutput": 131072
+    },
+    {
+      "id": "zai-org/GLM-5.3",
+      "name": "GLM-5.3",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "efforts": [
+        "low",
+        "high",
+        "max"
+      ],
+      "context": 1000000,
+      "maxOutput": 131072
+    },
+    {
+      "id": "zai-org/GLM-5.2",
+      "name": "GLM-5.2",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "efforts": [
+        "high",
+        "max"
+      ],
+      "context": 1000000,
+      "maxOutput": 131072
+    },
+    {
+      "id": "zai-org/GLM-5.2-Fast",
+      "name": "GLM-5.2 Fast",
+      "reasoning": false,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 1000000,
+      "maxOutput": 131072
+    },
+    {
+      "id": "zai-org/GLM-5.1",
+      "name": "GLM-5.1",
+      "reasoning": false,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 200000,
+      "maxOutput": 131072
+    },
+    {
+      "id": "zai-org/GLM-5",
+      "name": "GLM-5",
+      "reasoning": false,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 200000,
+      "maxOutput": 131072
+    },
+    {
+      "id": "MiniMaxAI/MiniMax-M3",
+      "name": "MiniMax M3",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 1000000,
+      "maxOutput": 512000
+    },
+    {
+      "id": "MiniMaxAI/MiniMax-M2.7",
+      "name": "MiniMax M2.7",
+      "reasoning": false,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 200000,
+      "maxOutput": 131072
+    },
+    {
+      "id": "MiniMaxAI/MiniMax-M2.5",
+      "name": "MiniMax M2.5",
+      "reasoning": false,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 200000,
+      "maxOutput": 131072
+    },
+    {
+      "id": "xiaomi/mimo-v2.5-pro",
+      "name": "MiMo V2.5 Pro",
+      "reasoning": false,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 1000000,
+      "maxOutput": 131072
+    },
+    {
+      "id": "xiaomi/mimo-v2.5",
+      "name": "MiMo V2.5",
+      "reasoning": false,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 1000000,
+      "maxOutput": 131072
+    },
+    {
+      "id": "Qwen/Qwen3.8-Max-0902",
+      "name": "Qwen 3.8 Max 0902",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "low",
+        "medium",
+        "xhigh"
+      ],
+      "context": 1000000,
+      "maxOutput": 32768
+    },
+    {
+      "id": "Qwen/Qwen3.8-Max",
+      "name": "Qwen 3.8 Max",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "low",
+        "medium",
+        "xhigh"
+      ],
+      "context": 1000000,
+      "maxOutput": 32768
+    },
+    {
+      "id": "Qwen/Qwen3.8-27B",
+      "name": "Qwen 3.8 27B",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "low",
+        "medium",
+        "xhigh"
+      ],
+      "context": 262144,
+      "maxOutput": 32768
+    },
+    {
+      "id": "Qwen/Qwen3.8-Flash",
+      "name": "Qwen 3.8 Flash",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "low",
+        "medium",
+        "xhigh"
+      ],
+      "context": 1000000,
+      "maxOutput": 32768
+    },
+    {
+      "id": "Qwen/Qwen3.7-Max",
+      "name": "Qwen 3.7 Max",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 1000000,
+      "maxOutput": 32768
+    },
+    {
+      "id": "Qwen/Qwen3.7-Plus",
+      "name": "Qwen 3.7 Plus",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 1000000,
+      "maxOutput": 32768
+    },
+    {
+      "id": "Qwen/Qwen3.7-Flash",
+      "name": "Qwen 3.7 Flash",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 1000000,
+      "maxOutput": 32768
+    },
+    {
+      "id": "Qwen/Qwen3.6-Max-Preview",
+      "name": "Qwen 3.6 Max Preview",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 1000000,
+      "maxOutput": 32768
+    },
+    {
+      "id": "Qwen/Qwen3.6-Plus",
+      "name": "Qwen 3.6 Plus",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 1000000,
+      "maxOutput": 32768
+    },
+    {
+      "id": "meituan/LongCat-2.0:free",
+      "name": "LongCat 2.0",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 1048576,
+      "maxOutput": 32000
+    },
+    {
+      "id": "stepfun/Step-3.7-Flash",
+      "name": "Step 3.7 Flash",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 256000,
+      "maxOutput": 256000
+    },
+    {
+      "id": "stepfun/Step-3.5-Flash",
+      "name": "Step 3.5 Flash",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 1000000,
+      "maxOutput": 256000
+    },
+    {
+      "id": "tencent/hy3-paid",
+      "name": "Tencent Hy3",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 262144,
+      "maxOutput": 32000
+    },
+    {
+      "id": "tencent/hy4-preview",
+      "name": "Tencent Hy4 Preview",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "efforts": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "context": 1048576,
+      "maxOutput": 64000
+    },
+    {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b",
+      "name": "Nemotron 3 Ultra",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 1000000,
+      "maxOutput": 65536
+    },
+    {
+      "id": "thinkingmachines/inkling",
+      "name": "Inkling",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 256000,
+      "maxOutput": 65536
+    },
+    {
+      "id": "thinkingmachines/inkling-small",
+      "name": "Inkling Small",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "context": 1000000,
+      "maxOutput": 32768
+    },
+    {
+      "id": "poolside/laguna-s-2.1-free",
+      "name": "Laguna S 2.1",
+      "reasoning": true,
+      "inputModalities": [
+        "text"
+      ],
+      "context": 256000,
+      "maxOutput": 32768
+    },
+    {
+      "id": "gpt-5.6-luna",
+      "name": "GPT-5.6 Luna",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "context": 1050000,
+      "maxOutput": 128000
+    },
+    {
+      "id": "meta/muse-spark-1.2-contributor",
+      "name": "Muse Spark 1.2 Contributor",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "context": 1048576,
+      "maxOutput": 131072
+    },
+    {
+      "id": "meta/muse-spark-1.3-contributor",
+      "name": "Muse Spark 1.3 Contributor",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "low",
+        "medium",
+        "high",
+        "xhigh"
+      ],
+      "context": 1048576,
+      "maxOutput": 131072
+    },
+    {
+      "id": "xai/grok-4.5",
+      "name": "Grok 4.5",
+      "reasoning": true,
+      "inputModalities": [
+        "text",
+        "image"
+      ],
+      "efforts": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "context": 500000,
+      "maxOutput": 500000
+    }
+  ]
+}
