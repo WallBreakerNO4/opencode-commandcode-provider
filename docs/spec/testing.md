@@ -46,10 +46,11 @@
 - /models 变更签名：排序后 `(id, context_length)` 序列、**剔除 `created`**；API TTL 5min；产物按 URL 列表 TTL 1h + 抖动 + 内容 hash 变化才触发下游动作。
 - 消费映射：v1 entry 与 v2 `Model.Info` 形状（均不含 `cost`）。
 
-### 1.4 包形状防回归（判据：#11/#12 定案）
+### 1.4 包形状防回归（判据：#11/#12 定案，#37 扩为 v1 hooks 形状）
 
 - 入口模块导出断言：`default` 含 `id` / `setup` / `server`；「第一个 `create*` 前缀导出」判据存在。
-- 目的：防止重构破坏 v1 加载器决策树与 v1/v2 工厂判据依赖的导出形状（#11 实测：default 带 `id` 缺 `server` 则整模块跳过）。
+- v1 侧（#37）：`server()` 返回的 hooks 静态形状（`config` 函数 + `auth` 的 `provider`/`loader`/`methods`，label 固定「Command Code API Key」）；v1 自举 npm spec 的路径推导纯函数 `selfNpmSpec`（注入裸包名会装出第二个模块实例的真宿主发现）。
+- 目的：防止重构破坏 v1 加载器决策树与 v1/v2 工厂判据依赖的导出形状（#11 实测：default 带 `id` 缺 `server` 则整模块跳过）；hooks 形状与 spec 推导属**纯函数/静态形状**层，无宿主 mock——hook 的宿主交互行为不在此层，仍归 §4 真宿主边界。
 
 ### 1.5 不测：指纹采集器
 
@@ -77,7 +78,7 @@
 
 ## 4. 不入自动化：真宿主边界（移交 #21）
 
-- **v1/v2 glue**：三合一入口的 `server()` / config / auth hooks、v2 `catalog.transform` 自指注册、integration 认证、`/connect` TUI——**不入 bun test**。mock 整个宿主等于重写宿主，成本远超收益；该路径已由 #5/#11/#12 三次真机实测定案，回归防线 = #21 人工验收。**glue 是全项目唯一无自动化测试的模块**（老板知情拍板）。
+- **v1/v2 glue**：三合一入口的 `server()` / config / auth hooks、v2 `catalog.transform` 自指注册、integration 认证、`/connect` TUI——**不入 bun test**。mock 整个宿主等于重写宿主，成本远超收益；该路径已由 #5/#11/#12 三次真机实测定案，回归防线 = #21 人工验收。**glue 的宿主交互行为是全项目唯一无自动化测试的模块面**（老板知情拍板）；模块内纯函数与包形状断言按 §1.4 在 bun test 内（#37 起）。
 - **真实网络与真实凭据**：真实 key、真实网关、真实分发渠道连通性不入 bun test——网络依赖测试必 flaky；渠道连通性归人工验收。
 - **看门狗与预请求时序**：不入 #21 人工清单（该票草案已如此预判）——其逻辑由本规格集成层 fake timers 全覆盖，真机验证时序成本不成比例。
 - #21 现有 10 项草案为人工验收清单底稿，增删归该票。

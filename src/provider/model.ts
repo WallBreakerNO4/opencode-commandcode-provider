@@ -145,7 +145,7 @@ export interface RuntimeInit {
   readonly onModelDataChange?: (cascade: CascadeResult) => void
 }
 
-function getRuntime(init: RuntimeInit): ProviderRuntime {
+function getRuntime(init: RuntimeInit, startup: "start" | "defer" = "start"): ProviderRuntime {
   if (runtime !== undefined) return runtime
   const seam: ProviderSeam = {
     fetch: init.fetch ?? globalThis.fetch,
@@ -176,9 +176,10 @@ function getRuntime(init: RuntimeInit): ProviderRuntime {
     // 变更分发走模块级跳板：真实回调（catalog.reload）由 glue 注册、可随热重载重设
     onChange: (cascade) => onModelDataChange?.(cascade),
   })
-  // v2 形态启动：零阻塞，首轮拉取转后台；级联初始为快照层（stale-while-revalidate）。
-  // v1 形态（initializeOnce 启动拉取）的入口协商归 v1 glue 票，运行时侧先以 v2 节奏跑。
-  pipeline.start()
+  // 启动协商（#37）："start" = v2 节奏（零阻塞，首轮拉取转后台；v2 setup 与工厂
+  // 独立调用都走它）；"defer" = v1 glue 的 config hook 构造后紧接 initializeOnce
+  //（15s 预算拉一次、无后台刷新）。构造本身不指定形态——先后到达者定模式。
+  if (startup === "start") pipeline.start()
   runtime = { state, pipeline, snapshot, seam, trampoline }
   return runtime
 }
@@ -191,6 +192,18 @@ function getRuntime(init: RuntimeInit): ProviderRuntime {
 export function ensureProviderRuntime(init: RuntimeInit): void {
   if (init.onModelDataChange !== undefined) onModelDataChange = init.onModelDataChange
   getRuntime(init)
+}
+
+/**
+ * v1 glue（#37）的运行时入口：v1 启动协商——幂等构造（不预启动）+ 启动拉取一次
+ *（15s 总预算、失败用快照、此后无后台刷新，model-pipeline.md §4）。v1 config hook
+ * 在注入模型清单前 await 本函数；运行时已被先行构造时（v2 setup / 工厂独立调用），
+ * initializeOnce 的幂等守卫使本调用退化为「返回当前级联」。
+ */
+export async function ensureV1ProviderRuntime(init: RuntimeInit): Promise<CascadeResult> {
+  const rt = getRuntime(init, "defer")
+  await rt.pipeline.initializeOnce()
+  return rt.pipeline.getModels()
 }
 
 /**
@@ -213,9 +226,10 @@ export function createCommandCode(options: CommandCodeFactoryOptions): CommandCo
   rt.seam.fetch = options.fetch ?? globalThis.fetch
   rt.seam.headers = options.headers ?? {}
   rt.seam.logger = options.logger ?? consoleLogger()
-  // modelsUrls config 通道接驳（model-pipeline.md §1.3 + #36 实测）：v2 宿主把
-  // settings.modelsUrls 合并进工厂 options，但首次工厂调用前插件侧不可见——管线
-  // 构造时按 env/默认列表启动，这里逐次把 config 值重绑定进管线（原值不变零开销）
+  // modelsUrls config 通道接驳（model-pipeline.md §1.3）：v2 宿主把 settings.modelsUrls
+  // 合并进工厂 options（首次工厂调用前插件侧不可见——管线构造时按 env/默认列表启动，
+  // 这里逐次重绑定，原值不变零开销）；v1 宿主的 options.modelsUrls 已由 glue 的
+  // config hook 在构造时应用，管线在 v1 形态下忽略重绑定（无后台刷新，无需补拉）
   if (options.modelsUrls !== undefined) rt.pipeline.rebindModelsUrls(options.modelsUrls)
   const apiKey = options.apiKey ?? ""
   return {

@@ -30,18 +30,11 @@ import { ENTRY_URL } from "../index.js"
 import { toV2ModelFields } from "../models/mapping.js"
 import { PROVIDER_ID } from "../protocol/envelope.js"
 import { ensureProviderRuntime, latestCascade } from "../provider/model.js"
-
-/** 显示名「Command Code (Go)」：目录 / provider 列表 / integration name 三处一致（CONTEXT.md） */
-const PROVIDER_DISPLAY_NAME = "Command Code (Go)"
-
-/** 认证方法 label：「Command Code API Key」，/connect 认证输入框标题（CONTEXT.md） */
-const API_KEY_METHOD_LABEL = "Command Code API Key"
-
-/** env 认证方法扫描的环境变量（与 .env.example 清单一致） */
-const API_KEY_ENV_VAR = "COMMANDCODE_API_KEY"
+import { API_KEY_ENV_VAR, API_KEY_METHOD_LABEL, PROVIDER_DISPLAY_NAME } from "./constants.js"
 
 // ---------------------------------------------------------------------------
 // 宿主 ctx 最小结构类型（零依赖承接；形状出处：@opencode-ai/plugin beta d.ts）
+// 显示名 / 认证 label / env 变量三常量见 constants.ts（v1/v2 glue 单源）。
 // ---------------------------------------------------------------------------
 
 /** Provider.Info 中 glue 写入的场：settings 只读不写（config 通道原样保留） */

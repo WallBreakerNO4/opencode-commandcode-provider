@@ -368,8 +368,13 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
     },
 
     async initializeOnce(): Promise<CascadeResult> {
+      if (mode === "v1") {
+        // 幂等重入：v1 config 重载会重放 config hook，同一进程的启动协商只做一次，
+        // 静默返回现值（模型清单已在首轮注入 config）
+        return current
+      }
       if (mode !== undefined) {
-        logger.warn("模型管线入口已初始化过，initializeOnce() 忽略重复调用")
+        logger.warn("模型管线已以 v2 形态启动，initializeOnce() 不切换形态——v1 启动拉取未执行，模型停在当前级联")
         return current
       }
       mode = "v1"
