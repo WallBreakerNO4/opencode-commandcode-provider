@@ -7,6 +7,6 @@
 
 import { randomBytes } from "node:crypto"
 
-export function generateTraceparent(): string {
-  return `00-${randomBytes(16).toString("hex")}-${randomBytes(8).toString("hex")}-01`
+export function generateTraceparent(traceId?: string): string {
+  return `00-${traceId ?? randomBytes(16).toString("hex")}-${randomBytes(8).toString("hex")}-01`
 }

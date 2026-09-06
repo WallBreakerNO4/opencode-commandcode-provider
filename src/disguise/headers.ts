@@ -14,7 +14,6 @@
 
 import { buildPreflightHeaders } from "./preflight.js"
 import { deriveProjectSlug } from "./slug.js"
-import { generateTraceparent } from "./traceparent.js"
 
 export interface GenerateHeadersInput {
   apiKey: string
@@ -24,6 +23,7 @@ export interface GenerateHeadersInput {
   sessionId: string
   /** slug 派生来源；与 config 块 workingDir 同源（process.cwd()） */
   workingDir: string
+  traceparent: string
 }
 
 /** 组装 generate 主请求伪装头全集；键序照抓包样本（基础集在前，会话四键在后） */
@@ -33,6 +33,6 @@ export function buildGenerateHeaders(input: GenerateHeadersInput): Record<string
     "x-session-id": input.sessionId,
     "x-project-slug": deriveProjectSlug(input.workingDir),
     "x-taste-learning": "true",
-    traceparent: generateTraceparent(),
+    traceparent: input.traceparent,
   }
 }

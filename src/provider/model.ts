@@ -288,6 +288,9 @@ async function* callIterator(
   // 会话身份主路径（D3）：调用 headers 中 OpenCode 会话头任一存在即确定性派生；
   // 全部缺失落 per-key 回退轮换。threadId 与 x-session-id 同值由此一处保证。
   const sessionId = rt.state.resolveSessionId(apiKey, options.headers)
+  const lastUserMessage = [...options.prompt].reverse().find((message) => message.role === "user")
+  const turnKey = lastUserMessage === undefined ? "no-user-message" : JSON.stringify(lastUserMessage)
+  const traceparent = rt.state.resolveTraceparent(apiKey, sessionId, turnKey)
 
   // 模型 limit 数据（管线级联，stale-while-revalidate）：maxOutput 裁剪与图片模态
   const resolved = rt.pipeline.getModels().models.find((model) => model.id === wireId)
@@ -318,7 +321,7 @@ async function* callIterator(
   // 伪装头组装；用户显式配置头垫底（被伪装键覆盖防冲突）；调用 headers 不透传
   const headers = {
     ...rt.seam.headers,
-    ...buildGenerateHeaders({ apiKey, ccVersion, sessionId, workingDir: configBlock.workingDir }),
+    ...buildGenerateHeaders({ apiKey, ccVersion, sessionId, workingDir: configBlock.workingDir, traceparent }),
   }
 
   yield* generateStream({

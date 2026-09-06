@@ -30,6 +30,7 @@ import { runPreflight } from "./preflight.js"
 import { deriveSessionId } from "./session.js"
 import { redactIdentifier } from "./redact.js"
 import { createVersionResolver, type VersionResolver } from "./version-runtime.js"
+import { generateTraceparent } from "./traceparent.js"
 
 /** 会话头查找优先级（session-visibility.md §6：v1 两键 + v2 同值第三键） */
 const SESSION_HEADERS = ["X-Session-Id", "x-session-affinity", "x-opencode-session"] as const
@@ -63,6 +64,7 @@ interface KeyState {
   preflightInFlight: boolean
   /** 启动预请求已发过（对齐「每进程启动发一次」，D2） */
   startupPreflightStarted: boolean
+  traceContexts: Map<string, { turnKey: string; traceId: string }>
 }
 
 export interface DisguiseState {
@@ -82,6 +84,7 @@ export interface DisguiseState {
    * 回退轮换。同步无 IO，主请求零等待。
    */
   resolveSessionId(apiKey: string, headers: Record<string, string | undefined> | undefined): string
+  resolveTraceparent(apiKey: string, sessionId: string, turnKey: string): string
   /** 版本头全局单值（D6）：初解析 1.5s 竞速 + 24h 惰性刷新；四层皆空返回 undefined */
   getCommandCodeVersion(): Promise<string | undefined>
   /** config 块（D9/§9.3）：进程级冻结 + 24h 过期后台重采，主请求除首次构建外零等待 */
@@ -130,6 +133,7 @@ export function createDisguiseState(options: DisguiseStateOptions = {}): Disguis
         preflight: initialPreflightState(),
         preflightInFlight: false,
         startupPreflightStarted: false,
+        traceContexts: new Map(),
       }
       keys.set(apiKey, state)
     }
@@ -196,6 +200,14 @@ export function createDisguiseState(options: DisguiseStateOptions = {}): Disguis
       }
       state.session = next
       return next.id
+    },
+
+    resolveTraceparent(apiKey: string, sessionId: string, turnKey: string): string {
+      const state = ensureKeyState(apiKey)
+      const previous = state.traceContexts.get(sessionId)
+      const traceId = previous?.turnKey === turnKey ? previous.traceId : generateTraceparent().slice(3, 35)
+      state.traceContexts.set(sessionId, { turnKey, traceId })
+      return generateTraceparent(traceId)
     },
 
     getCommandCodeVersion(): Promise<string | undefined> {

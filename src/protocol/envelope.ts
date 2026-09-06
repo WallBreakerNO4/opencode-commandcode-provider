@@ -399,9 +399,10 @@ function convertTools(tools: LanguageModelV3CallOptions["tools"], warnings: Shar
       type: "function",
       name: tool.name,
       ...(tool.description !== undefined ? { description: tool.description } : {}),
-      input_schema: asRecord(tool.inputSchema) ?? {},
+      input_schema: (canonicalizeJson(asRecord(tool.inputSchema) ?? {}) as Record<string, unknown>),
     })
   }
+  converted.sort((left, right) => left.name.localeCompare(right.name))
   return converted.length > 0 ? converted : undefined
 }
 
@@ -411,6 +412,16 @@ function warnUnsupportedPart(partType: string, warnings: SharedV3Warning[]): voi
     feature: partType,
     details: `信封消息不支持 ${partType} 内容块，已丢弃`,
   })
+}
+
+function canonicalizeJson(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalizeJson)
+  if (typeof value !== "object" || value === null) return value
+  return Object.fromEntries(
+    Object.entries(value)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => [key, canonicalizeJson(item)]),
+  )
 }
 
 function safeStringify(value: unknown): string {
