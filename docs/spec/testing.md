@@ -21,7 +21,7 @@
 - 信封构造：7 键骨架 `{config, memory, taste, skills, permissionMode, threadId, params}`，`threadId` 与 `x-session-id` 同值；伪装字段只留填充点。
 - 消息转换：system 提升与多条 `\n\n` 连接；user 文本 / 图片 part；assistant 文本 / reasoning / tool-call；tool 结果 `isError` → `error-text`；tools 定义 Anthropic 风格。
 - 图片转换：`Uint8Array` / URL → `data:image/<fmt>;base64,...`；未声明 image 的模型收到图片 → 丢弃 + warn（防御路径）。
-- 参数处理：`max_tokens` 裁剪 `min(调用方值, maxOutput)`、缺省直接用 `maxOutput`、不发明固定默认值；`tool_choice` 四态映射（`auto`/`none`/`required`→`any`/指定工具）与 tools 非空未指定时显式 `{type:"auto"}`；`reasoning_effort` 仅变体被选中时经 `providerOptions.reasoningEffort` 发送、base 模型不发；越权参数走 AI SDK warnings。
+- 参数处理：`max_tokens` 三段式 `min(调用方值 ?? 64000, 级联 maxOutput, 200000)`（官方缺省 64e3 复刻、级联值裁剪参考、网关墙，protocol.md §1.2 / ADR 0002）；`tool_choice` 四态映射（`auto`/`none`/`required`→`any`/指定工具）与 tools 非空未指定时显式 `{type:"auto"}`；`reasoning_effort` 仅变体被选中时经 `providerOptions.reasoningEffort` 发送、base 模型不发；越权参数走 AI SDK warnings。
 - NDJSON 严格解析：逐行 `JSON.parse`；空行与 `:` 注释行跳过；半行残片两种结局（已收 `finish-step` 忽略 / 未收并入截断错误）；未知事件静默；usage 双 case 兼容与 `noCacheTokens` 优先规则；finishReason 词表归一（`stop│end_turn`、`tool_calls│tool-calls`、`length│max_tokens│max_output_tokens`）；事件消费清单全事件映射（含 `tool-input-*` 增量必做、`tool-call` 字段名变体兼容）。
 - 错误映射：`protocol.md` §3 **十一行表全行**——含 401/403 的 `MODEL_NOT_IN_PLAN` 与认证错误区分、402 退避拉长、429 透传 retry-after、context 超限识别、5xx 透传、零输出合成 429、截断 STREAM_CLOSED、流中 `error` 不吞、abort 不合成错误、响应前网络错误。
 - 取消合并形状：`AbortSignal.any(看门狗, 调用方)` 两路信号谁先响都生效。

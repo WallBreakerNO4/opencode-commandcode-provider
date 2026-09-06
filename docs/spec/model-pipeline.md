@@ -57,7 +57,7 @@ per-model：
 | `inputModalities` | ✅ | bundle `inputModalities` | 词表按「网关可投递」口径：取值仅 `["text"]` / `["text","image"]`（即 OpenCode 判断图片可否粘贴的开关）。不采用 models.dev 的 audio/video/pdf——那是厂商原生 API 能力，`/alpha/generate` 投递通道未经验证，advertise 超出协议层转换能力会导致放行后静默丢弃。字段为开放数组，网关支持面扩大时直接扩数据，schema 不变 |
 | `efforts` | 可选 | bundle `reasoningEfforts`（与 models.md Efforts 列同源，逐值一致） | 严格透传官方词表（当前 `low/medium/high/xhigh/max`）；无档位的模型**不写该字段**，不造空数组、不造占位值 |
 | `context` | ✅ | 补全链：bundle `contextWindow` → 同 family 官方目录值借用 → models.dev `limit.context` → 常量 200000 | 构建侧保证每个模型都有具体值；运行时被 API 覆盖（62/62），产物值主要服务 API 失效的离线场景 |
-| `maxOutput` | ✅ | 补全链：bundle `maxOutputTokens` → 同 family 借用 → models.dev `limit.output` → 常量 32000 | 官方仅极少数模型披露（Go 40 中仅 3 个），主要靠 models.dev 补齐（61/62 覆盖） |
+| `maxOutput` | ✅ | 补全链：bundle `maxOutputTokens` → 同 family 借用 → models.dev `limit.output` → 常量 32000 | 官方仅极少数模型披露（Go 40 中仅 3 个），主要靠 models.dev 补齐（61/62 覆盖）。运行时角色为 `max_tokens` 裁剪参考与 `limit.output` 展示值，不再是缺省值本身（protocol.md §1.2 / ADR 0002） |
 
 **无价格字段**：v1 明确不做价格（理由见 §6），`cost` 留待将来以新增可选字段方式回归。
 
@@ -151,7 +151,7 @@ per-model：
 | 备选 | 否决理由 |
 |---|---|
 | models.dev 参与运行时级联（四层方案） | 4.4MB 拉取 + 脆弱的别名匹配链路进客户端；context 运行时已有 API 权威（62/62），订阅制用户无新鲜度收益 |
-| limits 缺失用常量兜底（初版草案） | context 是 OpenCode 压缩判断的依据、maxOutput 是请求上限，真实数据优于编造值；models.dev limits 覆盖 61/62，构建侧补全后常量只剩 hy3-paid 一类极端兜底 |
+| limits 缺失用常量兜底（初版草案） | context 是 OpenCode 压缩判断的依据、maxOutput 是 `max_tokens` 裁剪参考与展示值（ADR 0002），真实数据优于编造值；models.dev limits 覆盖 61/62，构建侧补全后常量只剩 hy3-paid 一类极端兜底 |
 | 模态词表扩到 audio/video/pdf | models.dev 口径是厂商原生 API 能力，网关投递通道未经验证；advertise 超出协议层转换能力 = 放行后静默丢弃。维持「网关可投递」口径 text/image，通道扩展后直接扩数据 |
 | 价格字段（`cost.*`） | v1 明确砍掉：实现链路长（三来源对账 + 官方 promo 口径校正），订阅制下展示收益薄；schema 演进规则留门 |
 | isGoModel 前缀启发式（jiesou） | 官方明文「套餐按计费类别门控，与开源/闭源无关」；实测已漏 3 个 Go 可用模型；仅可作为 §2 断言链末级应急且需打补丁，不作常规依据 |

@@ -271,15 +271,28 @@ describe("tools 与 tool_choice（§1.1 / §1.2）", () => {
 })
 
 describe("参数处理（§1.2）", () => {
-  test("max_tokens = min(调用方值, 级联 maxOutput)；未传直接用级联值", () => {
-    expect(build(userText("hi"), { maxOutputTokens: 32000 }).body.params.max_tokens).toBe(32000)
-    expect(build(userText("hi"), { maxOutputTokens: 128000 }).body.params.max_tokens).toBe(64000)
-    expect(build(userText("hi")).body.params.max_tokens).toBe(64000)
+  test("max_tokens = min(调用方值, 级联 maxOutput, 网关墙)；未传用官方缺省 64e3", () => {
+    const ctx = context({ maxOutput: 100_000 })
+    expect(build(userText("hi"), { maxOutputTokens: 32000 }, ctx).body.params.max_tokens).toBe(32000)
+    expect(build(userText("hi"), { maxOutputTokens: 128000 }, ctx).body.params.max_tokens).toBe(100_000)
+    expect(build(userText("hi"), {}, ctx).body.params.max_tokens).toBe(64_000)
   })
 
-  test("无固定默认值、无 200000 硬顶：级联值即模型真实上限", () => {
-    const { body } = build(userText("hi"), {}, context({ maxOutput: 1000000 }))
-    expect(body.params.max_tokens).toBe(1000000)
+  test("官方缺省 64e3 + 网关墙 200000（#42 / ADR 0002）", () => {
+    // deepseek v4 系级联 384000（models.dev 第三方视角值），未传 → 官方 CLI 同款缺省 64e3
+    expect(build(userText("hi"), {}, context({ maxOutput: 384_000 })).body.params.max_tokens).toBe(64_000)
+    // 调用方显式传大值（宿主按 limit.output 传）→ 钳到网关 zod 校验上限 200000
+    expect(
+      build(userText("hi"), { maxOutputTokens: 384_000 }, context({ maxOutput: 384_000 })).body.params.max_tokens,
+    ).toBe(200_000)
+    expect(
+      build(userText("hi"), { maxOutputTokens: 999_999 }, context({ maxOutput: 512_000 })).body.params.max_tokens,
+    ).toBe(200_000)
+    // 墙内调用方值尊重；级联比缺省小 → 级联生效
+    expect(
+      build(userText("hi"), { maxOutputTokens: 100_000 }, context({ maxOutput: 131_072 })).body.params.max_tokens,
+    ).toBe(100_000)
+    expect(build(userText("hi"), {}, context({ maxOutput: 32_000 })).body.params.max_tokens).toBe(32_000)
   })
 
   test("temperature / top_p / top_k 有则透传（snake_case 键），无则不发", () => {

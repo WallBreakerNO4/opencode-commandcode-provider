@@ -34,7 +34,7 @@ OpenCode ◀─stream part── 协议核心 ◀─NDJSON 事件── 上游�
 
 | 参数 | 规则 |
 |---|---|
-| `max_tokens` | 上限取模型管线级联的 `maxOutput`（`docs/spec/model-pipeline.md` §3，每模型必有值）；调用方传了 `maxOutputTokens` 则裁到 `min(调用方值, maxOutput)`，没传则直接用 `maxOutput`。**不发明固定默认值**（brent 16384 / MAXeaglet 64000 弃用），**不叠 200000 硬顶**（级联值即模型真实上限） |
+| `max_tokens` | `min(调用方值 ?? 64000, 级联 maxOutput, 200000)`。缺省复刻官方 CLI 常量 `tk = 64e3`（1.49.1 源码 + 抓包互证，ADR 0002）；级联 `maxOutput` 降级为裁剪参考（models.dev 第三方视角值，非网关真值，仅小于缺省时生效）；200000 为网关 zod 校验硬上限（#42 冒烟 400 实证，官方缺省 64e3 永不触及） |
 | `temperature` / `top_p` / `top_k` | 有则透传，无则不发，不注入默认值 |
 | `reasoning_effort` | 仅当变体被选中时发送。**接收通道为 `providerOptions.reasoningEffort`**——OpenCode 源码实证：variant 配置被合并进 options → `providerOptions` 传入 LanguageModel，这是变体档位到达协议核心的唯一路径；未选变体（base 模型）不发该字段，`off` 档不存在变体（#4 既定） |
 | `tool_choice` | 调用方映射：`auto`→`{type:"auto"}`、`none`→`{type:"none"}`、`required`→`{type:"any"}`、指定工具→`{type:"tool", name}`；`tools` 非空且调用方未指定时显式发 `{type:"auto"}`（MAXeaglet 抓包验证的信封形状，不赌网关默认值） |
@@ -104,7 +104,7 @@ OpenCode ◀─stream part── 协议核心 ◀─NDJSON 事件── 上游�
 | 备选 | 否决理由 |
 |---|---|
 | NDJSON/SSE 双兼容解析（brent/MAXeaglet 式） | 为假想中的上游格式变更预做兼容没有意义：上游真改了，正确动作是修改本项目适配，不是提前替上游设想（老板裁决） |
-| 固定 `max_tokens` 默认（brent 16384 / MAXeaglet 64000）+ 200000 硬顶 | 管线级联 `maxOutput` 已是每模型必有真值，发明常数只会白瞎长输出或越过真实上限 |
+| ~~固定 `max_tokens` 默认 + 200000 硬顶~~（原否决，#42 冒烟 + 官方 CLI 源码反转为现行方案） | 原否决的两个前提均不成立：级联 `maxOutput` 实为 models.dev 第三方视角值而非每模型真值；64000 非第三方发明，是官方 CLI 自身常量 `tk = 64e3`（抓包互证）。网关另有 `<= 200000` zod 硬校验（#42 冒烟 400），11/42 模型级联值超限、缺省直发必 400。现行算法见 §1.2 与 ADR 0002 |
 | `error` 事件只记日志不传播（MAXeaglet） | 反代有自己的重试层才需要装死；provider 在 OpenCode 进程内，吞错 = 用户看到「正常结束但啥也没发生」 |
 | 402 映射为 429 激进重试（MAXeaglet 原样） | 配额恢复假设成立但窗口未知，5-10s 级重试是浪费；60s 退避折中 |
 | 总超时 5min（brent）/ 空闲 30s（MAXeaglet） | 前者误杀健康长回合（max 档 + 200k 输出可超 5min），后者误杀推理停顿 |

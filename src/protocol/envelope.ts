@@ -98,7 +98,8 @@ export interface CommandCodeEnvelope {
 export interface EnvelopeCallContext {
   /** wire id（provider 前缀剥除后），原样进 `params.model` */
   modelId: string
-  /** 模型管线级联 `maxOutput`：每模型必有真值，是 `max_tokens` 的上限（§1.2） */
+  /** 模型管线级联 `maxOutput`：`max_tokens` 的裁剪参考（models.dev 第三方视角值，
+   * 非网关真值；仅当小于官方缺省 64e3 时生效，§1.2 / ADR 0002） */
   maxOutput: number
   /** 与 `x-session-id` 同值（伪装模块会话身份） */
   threadId: string
@@ -151,10 +152,21 @@ export function buildEnvelope(
   return { body, warnings }
 }
 
-/** `max_tokens`：调用方传了 `maxOutputTokens` 则裁到 min，没传直接用级联 `maxOutput`。
- * 级联值即模型真实上限——不发明固定默认值、不叠硬顶（§1.2，§6 否决项）。 */
+/** `max_tokens` 缺省：官方 CLI 主对话路径常量 `tk = 64e3`（command-code 1.49.1
+ * `dist/cli.mjs`，`max_tokens: t.maxOutputTokens ?? tk`），与 capture/samples/generate.json
+ * 抓包（deepseek-v4-flash 实发 64000）互证（ADR 0002）。 */
+const OFFICIAL_DEFAULT_MAX_TOKENS = 64_000
+
+/** 网关对 `params.max_tokens` 的 zod 校验硬上限：#42 冒烟 400 实证
+ * `Too big: expected number to be <=200000`；官方 CLI 缺省 64e3 永不触及，故线上未暴露。 */
+const GATEWAY_MAX_TOKENS_CAP = 200_000
+
+/** `max_tokens` = min(调用方值 ?? 官方缺省 64e3, 级联 maxOutput, 网关墙 200000)
+ * （§1.2 / ADR 0002）：缺省复刻官方 CLI（伪装口径——官方从不发 models.dev 理论值）；
+ * 级联值降级为裁剪参考（models.dev 第三方视角值，非网关真值）；墙防调用方显式
+ * 传大值撞 400。 */
 function resolveMaxTokens(callerValue: number | undefined, maxOutput: number): number {
-  return typeof callerValue === "number" ? Math.min(callerValue, maxOutput) : maxOutput
+  return Math.min(callerValue ?? OFFICIAL_DEFAULT_MAX_TOKENS, maxOutput, GATEWAY_MAX_TOKENS_CAP)
 }
 
 /** `tool_choice` 四态映射；tools 非空且调用方未指定时显式发 `{type:"auto"}`

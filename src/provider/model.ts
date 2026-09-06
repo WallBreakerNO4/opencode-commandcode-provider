@@ -257,9 +257,9 @@ function resolveWireId(reference: string): string {
 }
 
 /** 未注册模型的防御路径（级联查无此 id——注册与级联同源，正常路径永不触发）：
- * `max_tokens` 是信封必填字段，无级联真值可用时以调用方值为准，缺省兜构建侧同款
+ * `max_tokens` 是信封必填字段，无级联裁剪参考可用时以调用方值为准，缺省兜构建侧同款
  * 上限常量（model-pipeline.md §1.1 maxOutput 补全链末级「常量 32000」——非本模块
- * 发明值）并打 warn 指明未注册；超限由网关 400 经错误映射表浮出，provider 不吞。 */
+ * 发明值）并打 warn 指明未注册；网关墙 200000 在协议核心统一钳制（ADR 0002）。 */
 const FALLBACK_MAX_OUTPUT = 32_000
 
 function fallbackMaxOutput(logger: DisguiseLogger, wireId: string, callerValue: number | undefined): number {
