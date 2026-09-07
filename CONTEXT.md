@@ -117,6 +117,22 @@ _Avoid_: 来源优先级矩阵
 
 ### 插件与安装
 
+**粘贴 prompt**:
+用户复制进 OpenCode 会话、引导其中 agent 自主安装插件的一句话 prompt（指向安装指南 URL）；For Humans 安装方式的入口，随 README 发布。
+_Avoid_: 魔法命令、安装命令、安装脚本
+
+**For Humans 安装指南**:
+仓库内面向 coding agent 的中文分步安装文档（检测 → 安装 → 验证 → 移交用户），附故障排查与卸载节；人类只负责粘贴 prompt 和最后的手动认证。
+_Avoid_: 安装教程（面向人类的）、README、安装脚本
+
+**宿主检测**:
+agent 用 `command -v` 区分 v1（`opencode`）/ v2（`opencode2`）安装目标的判定规则：一个都没装直接拒绝（运行环境不是 OpenCode）；只装其一装哪个；双宿主并存经提问工具让用户三选一（默认推荐两个都装）。
+_Avoid_: 版本探测、环境探测
+
+**结构性验证**:
+agent 端不依赖 API key 的安装验证层：`plugin list` 能见到插件、全局配置文件内容正确、宿主 `--version` 正常；端到端发消息验证属于人工验收。
+_Avoid_: 冒烟测试、端到端验证
+
 **插件自举**:
 插件在运行时自己注入 provider 配置、模型清单与认证方式（v1 经 config/auth hook，v2 经 catalog.transform 与 integration），使用户除安装插件与登录外无需手写任何配置。
 _Avoid_: 自动配置、零配置魔法

@@ -6,6 +6,15 @@ OpenCode provider 插件：把 Command Code Go plan 专用的 `/alpha/generate` 
 
 > 前置：Command Code Go plan 订阅，并在 [Studio → API Keys](https://commandcode.ai/docs/studio) 生成 API key（与 CLI 同一把）。
 
+### For Humans（推荐）
+
+把下面这段 prompt 粘贴进 OpenCode（v1 或 v2 beta）会话，agent 会按 [安装指南](docs/guide/installation.md) 自主完成安装；装完按它的提示重启宿主、输入 `/connect` 认证即可：
+
+```
+按照这份指南安装 @wallbreakerno4/opencode-commandcode 插件：
+https://raw.githubusercontent.com/WallBreakerNO4/opencode-commandcode-provider/main/docs/guide/installation.md
+```
+
 ### OpenCode v2（beta）
 
 ```bash
