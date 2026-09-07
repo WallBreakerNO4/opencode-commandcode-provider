@@ -63,3 +63,7 @@ opencode run  --model commandcode-go/deepseek/deepseek-v4-pro "hi"   # v1
 ```
 
 注意：`opencode2 models` 不加载插件，不能用来判断安装是否成功。
+
+## 免责声明
+
+本项目为社区开发的第三方插件，与 Command Code 官方无关。插件桥接的 `/alpha/generate` 端点无公开文档，行为可能随官方更新而变动，使用产生的账号风险请自行评估。仅供学习交流。
