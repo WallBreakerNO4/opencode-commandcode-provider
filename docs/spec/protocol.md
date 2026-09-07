@@ -34,7 +34,7 @@ OpenCode ◀─stream part── 协议核心 ◀─NDJSON 事件── 上游�
 
 | 参数 | 规则 |
 |---|---|
-| `max_tokens` | `min(调用方值 ?? 64000, 级联 maxOutput, 200000)`。缺省复刻官方 CLI 常量 `tk = 64e3`（1.49.1 源码 + 抓包互证，ADR 0002）；级联 `maxOutput` 降级为裁剪参考（models.dev 第三方视角值，非网关真值，仅小于缺省时生效）；200000 为网关 zod 校验硬上限（#42 冒烟 400 实证，官方缺省 64e3 永不触及） |
+| `max_tokens` | `min(调用方值 ?? 64000, 级联 maxOutput, 200000)`。缺省复刻官方 CLI 常量 `tk = 64e3`（1.49.1 源码 + 抓包互证，ADR 0002）；级联 `maxOutput` 降级为裁剪参考（models.dev 第三方视角值，非网关真值，仅小于缺省时生效）；200000 为网关 zod 校验硬上限（#42 冒烟 400 实证，官方缺省 64e3 永不触及）。**v1 真实链路注**（#46）：宿主对每次请求注入 `maxOutputTokens = min(limit.output, 32000)`（`provider/transform.ts` `OUTPUT_TOKEN_MAX`），插件 `chat.params` hook 对本 provider 一律置 `undefined`（照抄官方 codex.ts 模式），缺省才真正走 `?? 64000`；v2 无此闸门（`generation` 缺省为空，`callOptions` 直取 `generation?.maxTokens` 即 undefined）。宿主压缩预留（`overflow.ts reserved = min(20000, maxOutputTokens())`）基于模型元数据独立计算、不读 `chat.params` 输出——清除不改变宿主压缩判断 |
 | `temperature` / `top_p` / `top_k` | 有则透传，无则不发，不注入默认值 |
 | `reasoning_effort` | 仅当变体被选中时发送。**接收通道为 `providerOptions.reasoningEffort`**——OpenCode 源码实证：variant 配置被合并进 options → `providerOptions` 传入 LanguageModel，这是变体档位到达协议核心的唯一路径；未选变体（base 模型）不发该字段，`off` 档不存在变体（#4 既定） |
 | `tool_choice` | 调用方映射：`auto`→`{type:"auto"}`、`none`→`{type:"none"}`、`required`→`{type:"any"}`、指定工具→`{type:"tool", name}`；`tools` 非空且调用方未指定时显式发 `{type:"auto"}`（MAXeaglet 抓包验证的信封形状，不赌网关默认值） |

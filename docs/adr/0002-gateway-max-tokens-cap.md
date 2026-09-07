@@ -11,3 +11,7 @@
 
 - 单回合输出封顶 64000，与官方 CLI 用户同款待遇；级联 `maxOutput` 保留 `limit.output` 展示与「模型真实上限小于缺省」时的裁剪职责。
 - 两个常量（64e3 / 200000）写死在协议核心，注释注明证据来源；网关或官方 CLI 变更时改常量发版，不做配置化。
+
+## Addendum（#46：真实宿主链路缺省 32000→64000 修正）
+
+ADR 正文的三段式成立时隐含了「调用方值缺位即走 `?? 64000`」的前提，但 v1 真实链路从不缺位：宿主 `provider/transform.ts`（`OUTPUT_TOKEN_MAX = 32_000`，`maxOutputTokens() = min(limit.output, 32_000)`，`request.ts` 每次请求注入）恒传 ≤ 32000，伪装口径「官方怎么发我们怎么发」实际未兑现（官方 CLI 缺省 64000，1.49.1 源码 + 抓包互证）。修正：v1 `chat.params` hook 对本 provider 一律置 `output.maxOutputTokens = undefined`（照抄官方 codex/copilot/cerebras 插件既有模式），三段式与常量不改、兜底自然生效。宿主压缩预留（`overflow.ts reserved`）基于模型元数据独立计算、不读 hook 输出，清除不改变压缩判断；v2 链路无 32k 钳制（`generation` 缺省为空），无需对应改动。

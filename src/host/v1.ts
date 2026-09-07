@@ -22,9 +22,18 @@
  *   CONTEXT.md）；loader 仅在 auth.json 有该 provider 凭证记录时被宿主调用（无凭证
  *   不触发，#11 实测），把凭证翻译成工厂 `apiKey`；优先级 auth > env 由宿主保证
  *   （与 v2 credential > env 一致）。
- * - **测试边界**（testing.md §4 定案）：hook 的宿主交互行为不入 bun test——mock
+ * - **chat.params hook**（#46）：清宿主 32k 闸门——宿主对每次请求注入
+ *   `maxOutputTokens = min(limit.output, 32_000)`（`provider/transform.ts`
+ *   OUTPUT_TOKEN_MAX），三段式 `?? 64000` 永走不到；本 hook 对本 provider 一律
+ *   置 undefined（照抄官方 codex.ts 既有模式：providerID 过滤 + 无条件清除），
+ *   缺省信封 `max_tokens` 真正落 64000。v2 无此闸门（`generation` 缺省为空，
+ *   callOptions 直取 `generation?.maxTokens` 即 undefined），无需对应改动。宿主
+ *   压缩预留（`overflow.ts reserved`）基于模型元数据独立计算，不读本 hook 输出，
+ *   清除不改变压缩判断（protocol.md §1.2 注明）。
+ * - **测试边界**（testing.md §4 定案）：hook 的宿主触发时序与交互行为不入 bun test——mock
  *   宿主 = 重写宿主，验证 = 真宿主 v1（latest 1.18.x）验证，全程 XDG 隔离；
- *   hooks 静态形状与 selfNpmSpec 纯函数推导在 bun test 内（testing.md §1.4）。
+ *   hooks 静态形状、selfNpmSpec 纯函数推导与 chat.params 清闸门纯行为（过滤 +
+ *   置 undefined）在 bun test 内（testing.md §1.4）。
  *
  * 零依赖纪律（入口既定）：不 import `@opencode-ai/plugin`，宿主对象以本模块的
  * 最小结构类型承接——字段名按 v1.18.25 真宿主探针收窄到 glue 触达的域，宿主漂移
@@ -96,10 +105,24 @@ export interface V1AuthHook {
   readonly methods: readonly V1AuthMethod[]
 }
 
+/** v1 chat.params hook 的模型输入：只读 providerID 作过滤（官方 codex.ts 模式） */
+export interface V1ChatParamsModel {
+  readonly providerID: string
+}
+
+/** v1 chat.params hook 的调用参数输出：只触达 maxOutputTokens，其余字段零知识 */
+export interface V1ChatParamsOutput {
+  maxOutputTokens: number | undefined
+  /** 其余输出字段（temperature/topP/topK/options）宿主所有，本 hook 不读不写 */
+  [key: string]: unknown
+}
+
 /** server() 返回的 v1 hooks（v1 加载器消费的全部面） */
 export interface V1Hooks {
   config: (config: V1ConfigObject) => Promise<void>
   auth: V1AuthHook
+  /** 清宿主 32k 闸门（#46）：对本 provider 置 output.maxOutputTokens = undefined */
+  "chat.params": (input: { model: V1ChatParamsModel }, output: V1ChatParamsOutput) => Promise<void>
 }
 
 // ---------------------------------------------------------------------------
@@ -130,7 +153,7 @@ function mergeProviderBlock(
 // ---------------------------------------------------------------------------
 
 /**
- * v1 插件入口（default.server）：返回 config / auth hooks。纯函数——宿主可能在
+ * v1 插件入口（default.server）：返回 config / auth / chat.params hooks。纯函数——宿主可能在
  * config 重载或 auth login 等场景重复调用，重放注入幂等（同级联 → 同块）。
  */
 export async function serverV1(_input: unknown, _options: unknown): Promise<V1Hooks> {
@@ -162,6 +185,16 @@ export async function serverV1(_input: unknown, _options: unknown): Promise<V1Ho
         return { apiKey: key ?? "" }
       },
       methods: [{ type: "api", label: API_KEY_METHOD_LABEL }],
+    },
+
+    "chat.params": async (input, output) => {
+      // 清宿主 32k 闸门（#46；照抄官方 codex.ts 既有模式）：v1 宿主对每次请求
+      // 注入 maxOutputTokens = min(limit.output, 32000)，三段式 `?? 64000` 永走
+      // 不到；对本 provider 一律置 undefined，缺省信封 max_tokens 真正落 64000。
+      // 他 provider 不过界。宿主压缩预留不读本 hook 输出（protocol.md §1.2），
+      // 不改变压缩判断。
+      if (input.model.providerID !== PROVIDER_ID) return
+      output.maxOutputTokens = undefined
     },
   }
 }

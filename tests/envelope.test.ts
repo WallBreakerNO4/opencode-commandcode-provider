@@ -278,6 +278,23 @@ describe("参数处理（§1.2）", () => {
     expect(build(userText("hi"), {}, ctx).body.params.max_tokens).toBe(64_000)
   })
 
+  test("三段式兜底路径（#46 真实链路形态）：宿主 chat.params 清闸门后调用方值缺位 → 落官方缺省 64e3", () => {
+    // v1 真实链路：宿主注入 maxOutputTokens = min(limit.output, 32000)，插件
+    // chat.params hook（src/host/v1.ts）置 undefined 后协议核心收到的即缺位值。
+    // 缺省三段式此前在真实链路几乎不可达（宿主恒传 32000），现为缺省主路径。
+    const cleared: number | undefined = undefined
+    expect(build(userText("hi"), { maxOutputTokens: cleared }, context({ maxOutput: 384_000 })).body.params.max_tokens).toBe(
+      64_000,
+    )
+    expect(build(userText("hi"), { maxOutputTokens: cleared }, context({ maxOutput: 32_000 })).body.params.max_tokens).toBe(
+      32_000,
+    )
+    // 级联比缺省大时兜底生效而非级联值（伪装口径：官方怎么发我们怎么发）
+    expect(build(userText("hi"), { maxOutputTokens: cleared }, context({ maxOutput: 131_072 })).body.params.max_tokens).toBe(
+      64_000,
+    )
+  })
+
   test("官方缺省 64e3 + 网关墙 200000（#42 / ADR 0002）", () => {
     // deepseek v4 系级联 384000（models.dev 第三方视角值），未传 → 官方 CLI 同款缺省 64e3
     expect(build(userText("hi"), {}, context({ maxOutput: 384_000 })).body.params.max_tokens).toBe(64_000)
