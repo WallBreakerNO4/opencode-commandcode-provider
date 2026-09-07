@@ -1,6 +1,6 @@
 /**
- * modelsUrls 覆盖解析（契约：docs/spec/model-pipeline.md §1.3 覆盖机制条款 +
- * docs/research/models-url-override.md §4 定案）。
+ * modelsUrls 覆盖解析（契约：docs/dev/spec/model-pipeline.md §1.3 覆盖机制条款 +
+ * docs/dev/research/models-url-override.md §4 定案）。
  *
  * 三通道优先级 config > env > 默认列表，语义为**整列表替换**——解析结果完整取代
  * 内置列表，不拼接不插位；包内快照不占列表位（快照兜底归 pipeline 的降级层，

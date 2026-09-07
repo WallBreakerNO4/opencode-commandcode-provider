@@ -1,5 +1,5 @@
 /**
- * 协议核心·超时与取消（契约：docs/spec/protocol.md §4）。
+ * 协议核心·超时与取消（契约：docs/dev/spec/protocol.md §4）。
  *
  * - 300 秒空闲看门狗（常量，暂不配置化）：持续未收到任何新事件即判定上游
  *   失联 → abort 上游 + 抛可重试错误（retry-after 5s，见 errors.ts

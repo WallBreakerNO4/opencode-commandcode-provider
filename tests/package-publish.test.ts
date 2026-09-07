@@ -1,5 +1,5 @@
 /**
- * npm pack 产物检查（issue #38 验收项，发布流程 docs/release/release-process.md 的
+ * npm pack 产物检查（issue #38 验收项，发布流程 docs/dev/release/release-process.md 的
  * 自动化防线）：真实执行 build + pack + 解包，对**发布产物本身**断言——
  * - 零运行时依赖：package.json 无 dependencies/peerDependencies/optionalDependencies
  *   （src 全部外部引用是 @ai-sdk/provider 类型与 node: 内建，类型在编译期擦除）；

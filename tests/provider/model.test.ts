@@ -12,7 +12,7 @@ import type { CommandCodeApiCallError } from "../../src/protocol/errors.ts"
 import { GENERATE_ENDPOINT } from "../../src/protocol/generate.ts"
 import type { FetchLike } from "../../src/protocol/json.ts"
 
-// LanguageModelV3 集成全链（#35，契约：docs/spec/testing.md §2 + v2-provider-contract.md §2）：
+// LanguageModelV3 集成全链（#35，契约：docs/dev/spec/testing.md §2 + v2-provider-contract.md §2）：
 // 全部出网路径统一经工厂 options.fetch 接缝注 mock（generate / 产物 URL / models API /
 // 版本查询 / 预请求），无任何测试后门；时间用 bun:test fake timers 瞬推。
 // 事实基础（provider 3.0.8 实测）：finishReason 为 {unified, raw} 对象、usage 嵌套。

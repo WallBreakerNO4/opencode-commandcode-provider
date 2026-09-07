@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import plugin, * as entry from "../src/index.ts"
 
-// 包形状防回归断言（docs/spec/testing.md §1.4）：
+// 包形状防回归断言（docs/dev/spec/testing.md §1.4）：
 // v1 宿主加载决策树依赖 default 的 {id, setup, server} 三键（#11 实测：带 id 缺 server
 // 则整模块跳过并忽略全部命名导出）；v1/v2 的工厂判据是「模块第一个 create* 前缀导出」。
 // 后续实现票不得使导出形状漂移。v1 hooks 的静态形状（#37，#46 扩为 chat.params 清闸门）同属包契约——config/auth

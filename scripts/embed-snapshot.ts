@@ -1,5 +1,5 @@
 /**
- * 包内快照刷新（docs/spec/model-pipeline.md §5、发布流程 docs/release/release-process.md）：
+ * 包内快照刷新（docs/dev/spec/model-pipeline.md §5、发布流程 docs/dev/release/release-process.md）：
  * 把最新构建产物嵌入插件主包，充当发版时刻的「最后已知良好产物」。
  *
  * 用法（发布流程第 1 步，发布前人工执行）：

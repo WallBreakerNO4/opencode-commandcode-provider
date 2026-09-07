@@ -268,5 +268,5 @@ async function getTasteContent(e) {
 1. **三键事实定案**：`memory` / `taste` / `skills` 在 `command-code` 1.38.2 中是 **generate 信封的三个硬编码 `null` 死键**——无赋值路径、无条件分支、与运行环境数据量无关（有 AGENTS.md / 23 技能 / taste 学习进行中的抓包记录同样全 null）。三键的真实数据通道是客户端 `params.system`（`<instructions>` / `<taste>` / `<skills>` 块）与 `params.tools`（activate_skill 枚举、学习调用的 taste 工具集），服务端 `x-system-prompt-breakdown` 的 memory/taste 计数器对应信封键通道，当前版本恒 0。
 2. **「是否存在真实非空场景」的事实判断：不存在**（就 1.38.2 客户端侧而言，任何模式/环境/数据量下都恒 null；唯一无法从源码覆盖的是服务端对非 null 值的处置，但那不属于「CLI 会不会填」的范畴）。
 3. **opencode 数据填充路线：否决**——可读性不是瓶颈（矩阵见 §5），方向本身不成立：照抄 ground truth 就必须发 `null`。
-4. **回填建议**（回填动作不在本调研范围，待 grilling 拍板）：`disguise.md` §9.1 逐字段表补三行——`memory`/`taste`/`skills` 恒 `null`（字面量照抄，勿读任何数据源填充），并注明三键的真实数据通道在 `params.system`/`params.tools`；`protocol.md` §1 的「逐字段规格见 `docs/spec/disguise.md` §9」自引断裂随之消除。`x-taste-learning` 头的动态语义（learning 开关 + BYOK 抑制）可顺带在伪装规格中复核（当前 spec 拍板值 `"true"` 与抓包一致，但源码显示其非恒真——BYOK/关学习时为 `"false"`，属新信息）。
+4. **回填建议**（回填动作不在本调研范围，待 grilling 拍板）：`disguise.md` §9.1 逐字段表补三行——`memory`/`taste`/`skills` 恒 `null`（字面量照抄，勿读任何数据源填充），并注明三键的真实数据通道在 `params.system`/`params.tools`；`protocol.md` §1 的「逐字段规格见 `docs/dev/spec/disguise.md` §9」自引断裂随之消除。`x-taste-learning` 头的动态语义（learning 开关 + BYOK 抑制）可顺带在伪装规格中复核（当前 spec 拍板值 `"true"` 与抓包一致，但源码显示其非恒真——BYOK/关学习时为 `"false"`，属新信息）。
 5. **HITL 复验需求：定案不需要**。§6 两个场景为可选的服务端行为探测，与伪装规格无涉，执行与否由老板决定。

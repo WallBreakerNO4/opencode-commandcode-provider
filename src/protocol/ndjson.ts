@@ -1,6 +1,6 @@
 /**
  * 协议核心·响应方向：`/alpha/generate` 的 NDJSON 事件流 → AI SDK stream part
- * （契约：docs/spec/protocol.md §2）。
+ * （契约：docs/dev/spec/protocol.md §2）。
  *
  * 严格 NDJSON：按行切分、逐行 `JSON.parse`；跳过空行与 `:` 注释行。不做 SSE 双兼容
  * （不剥 `data:`、不认 `[DONE]`、不做 `\r\n` 归一——§6 否决项：上游格式真变更时

@@ -2,7 +2,7 @@
  * 工厂装配（#35 弹道合拢点）：协议核心（执行内核 generate.ts）× 伪装模块
  * （会话身份 / config 块 / 版本头 / 伪装头）× 模型管线（级联 limit 数据）组装成
  * 包导出的 `createCommandCode({name, apiKey, headers, fetch})` 工厂，内部实现
- * LanguageModelV3（契约形状：docs/research/v2-provider-contract.md §2 实测——
+ * LanguageModelV3（契约形状：docs/dev/research/v2-provider-contract.md §2 实测——
  * `finishReason` 为 `{unified, raw}` 对象、`usage` 嵌套结构、上游恒为流式 NDJSON、
  * `doGenerate` = `doStream` 聚合）。
  *

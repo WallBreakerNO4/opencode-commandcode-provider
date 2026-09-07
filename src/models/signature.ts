@@ -1,5 +1,5 @@
 /**
- * 模型管线变更签名（契约：docs/spec/model-pipeline.md §4 刷新与缓存）。
+ * 模型管线变更签名（契约：docs/dev/spec/model-pipeline.md §4 刷新与缓存）。
  *
  * - 产物：对 `models` 数组做内容 hash，变化才触发下游动作（v2 `catalog.reload()`）。
  *   只哈希 models——`generatedAt` 每次构建必变、`schemaVersion` 恒定，掺进来会把

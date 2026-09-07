@@ -25,7 +25,7 @@
 ## 1. 调查对象与版本确认
 
 - **v1 线**：`anomalyco/opencode`（GitHub API 显示 sst/opencode 的 tags 已在 anomalyco 名下）tag `v1.18.25`（commit `cb7d8b2f5e44876ef98b661dc10590c915af3a9f`，2026-08-28），是 v1.18.x 最新 tag；另单独核对 `v1.18.21`（commit `826d9ad4…`）的目标文件。
-- **v2 线**：`beta` 分支 HEAD `90fb6562ce09782c311040ba39a9d50edec6ad0e`（2026-08-31 16:53 +1000）。npm dist-tag 参照：8/28 为 `0.0.0-beta-18414`（见本仓库 `docs/research/opencode-plugin-provider.md:25`），三天后 HEAD 落在 beta-18684 邻域，符合题设。
+- **v2 线**：`beta` 分支 HEAD `90fb6562ce09782c311040ba39a9d50edec6ad0e`（2026-08-31 16:53 +1000）。npm dist-tag 参照：8/28 为 `0.0.0-beta-18414`（见本仓库 `docs/dev/research/opencode-plugin-provider.md:25`），三天后 HEAD 落在 beta-18684 邻域，符合题设。
 - **AI SDK**：v1.18.25 `packages/opencode/package.json` 锁 `"ai": "catalog:"`（bun.lock 解析为 `ai@6.0.168`）与 `"@ai-sdk/provider": "3.0.8"`；v1 的 `wrapLanguageModel` middleware 已写 `specificationVersion: "v3"`（`session/llm.ts:329`）。故 **v1.18.x 与 v2 同属 LanguageModelV3 世代**，类型层面一致。
 
 核对方法：
@@ -248,7 +248,7 @@ return {
 
 ## 5. 与既有调研笔记的核对
 
-本仓库 `docs/research/opencode-plugin-provider.md` 记录了 V1 `chat.headers` hook（第 390 行）、V2 `session.hook("model.request")`（第 173 行）与 aisdk 加载链（第 491 行），与本次源码结论一致；但该文档**未涉及**「宿主自己往调用参数里放了什么」——本报告补充的正是这一层：OpenCode 在插件机制之外、于调用参数 `options.headers` 中无条件注入会话标识（v1/v2 均是），这是此前工单 #11/#12 实测未回答的部分。
+本仓库 `docs/dev/research/opencode-plugin-provider.md` 记录了 V1 `chat.headers` hook（第 390 行）、V2 `session.hook("model.request")`（第 173 行）与 aisdk 加载链（第 491 行），与本次源码结论一致；但该文档**未涉及**「宿主自己往调用参数里放了什么」——本报告补充的正是这一层：OpenCode 在插件机制之外、于调用参数 `options.headers` 中无条件注入会话标识（v1/v2 均是），这是此前工单 #11/#12 实测未回答的部分。
 
 ## 6. 对伪装模块的落地结论
 

@@ -1,7 +1,7 @@
 # 测试规格：分层、范围与注入通道
 
 > 状态：定稿（2026-09-01）。决策票：[WallBreakerNO4/opencode-commandcode-provider#20](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/20)。
-> 事实输入：`docs/spec/protocol.md`、`docs/spec/disguise.md`、`docs/spec/model-pipeline.md`（被测行为契约）；#5/#11/#12（宿主实测定案）；bun:test 官方文档与源码（`useFakeTimers` / `advanceTimersByTime` / `setSystemTime` 能力核验，`AbortSignal.timeout` 定时器纳入 fake heap）。
+> 事实输入：`docs/dev/spec/protocol.md`、`docs/dev/spec/disguise.md`、`docs/dev/spec/model-pipeline.md`（被测行为契约）；#5/#11/#12（宿主实测定案）；bun:test 官方文档与源码（`useFakeTimers` / `advanceTimersByTime` / `setSystemTime` 能力核验，`AbortSignal.timeout` 定时器纳入 fake heap）。
 > 范围：自动化测试（单测 + 集成）的范围与形态、mock 注入通道、时间与文件系统测试策略、CI、真宿主人工验收的边界（清单内容归端到端验收票 [#21](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/21)）。测试代码的文件布局、命名与切票粒度随地图移交 `/to-spec` 收敛，本文只定策略。
 
 ## 0. 三层形态

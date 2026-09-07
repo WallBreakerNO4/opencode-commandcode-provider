@@ -1,7 +1,7 @@
 /**
  * models.dev `api.json` 匹配：仅构建侧 limits 补全源（§0 三来源架构）。
  *
- * 匹配规则照 docs/research/model-metadata-sources.md §三实测：
+ * 匹配规则照 docs/dev/research/model-metadata-sources.md §三实测：
  * 1. CommandCode id 按 `/` 拆「前缀 + 模型 id」；无前缀按品牌映射（claude*→anthropic 等）；
  * 2. 前缀别名表（z-ai/zai-org→zai、Qwen→alibaba、tencent→三组并列等）；
  * 3. 组内依次：精确 id → 归一 id → 「前缀/模型id」整串结尾匹配；

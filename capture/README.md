@@ -1,6 +1,6 @@
 # Command Code 流量抓包
 
-采集官方 `command-code` CLI 的真实 API 流量，为 `docs/research/disguise-spec.md` 与 `docs/spec/disguise.md` 的事实条款提供 ground truth（工单 [#9](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/9)）。
+采集官方 `command-code` CLI 的真实 API 流量，为 `docs/dev/research/disguise-spec.md` 与 `docs/dev/spec/disguise.md` 的事实条款提供 ground truth（工单 [#9](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/9)）。
 
 ## 文件组成
 

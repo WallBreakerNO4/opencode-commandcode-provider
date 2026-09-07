@@ -1,7 +1,7 @@
 # 模型管线规格：构建产物 schema 与运行时合并级联
 
 > 状态：定稿（2026-08-29）。决策票：[WallBreakerNO4/opencode-commandcode-provider#4](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/4)。
-> 事实输入：`docs/research/model-metadata-sources.md`（来源矩阵）、`docs/research/plan-model-mapping.md`（官方套餐→模型映射）。
+> 事实输入：`docs/dev/research/model-metadata-sources.md`（来源矩阵）、`docs/dev/research/plan-model-mapping.md`（官方套餐→模型映射）。
 > 范围：模型管线模块的两侧契约——构建侧产物 schema 与 Go plan 过滤规则、客户端运行时合并级联与降级。分发渠道选型、GitHub Action 流水线实现、伪装层由其他票承接，本文只约束与它们的接口。
 
 ## 0. 三来源架构
@@ -44,7 +44,7 @@
 |---|---|---|
 | `schemaVersion` | ✅ | 整数，当前 `1` |
 | `generatedAt` | ✅ | ISO 8601 UTC，产物生成时刻 |
-| `sourceCliVersion` | ✅ | 解析所用的 `command-code` 版本，仅作溯源；伪装层版本头兜底链第 ③ 层——npm/jsDelivr 均不可达且无落盘缓存时，读运行时已拉取产物的此字段（只读内存、不触发拉取；见 `docs/spec/disguise.md` §6，#19 修订） |
+| `sourceCliVersion` | ✅ | 解析所用的 `command-code` 版本，仅作溯源；伪装层版本头兜底链第 ③ 层——npm/jsDelivr 均不可达且无落盘缓存时，读运行时已拉取产物的此字段（只读内存、不触发拉取；见 `docs/dev/spec/disguise.md` §6，#19 修订） |
 | `models` | ✅ | 模型数组，**仅含 Go plan 可用子集**（见 §2） |
 
 per-model：
@@ -71,7 +71,7 @@ per-model：
 
 - schema 与客户端代码不得包含渠道特有概念（如 gist revision、Release tag 语义）。
 - 客户端按**有序 URL 列表**拉取产物：代码内置默认列表（由「分发渠道选型」票确定），用户配置可覆盖；按序尝试，首个成功者胜。
-- **覆盖机制**（键名统一 `modelsUrls`，值 = http(s) URL 有序列表，接受字符串数组或逗号分隔字符串；#17 终审拍板，调研 `docs/research/models-url-override.md`）：
+- **覆盖机制**（键名统一 `modelsUrls`，值 = http(s) URL 有序列表，接受字符串数组或逗号分隔字符串；#17 终审拍板，调研 `docs/dev/research/models-url-override.md`）：
   - v1：用户 `opencode.json` 的 `provider.commandcode-go.options.modelsUrls`；v1 config hook 注入 provider 块时必须非破坏合并，用户已写键优先。
   - v2：用户 `opencode.json` 的 `providers.commandcode-go.settings.modelsUrls`（空壳升级为 settings 壳）；值经宿主内置 transform 进入目录并在工厂 options 中以顶层键出现。
   - 统一环境变量兜底：`COMMANDCODE_MODELS_URLS`（逗号分隔），v1/v2 插件进程内直读。优先级 config > env > 默认列表。该变量是用户配置面，非测试通道；测试仍经工厂 `options.fetch` 接缝注入（testing.md §2/§3）。
@@ -83,7 +83,7 @@ per-model：
 
 输入：`command-code@<version>` tarball（解包仅做文本解析，绝不执行包内代码）+ `/provider/v1/models` 实时清单（对账用）+ models.dev `api.json`（limits 补全用）。
 
-1. **bundle 逆向**（`dist/cli.mjs`）：提取模型目录字段（`id/label/name/reasoning/reasoningEfforts/contextWindow/maxOutputTokens/inputModalities`）。注意 1.37.0 结构：provider 为独立常量、目录对象按「`={` + 平衡括号」截取、getter 与标识符引用需注入求值（方法详见 `docs/research/model-metadata-sources.md` §五）。
+1. **bundle 逆向**（`dist/cli.mjs`）：提取模型目录字段（`id/label/name/reasoning/reasoningEfforts/contextWindow/maxOutputTokens/inputModalities`）。注意 1.37.0 结构：provider 为独立常量、目录对象按「`={` + 平衡括号」截取、getter 与标识符引用需注入求值（方法详见 `docs/dev/research/model-metadata-sources.md` §五）。
 2. **models.md 解析**（`dist/bundled/command-code-knowledge/reference/models.md`，与 tarball 内文件同源）：Min plan 在第 6 列（index 6），按行首 `` | `wire-id` | `` 模式解析；normalize = 去掉后缀 `" and above"`（`Max` 为裸词，自然归一）。
 3. **Go plan 过滤**：保留 normalize 后 `== "Go"` 的模型。官方语义：Min plan 是能调用该模型的最便宜档位，高档包含低档全部模型，套餐序 `Go < GOAT < Pro < Max`。当前基线 40 个模型。
 4. **limits 补全**：保证 `context` / `maxOutput` 每模型必有具体值，按 §1.1 补全链依次尝试；构建日志记录每个值的 provenance（`bundle` / `family` / `models-dev` / `constant`），编造值可审计。
@@ -121,7 +121,7 @@ per-model：
 
 - v1 模型 entry：`{id, name, tool_call: true, reasoning, attachment, modalities, limit: {context, output}, variants}`；不写 `cost`。
 - v2 `Model.Info`：`capabilities: {tools: true, input: <inputModalities>, output: ["text"]}`、`limit`、`variants: [{id: <档位>, settings: {reasoningEffort: <档位>}}]`；`cost` 省略。
-- 字段形状细节以 `docs/research/opencode-plugin-provider.md` §3/§4 为准，由 v1/v2 glue 票承接。
+- 字段形状细节以 `docs/dev/research/opencode-plugin-provider.md` §3/§4 为准，由 v1/v2 glue 票承接。
 
 ## 4. 刷新与缓存
 

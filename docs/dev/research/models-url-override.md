@@ -1,6 +1,6 @@
 # 产物 URL 列表用户覆盖机制：v1/v2 配置通道查证与键形状建议
 
-> 调研问题：`docs/spec/model-pipeline.md` §1.3 与 CONTEXT.md「默认 URL 列表」词条承诺构建产物拉取列表「用户配置可覆盖」，但覆盖机制未定案——写入位置、键形状、值如何到达插件进程均无规格。
+> 调研问题：`docs/dev/spec/model-pipeline.md` §1.3 与 CONTEXT.md「默认 URL 列表」词条承诺构建产物拉取列表「用户配置可覆盖」，但覆盖机制未定案——写入位置、键形状、值如何到达插件进程均无规格。
 > 对应工单：[#24 产物 URL 列表用户覆盖机制](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/24)（#17 复审轮判为实现路径未决项）。
 > 调研日期：2026-09-02。方法：shallow clone 一手源码逐行核对（v1 tag `v1.18.25` commit `cb7d8b2f`；v2 beta 分支 HEAD `5894e466`，2026-08-31 23:35 +0800），本机安装的 opencode 即 1.18.25 可交叉验证。已核对 v1.18.21→v1.18.25 相关文件 diff（差异仅在 Azure/Cloudflare 加载器与 v2 兼容外壳，本主题机制不变）与 90fb6562（`session-visibility.md` 所引快照）→5894e466 的 5 个关键文件 diff（零变化，无 beta 漂移）。全文只读调查。
 
@@ -37,7 +37,7 @@
 
   （`packages/opencode/src/provider/provider.ts:1436-1440`；`cfg` 在 1399 行取自同一 `config.get()` 缓存——hook 的原地修改对 Provider state 可见，与 #11 实测一致。）
 
-- 因此**不存在宿主级「对象级谁胜 / 字段级深合并」**：hook 看到的 `cfg.provider["commandcode-go"]` 已经是用户 config 全层合并后的结果，hook 自己决定怎么写这个键。若插件整块赋值就会踩掉用户字段——所以「用户块胜、插件只补缺」必须是插件 glue 的合并策略（Breskott 参考实现同口径，见 `docs/research/reference-projects.md` §三）。
+- 因此**不存在宿主级「对象级谁胜 / 字段级深合并」**：hook 看到的 `cfg.provider["commandcode-go"]` 已经是用户 config 全层合并后的结果，hook 自己决定怎么写这个键。若插件整块赋值就会踩掉用户字段——所以「用户块胜、插件只补缺」必须是插件 glue 的合并策略（Breskott 参考实现同口径，见 `docs/dev/research/reference-projects.md` §三）。
 
 ### 1.3 schema 解码：哪些用户自定义字段能活下来
 
@@ -105,13 +105,13 @@ config 文件经 Effect Schema 解码，全局选项 `onExcessProperty: "ignore"
 
 ### 2.3 时序：transform 回放顺序与读取时机
 
-- 插件代际顺序 = 内部 pre → **外部插件（packages/本地/npm）** → 内部 post（`packages/core/src/plugin/supervisor.ts:76-81`、`107-119`；`opencode.config.provider` 在 post，`plugin/internal.ts:278`）。transform 按插件加载顺序回放（`docs/research/opencode-plugin-provider.md` §2.3）→ **外部插件（本插件）的 transform 回放时，config 的 settings 尚未合并**。
+- 插件代际顺序 = 内部 pre → **外部插件（packages/本地/npm）** → 内部 post（`packages/core/src/plugin/supervisor.ts:76-81`、`107-119`；`opencode.config.provider` 在 post，`plugin/internal.ts:278`）。transform 按插件加载顺序回放（`docs/dev/research/opencode-plugin-provider.md` §2.3）→ **外部插件（本插件）的 transform 回放时，config 的 settings 尚未合并**。
 - 但这不构成障碍：工厂调用发生在模型请求时（全部 transform 已回放并提交），此刻 `prepareOptions` 里的 settings 已就位；插件侧如需在请求前读取，可用 catalog 读接口 `ctx.catalog.provider.get("commandcode-go")`（`packages/plugin/src/promise/catalog.ts:15`；实现在 `catalog.ts:146-148`，读 transform 回放后的提交态）或等 `Catalog.Event.Updated` 事件。v2 glue「快照先行 + 后台拉产物 + reload」的既定节奏不受影响。
 
 ### 2.4 第二通道与排除项
 
-- **`ctx.options`**（promise 风格 ctx 必有字段，`packages/plugin/src/promise/plugin.ts:28`，类型 `Readonly<Record<string, any>>`）：来自 `opencode.json` 的 `plugins` 数组对象形式 `{ "package": "...", "options": {...} }`（`config/plugin/source.ts:111`；字符串形式条目 options 为 `{}`，113 行）。官方插件文档明载此形式（`docs/research/opencode-plugin-provider.md` §2.1 引）。setup 时即可读，早于一切 transform 回放。代价：`opencode2 plugin add` 写入的是字符串形式，用户需手工改成对象形式。
-- **integration**：只承载认证方法与连接（key/env/oauth），无用户配置承载位（`config/plugin/provider.ts:20-38`、`docs/research/opencode-plugin-provider.md` §2.6）。
+- **`ctx.options`**（promise 风格 ctx 必有字段，`packages/plugin/src/promise/plugin.ts:28`，类型 `Readonly<Record<string, any>>`）：来自 `opencode.json` 的 `plugins` 数组对象形式 `{ "package": "...", "options": {...} }`（`config/plugin/source.ts:111`；字符串形式条目 options 为 `{}`，113 行）。官方插件文档明载此形式（`docs/dev/research/opencode-plugin-provider.md` §2.1 引）。setup 时即可读，早于一切 transform 回放。代价：`opencode2 plugin add` 写入的是字符串形式，用户需手工改成对象形式。
+- **integration**：只承载认证方法与连接（key/env/oauth），无用户配置承载位（`config/plugin/provider.ts:20-38`、`docs/dev/research/opencode-plugin-provider.md` §2.6）。
 - **`ctx.storage`**：插件私有持久化 JSON，不是用户配置面，排除。
 - catalog 草稿读接口 `provider.get/list` 在 transform 内可用（`catalog.ts:90-91`），但因 2.3 的回放顺序，transform 内读到的是 settings 合并前的状态——读取时机必须在工厂/请求/事件侧，不在自家 transform 内。
 
@@ -186,7 +186,7 @@ config 文件经 Effect Schema 解码，全局选项 `onExcessProperty: "ignore"
 
 ## 5. 供 #17 复审拍板的建议规格草案
 
-以下为候选文本，拍板后回填 `docs/spec/model-pipeline.md` §1.3 与 CONTEXT.md「默认 URL 列表」词条（本票不改任何规格文件）。
+以下为候选文本，拍板后回填 `docs/dev/spec/model-pipeline.md` §1.3 与 CONTEXT.md「默认 URL 列表」词条（本票不改任何规格文件）。
 
 ### 5.1 `model-pipeline.md` §1.3 增补条款（候选）
 
@@ -243,4 +243,4 @@ config 文件经 Effect Schema 解码，全局选项 `onExcessProperty: "ignore"
 - `packages/core/src/plugin/provider/dynamic.ts:6-17`、`sdk-factory.ts:6-18`（默认 sdk hook：import 包、create 工厂、evt.options 实参）
 - `packages/plugin/src/promise/plugin.ts:25-63`（ctx 全字段、无 log 域）、`packages/plugin/src/options.ts`（PluginOptions）、`packages/plugin/src/promise/catalog.ts:13-17`（catalog 读接口）、`packages/core/src/config/plugin/source.ts:111-113`（plugins 对象形式 options）、`packages/schema/src/provider.ts:32`（Provider.Info.settings）
 
-**既有定案引用**：#10（默认列表与 SLA）、#11（v1 工厂/凭证实测）、#12（v2 空壳与 credential > env）、`docs/research/opencode-plugin-provider.md`（§2.1 plugins 对象形式、§2.3 transform 回放顺序、§2.6 integration）、`docs/research/reference-projects.md` §三（Breskott 非破坏合并先例）、`docs/spec/model-pipeline.md` §1.3/§3/§4、`docs/spec/testing.md` §2/§3、CONTEXT.md「默认 URL 列表」。
+**既有定案引用**：#10（默认列表与 SLA）、#11（v1 工厂/凭证实测）、#12（v2 空壳与 credential > env）、`docs/dev/research/opencode-plugin-provider.md`（§2.1 plugins 对象形式、§2.3 transform 回放顺序、§2.6 integration）、`docs/dev/research/reference-projects.md` §三（Breskott 非破坏合并先例）、`docs/dev/spec/model-pipeline.md` §1.3/§3/§4、`docs/dev/spec/testing.md` §2/§3、CONTEXT.md「默认 URL 列表」。

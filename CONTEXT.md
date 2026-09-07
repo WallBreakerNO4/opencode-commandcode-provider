@@ -27,7 +27,7 @@ _Avoid_: 反代端点、私有 API
 `/alpha/generate` 的请求体七键结构 `{config, memory, taste, skills, permissionMode, threadId, params}`；语义集中在 `params`（模型、消息、工具、采样参数），`threadId` 与 `x-session-id` 同值（#9 抓包定案），`memory` / `taste` / `skills` 为官方硬编码 `null` 死键（#25 源码定案）。
 
 **config 块**:
-CLI 信封顶部的工作环境简报，九字段 `workingDir / date / environment / structure / isGitRepo / currentBranch / mainBranch / gitStatus / recentCommits`；逐字段照抄官方 CLI 采集实现，非 git 仓库显式空值、不省略字段。规格见 `docs/spec/disguise.md` §9。
+CLI 信封顶部的工作环境简报，九字段 `workingDir / date / environment / structure / isGitRepo / currentBranch / mainBranch / gitStatus / recentCommits`；逐字段照抄官方 CLI 采集实现，非 git 仓库显式空值、不省略字段。规格见 `docs/dev/spec/disguise.md` §9。
 _Avoid_: 环境上报、上下文块、环境简报
 
 **NDJSON 事件流**:
@@ -47,7 +47,7 @@ _Avoid_: 硬件指纹、机器码、设备 ID
 _Avoid_: 初始化请求、预热请求、遥测前置
 
 **协议核心**:
-插件内负责协议翻译的模块：CLI 信封构造、NDJSON 事件流解析、错误映射、超时与取消。规格见 `docs/spec/protocol.md`。
+插件内负责协议翻译的模块：CLI 信封构造、NDJSON 事件流解析、错误映射、超时与取消。规格见 `docs/dev/spec/protocol.md`。
 _Avoid_: 转换层、协议层（泛称时）
 
 **错误映射**:
@@ -63,7 +63,7 @@ _Avoid_: 总超时、请求超时
 _Avoid_: 空响应、防计费（订阅制下理由已弱化）
 
 **max_tokens 三段式**:
-信封 `max_tokens` 的缺省算法 `min(调用方值 ?? 64000, 级联 maxOutput, 200000)`：缺省复刻官方 CLI 常量 64e3（源码与抓包互证）；级联 maxOutput 降级为裁剪参考（models.dev 第三方视角值）；200000 为网关 zod 校验硬上限。决策：`docs/adr/0002-gateway-max-tokens-cap.md`。
+信封 `max_tokens` 的缺省算法 `min(调用方值 ?? 64000, 级联 maxOutput, 200000)`：缺省复刻官方 CLI 常量 64e3（源码与抓包互证）；级联 maxOutput 降级为裁剪参考（models.dev 第三方视角值）；200000 为网关 zod 校验硬上限。决策：`docs/dev/adr/0002-gateway-max-tokens-cap.md`。
 _Avoid_: 级联值直发（#42 冒烟已弃）、不叠 200000 硬顶（原否决词，语义已反转）
 
 **伪装人格**:
@@ -80,7 +80,7 @@ _Avoid_: 假身份、多平台伪装、win32 假人格（已弃用）
 _Avoid_: 模型配置、模型信息
 
 **构建产物**:
-构建侧（GitHub Action，随官方 CLI 发版自动触发）从官方 CLI 包解析出的 JSON（schema 见 `docs/spec/model-pipeline.md`），经分发渠道（默认 URL 列表）供插件运行时拉取。绝不在用户机器上解析或生成。
+构建侧（GitHub Action，随官方 CLI 发版自动触发）从官方 CLI 包解析出的 JSON（schema 见 `docs/dev/spec/model-pipeline.md`），经分发渠道（默认 URL 列表）供插件运行时拉取。绝不在用户机器上解析或生成。
 _Avoid_: 解析产物（旧称）、逆向结果、gist JSON
 
 **Go plan 过滤**:
@@ -152,5 +152,5 @@ _Avoid_: API Key 文案（泛称时）
 ### 测试
 
 **人工验收**:
-真宿主人工验收——真实 OpenCode 宿主、真实 key、真实网络上由人执行的验收层，覆盖不入 bun test 的 glue 模块、分发连通性与端到端行为；与自动化测试互不重复。清单：`docs/spec/acceptance.md`。
+真宿主人工验收——真实 OpenCode 宿主、真实 key、真实网络上由人执行的验收层，覆盖不入 bun test 的 glue 模块、分发连通性与端到端行为；与自动化测试互不重复。清单：`docs/dev/spec/acceptance.md`。
 _Avoid_: 真机测试、集成测试、冒烟测试

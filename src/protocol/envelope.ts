@@ -1,6 +1,6 @@
 /**
  * 协议核心·请求方向：把 AI SDK 标准调用（LanguageModelV3CallOptions）翻译成
- * `/alpha/generate` 的 CLI 信封（契约：docs/spec/protocol.md §1）。
+ * `/alpha/generate` 的 CLI 信封（契约：docs/dev/spec/protocol.md §1）。
  *
  * 伪装字段只留填充点：`config` 块与顶层 `permissionMode` 由伪装模块提供（disguise.md
  * §9），本模块对其内容零知识、原样搬运；`memory` / `taste` / `skills` 是官方 CLI

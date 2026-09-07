@@ -1,8 +1,8 @@
 # 协议核心规格：信封构造、流解析与错误映射
 
 > 状态：定稿（2026-08-30）。决策票：[WallBreakerNO4/opencode-commandcode-provider#8](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/8)。
-> 事实输入：`docs/research/reference-projects.md`（四项目协议速查与差异对比）、OpenCode 源码 `packages/opencode/src/session/llm.ts`（调用参数实证，sst/opencode 仓库）。
-> 范围：协议核心模块——`/alpha/generate` 请求信封构造、NDJSON 流解析、AI SDK 错误映射、调用参数处理、超时与取消、图片输入转换。伪装头（版本头 / session / slug / traceparent）由伪装模块负责（`docs/spec/disguise.md`），本文只约定请求头接口边界；模型参数元数据（maxOutput / inputModalities / efforts）来源见 `docs/spec/model-pipeline.md`。
+> 事实输入：`docs/dev/research/reference-projects.md`（四项目协议速查与差异对比）、OpenCode 源码 `packages/opencode/src/session/llm.ts`（调用参数实证，sst/opencode 仓库）。
+> 范围：协议核心模块——`/alpha/generate` 请求信封构造、NDJSON 流解析、AI SDK 错误映射、调用参数处理、超时与取消、图片输入转换。伪装头（版本头 / session / slug / traceparent）由伪装模块负责（`docs/dev/spec/disguise.md`），本文只约定请求头接口边界；模型参数元数据（maxOutput / inputModalities / efforts）来源见 `docs/dev/spec/model-pipeline.md`。
 
 ## 0. 模块定位
 
@@ -16,7 +16,7 @@ OpenCode ◀─stream part── 协议核心 ◀─NDJSON 事件── 上游�
 ## 1. 请求信封
 
 - `POST https://api.commandcode.ai/alpha/generate`，`stream: true` 恒真。
-- 信封骨架为 **7 键** `{config, memory, taste, skills, permissionMode, threadId, params}`（#9 抓包定案：`threadId` 为真协议字段、与 `x-session-id` 同值，由伪装模块的会话身份提供；MAXeaglet 的「死代码 threadId」实为真字段，见 `docs/research/disguise-spec.md` §11.2）。骨架中除 `threadId` 外的伪装字段（`config.*`、顶层 `permissionMode`，以及恒 `null` 的 `memory`/`taste`/`skills`）取值均由伪装模块提供，逐字段规格见 `docs/spec/disguise.md` §9（三键死键定案见其三键取证），协议核心只留填充点。
+- 信封骨架为 **7 键** `{config, memory, taste, skills, permissionMode, threadId, params}`（#9 抓包定案：`threadId` 为真协议字段、与 `x-session-id` 同值，由伪装模块的会话身份提供；MAXeaglet 的「死代码 threadId」实为真字段，见 `docs/dev/research/disguise-spec.md` §11.2）。骨架中除 `threadId` 外的伪装字段（`config.*`、顶层 `permissionMode`，以及恒 `null` 的 `memory`/`taste`/`skills`）取值均由伪装模块提供，逐字段规格见 `docs/dev/spec/disguise.md` §9（三键死键定案见其三键取证），协议核心只留填充点。
 - `params` 语义字段：`model`（wire id）、`messages`、`system`、`tools`、`tool_choice`、`max_tokens`、`stream`、`temperature`、`top_p`、`top_k`、`reasoning_effort`。
 
 ### 1.1 消息转换

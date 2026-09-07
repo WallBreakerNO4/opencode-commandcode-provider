@@ -1,7 +1,7 @@
 # 伪装模块规格：状态、时机、降级
 
 > 状态：定稿（2026-08-30）。决策票：[WallBreakerNO4/opencode-commandcode-provider#7](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/7)。
-> 事实输入：`docs/research/disguise-spec.md`（MAXeaglet/commandcode-proxy 逆向提炼，下称「调研」）。
+> 事实输入：`docs/dev/research/disguise-spec.md`（MAXeaglet/commandcode-proxy 逆向提炼，下称「调研」）。
 > 范围：伪装模块的运行时行为契约——状态管理、预请求时机、会话与 lifecycle 语义、失败降级、版本头策略、日志脱敏、伪装人格、generate 信封 `config` 块取值（§9，#19）。指纹 / slug / traceparent 的**算法本身**以调研 §1–§7 为准，本文只约束「怎么跑」，不重复「怎么算」。
 > 校准状态：抓包校准已完成（2026-08-30，工单 #9）。事实输入升级为「逆向提炼 + 抓包 ground truth」双层，凡两者冲突处以调研文档 **§11 抓包校准** 为准；本文受影响条款已就地修订，修订点标注「（#9 校准）」。
 
@@ -43,7 +43,7 @@
 - **主路径（绑定）**：调用参数中可见 OpenCode 会话标识时，`x-session-id` 由其**确定性派生**（sha256 → 32 hex → 修补 uuid v4 的版本/变体位），无需任何存储即保证「同会话同 id、跨重启同 id」。
 - **slug（#9 校准后改写）**：真实 CLI 的 `x-project-slug` 由真实 workingDir 派生、跨会话恒定（实测 20 次 generate 跨 4 个 session id 而 slug 不变），形状为「小写字母数字短横分组 ×8 组、组长 4–11」（样本见 `capture/samples/generate.json`），与 MAXeaglet 的 `users-dev-projects-*` 算法毫无相似。确切算法未知（逐段哈希链为最像假说，调研 §11.4），插件实现取**形状一致的 workingDir 哈希近似**，不再从 sessionId 派生。
 - **回退路径**：看不到会话标识时，照抄 MAXeaglet——per-key 随机 uuid v4，12h + 0~1h 抖动惰性轮换（此路径无法区分会话边界，属尽力而为）。
-- **可见性验证（已定案，源码级）**：#11/#12 未回答此项，2026-08-31 经源码定案补课（`docs/research/session-visibility.md`）——v1/v2 宿主均**无条件**把 OpenCode 会话 id 注入 `doStream(options).headers`：`X-Session-Id` 与 `x-session-affinity`（= sessionID，每会话稳定；v2 另有 `x-opencode-session` 同值）。**主路径取值位置**：doStream 时读上述头，任一存在即以其为种子派生；全部缺失才落回退路径（容忍宿主改头名，命中后值漂移打日志）。干扰项勿用：v1 `x-opencode-request`（消息 id，每请求唯一）、telemetry（不进调用参数）。v2 宿主不调 `doGenerate`（折叠进 doStream），主路径只需在 doStream 实现。
+- **可见性验证（已定案，源码级）**：#11/#12 未回答此项，2026-08-31 经源码定案补课（`docs/dev/research/session-visibility.md`）——v1/v2 宿主均**无条件**把 OpenCode 会话 id 注入 `doStream(options).headers`：`X-Session-Id` 与 `x-session-affinity`（= sessionID，每会话稳定；v2 另有 `x-opencode-session` 同值）。**主路径取值位置**：doStream 时读上述头，任一存在即以其为种子派生；全部缺失才落回退路径（容忍宿主改头名，命中后值漂移打日志）。干扰项勿用：v1 `x-opencode-request`（消息 id，每请求唯一）、telemetry（不进调用参数）。v2 宿主不调 `doGenerate`（折叠进 doStream），主路径只需在 doStream 实现。
 - slug 旧算法（MAXeaglet `users-dev-projects-*`）整体弃用（#9 校准），其 NaN 边界问题随之消失。
 - MAXeaglet 的入站头透传（`x-session-id` / `x-claude-code-session-id`）**不适用**：插件形态没有入站 HTTP 头，其位置由上述绑定主路径取代。
 
@@ -74,7 +74,7 @@
 - **首请求前 1.5s 竞速**（D6b）：进程内首次需要该值时，给 npm 查询 1.5s 上限——抢到用新值，抢不到先用兜底值放行、查询转后台继续。修 MAXeaglet fire-and-forget 的「初期请求带陈旧兜底值」瑕疵，同时不让被墙的 npm 拖住首请求。
 - **24h 惰性刷新**（D6c）：每次主请求前比对「距上次成功拉取是否超 24h」，超时后台触发拉取。不挂 `setInterval`（插件生命周期负担），**不加抖动**（各进程启动时间天然分散，无收益）。
 - **数据源顺序**：npm registry 直连（1.5s 上限）→ jsDelivr 镜像 `cdn.jsdelivr.net/npm/command-code/package.json`（1.5s 上限，国内可达性好）。
-- **取值兜底链**（#19 修订，全链序）：① npm/jsDelivr 竞速成功值（内存）→ ② 落盘的「上次成功拉取值」→ ③ 运行时已拉取构建产物的 `sourceCliVersion` → ④ 包内快照的 `sourceCliVersion`（`docs/spec/model-pipeline.md` §1.1，随插件发版更新，不会烂在代码里）。③ 只读模型管线**内存中已有**的产物——不触发额外拉取、不等待；③ 的值**不回写**落盘缓存（② 的语义 = npm/jsDelivr 一手拉取值）。
+- **取值兜底链**（#19 修订，全链序）：① npm/jsDelivr 竞速成功值（内存）→ ② 落盘的「上次成功拉取值」→ ③ 运行时已拉取构建产物的 `sourceCliVersion` → ④ 包内快照的 `sourceCliVersion`（`docs/dev/spec/model-pipeline.md` §1.1，随插件发版更新，不会烂在代码里）。③ 只读模型管线**内存中已有**的产物——不触发额外拉取、不等待；③ 的值**不回写**落盘缓存（② 的语义 = npm/jsDelivr 一手拉取值）。
 - **重估时机（#19）**：版本值只在两个时刻重估——初解析（首请求 1.5s 竞速 + 后台查询落地更新）与 24h 惰性刷新；期间模型管线的产物刷新**不**引起版本头翻转（防抖动）。
 - 落盘物：`<缓存目录>/opencode-commandcode/version-cache.json`（`XDG_CACHE_HOME` 优先，默认 `~/.cache`），内容 `{version, fetchedAt}`，原子写（临时文件 + rename）。这是伪装模块**唯一**的磁盘 IO（D1）。
 
@@ -101,7 +101,7 @@
 
 ## 9. generate 信封 `config` 块取值（D9，#19 定稿）
 
-> 事实输入：官方 CLI 源码调研 `docs/research/cli-config-collection.md`（`command-code` 1.38.2 `dist/cli.mjs` 字节偏移级还原，下称「源码调研」，工单 #23）；信封三键（memory/taste/skills）取证 `docs/research/envelope-trio-keys.md`（分支 `research/envelope-trio-keys`，工单 #25，下称「三键取证」）；抓包样本 `capture/samples/generate.json`。
+> 事实输入：官方 CLI 源码调研 `docs/dev/research/cli-config-collection.md`（`command-code` 1.38.2 `dist/cli.mjs` 字节偏移级还原，下称「源码调研」，工单 #23）；信封三键（memory/taste/skills）取证 `docs/dev/research/envelope-trio-keys.md`（分支 `research/envelope-trio-keys`，工单 #25，下称「三键取证」）；抓包样本 `capture/samples/generate.json`。
 > 总则：**逐字段照抄官方实现**（老板拍板「人家代码怎么办，我们怎么办」）；仅两处纯客户端防御性偏离（§9.3），均不改变请求线上形状。
 
 ### 9.1 逐字段取值（官方实现照抄）
@@ -124,7 +124,7 @@
 
 **非 git 仓库 / git 未装**：`rev-parse --git-dir` 为空即提前返回——九字段**齐全**的显式空值形状（`isGitRepo: false`、`currentBranch`/`mainBranch`/`gitStatus` 空串、`recentCommits: []`），`workingDir/date/environment/structure` 照常采集（structure 先于 git 判定，非 git 目录也有内容）。**不省略字段**（源码调研推翻 #19 访谈的「省略」拍板）。
 
-**三键为死键（三键取证定案）**：官方唯一信封构造点上是硬编码 `null` 字面量，无赋值路径、无条件分支——抓包中连 taste 学习调用（`mode:"learning"`）的记录三键也全 `null`，故「空项目恒 null」系「CLI 从不填」而非环境缺数据。插件照抄常量 `null`，**勿从任何数据源（AGENTS.md / skills / taste 等）填充**——这些数据在官方走 `params.system` 拼装块与 `params.tools` 工具枚举，而插件的 `params` 由协议核心按其规格构造（`docs/spec/protocol.md` §1），不另行复刻官方 system prompt 拼装块。
+**三键为死键（三键取证定案）**：官方唯一信封构造点上是硬编码 `null` 字面量，无赋值路径、无条件分支——抓包中连 taste 学习调用（`mode:"learning"`）的记录三键也全 `null`，故「空项目恒 null」系「CLI 从不填」而非环境缺数据。插件照抄常量 `null`，**勿从任何数据源（AGENTS.md / skills / taste 等）填充**——这些数据在官方走 `params.system` 拼装块与 `params.tools` 工具枚举，而插件的 `params` 由协议核心按其规格构造（`docs/dev/spec/protocol.md` §1），不另行复刻官方 system prompt 拼装块。
 
 ### 9.2 `structure` 采集
 
@@ -142,7 +142,7 @@
 
 ### 9.4 与协议核心的边界
 
-`config` 块与顶层 `permissionMode`、顶层 `memory`/`taste`/`skills`（恒 `null`，§9.1）的取值由伪装模块提供，协议核心（`docs/spec/protocol.md` §1）构造信封时填充；`threadId` 来自 §3 会话身份。协议核心对 `config` 内容零知识、只留填充点。
+`config` 块与顶层 `permissionMode`、顶层 `memory`/`taste`/`skills`（恒 `null`，§9.1）的取值由伪装模块提供，协议核心（`docs/dev/spec/protocol.md` §1）构造信封时填充；`threadId` 来自 §3 会话身份。协议核心对 `config` 内容零知识、只留填充点。
 
 ## 10. 照抄 / 修写 / 不适用 对照表
 

@@ -6,7 +6,7 @@
 
 - **仓库根目录的 `CONTEXT.md`**，或
 - **仓库根目录的 `CONTEXT-MAP.md`**（若存在）：它指向各上下文各自的 `CONTEXT.md`，阅读与主题相关的每一份。
-- **`docs/adr/`**：阅读与你要处理的区域相关的 ADR。多上下文仓库中，还要查看 `src/<context>/docs/adr/` 里的上下文级决策。
+- **`docs/dev/adr/`**：阅读与你要处理的区域相关的 ADR。多上下文仓库中，还要查看 `src/<context>/docs/dev/adr/` 里的上下文级决策。（本仓库为单上下文；ADR 位于 `docs/dev/adr/` 是本仓库的布局决策，见 `docs/dev/adr/0003-docs-layout-split.md`。）
 
 如果这些文件不存在，**静默继续**。不要标记它们的缺失，也不要一开始就建议创建它们。`/domain-modeling` skill（通过 `/grill-with-docs` 和 `/improve-codebase-architecture` 到达）会在术语或决策真正敲定时惰性创建它们。
 
@@ -17,7 +17,7 @@
 ```
 /
 ├── CONTEXT.md
-├── docs/adr/
+├── docs/dev/adr/
 │   ├── 0001-event-sourced-orders.md
 │   └── 0002-postgres-for-write-model.md
 └── src/
@@ -28,14 +28,14 @@
 ```
 /
 ├── CONTEXT-MAP.md
-├── docs/adr/                          ← 系统级决策
+├── docs/dev/adr/                          ← 系统级决策
 └── src/
     ├── ordering/
     │   ├── CONTEXT.md
-    │   └── docs/adr/                  ← 上下文级决策
+    │   └── docs/dev/adr/                  ← 上下文级决策
     └── billing/
         ├── CONTEXT.md
-        └── docs/adr/
+        └── docs/dev/adr/
 ```
 
 ## 使用术语表的词汇

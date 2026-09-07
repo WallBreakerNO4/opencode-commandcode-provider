@@ -1,6 +1,6 @@
 /**
  * 协议核心·执行层：一次 `/alpha/generate` 上游调用的完整驱动
- * （契约：docs/spec/protocol.md §3–§4，testing.md §2 的执行内核）。
+ * （契约：docs/dev/spec/protocol.md §3–§4，testing.md §2 的执行内核）。
  *
  * 本模块把零件串成可独立测试的「一次调用」：
  *   请求方向（调用方组装后传入）：body 信封（envelope.ts 构造，含图片预处理

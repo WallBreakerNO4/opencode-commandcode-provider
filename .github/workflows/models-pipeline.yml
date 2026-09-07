@@ -1,6 +1,6 @@
 name: Models pipeline
 
-# 构建侧全自动流水线（issue #28；规格 docs/spec/model-pipeline.md §2 + ADR docs/adr/0001）：
+# 构建侧全自动流水线（issue #28；规格 docs/dev/spec/model-pipeline.md §2 + ADR docs/dev/adr/0001-artifact-distribution-channels.md）：
 # cron 轮询上游 command-code 版本与 models.dev 内容 hash，相对上次成功构建有变化才触发
 # 解析；三渠道（Release asset / npm 数据包 / data 分支）一次运行同步发布。
 

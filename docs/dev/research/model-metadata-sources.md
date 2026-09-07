@@ -283,4 +283,4 @@ xai/grok-4.5, xai/grok-4.6
 - npm registry：`https://registry.npmjs.org/command-code/latest`（tarball `https://registry.npmjs.org/command-code/-/command-code-1.37.0.tgz`）
 - jsDelivr 版本解析 API：`https://data.jsdelivr.com/v1/packages/npm/command-code/resolved?specifier=latest`
 - 锚点逆向脚本（参考实现）：`https://raw.githubusercontent.com/brent-weatherall/opencode-commandcode-provider/main/scripts/sync-models.ts`
-- 本仓库背景调研：`docs/research/reference-projects.md`（§二 jiesou 的 models.md 解析、§三 Breskott 的兜底常量、§四 brent 的 sync 脚本）
+- 本仓库背景调研：`docs/dev/research/reference-projects.md`（§二 jiesou 的 models.md 解析、§三 Breskott 的兜底常量、§四 brent 的 sync 脚本）

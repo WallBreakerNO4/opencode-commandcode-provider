@@ -2,7 +2,7 @@
 
 > 调研日期：2026-08-29。对应构建侧决策：Go plan 模型过滤（从 `/provider/v1/models` 的 62 个模型中筛出 Go plan 可用子集）的数据源选型，即 GitHub Action 自动提取 per-model 最低套餐该抓哪里。
 > 全部结论来自当天实测：`/provider/v1/models` 实时响应、commandcode.ai 官方文档页原始 HTML（7 个 URL）、npm `command-code@1.37.0` tarball（下载到 /tmp 解包，仅文本解析，未安装、未执行包内任何代码、未触碰本机任何凭据路径）、jsDelivr `models.md`（`x-jsd-version: 1.37.0`，与 tarball 内文件逐字节一致）。
-> 上游背景见 `docs/research/model-metadata-sources.md`（下称「元数据调研」）——该文记录的「models.md 只有 61 行、缺 `tencent/hy4-preview`、Min plan 分布 Go 39」已过时，本文予以纠正。
+> 上游背景见 `docs/dev/research/model-metadata-sources.md`（下称「元数据调研」）——该文记录的「models.md 只有 61 行、缺 `tencent/hy4-preview`、Min plan 分布 Go 39」已过时，本文予以纠正。
 
 ## TL;DR
 
@@ -171,7 +171,7 @@ go_plan_available(model) ⇔ normalize(min_plan(model)) == "Go"
 
 ## 五、jiesou `isGoModel` 启发式实测偏差
 
-按 `docs/research/reference-projects.md` §二记录的规则（开源前缀白名单全保留 + 3 个 premium 例外 `gpt-5.6-luna`、`xai/grok-4.5`、`meta/muse-spark-1.2-contributor`；google/sakana/claude/gpt/gemini/grok/fugu/muse-spark 排除）在今日 API 62 id 上模拟：
+按 `docs/dev/research/reference-projects.md` §二记录的规则（开源前缀白名单全保留 + 3 个 premium 例外 `gpt-5.6-luna`、`xai/grok-4.5`、`meta/muse-spark-1.2-contributor`；google/sakana/claude/gpt/gemini/grok/fugu/muse-spark 排除）在今日 API 62 id 上模拟：
 
 - **误保（保留但官方非 Go）：0 个**；
 - **漏保（官方 Go 但被排除）：3 个**——`thinkingmachines/inkling`、`thinkingmachines/inkling-small`、`poolside/laguna-s-2.1-free`（`thinkingmachines/`、`poolside/` 不在白名单，也不是任何例外）；
@@ -245,4 +245,4 @@ go_plan_available(model) ⇔ normalize(min_plan(model)) == "Go"
 - npm registry：`https://registry.npmjs.org/command-code/-/command-code-1.37.0.tgz`
 - 模型发现 API：`https://api.commandcode.ai/provider/v1/models`
 - hy4-preview 官网专页：`https://commandcode.ai/models/hy4-preview`
-- 本仓库背景调研：`docs/research/model-metadata-sources.md`、`docs/research/reference-projects.md`
+- 本仓库背景调研：`docs/dev/research/model-metadata-sources.md`、`docs/dev/research/reference-projects.md`

@@ -6,7 +6,7 @@ import type { FetchLike } from "../src/protocol/json.ts"
 import { StreamTruncatedError } from "../src/protocol/ndjson.ts"
 import { CommandCodeApiCallError, watchdogTimeoutError } from "../src/protocol/errors.ts"
 
-// 执行层集成（docs/spec/protocol.md §3–§4 + testing.md §2 的协议执行内核）：
+// 执行层集成（docs/dev/spec/protocol.md §3–§4 + testing.md §2 的协议执行内核）：
 // mock fetch（工厂 options.fetch 接缝）+ fake timers 驱动 300s 看门狗。
 // LanguageModelV3 壳的装配归工厂票 #35；本层验证「一次上游调用」的错误映射、
 // 看门狗、abort 传播与零输出合成。

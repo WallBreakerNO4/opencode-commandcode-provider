@@ -2,7 +2,7 @@
  * JS 对象字面量子集解析器：把 bundle 里截取出的目录对象文本解析为纯数据。
  *
  * 为什么不用 new Function / eval：构建侧红线是「绝不执行 command-code 包内代码」。
- * 受限 eval 虽经调研验证可行（docs/research/model-metadata-sources.md §五附录），
+ * 受限 eval 虽经调研验证可行（docs/dev/research/model-metadata-sources.md §五附录），
  * 但其安全边界依赖「截取到的恰好只是字面量」这一人工前提；本解析器把前提变成
  * 结构保证——只接受数据形状（对象 / 数组 / 字符串 / 数字 / 布尔 / null / 标识符
  * 引用），遇到函数体、方法简写、调用、模板串等任何可执行形状立即报错，getter

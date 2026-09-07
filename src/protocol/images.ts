@@ -1,5 +1,5 @@
 /**
- * 协议核心·图片输入（契约：docs/spec/protocol.md §5）。
+ * 协议核心·图片输入（契约：docs/dev/spec/protocol.md §5）。
  *
  * 三种投递形态在此归一为「可同步转换」的 part data：
  * - `Uint8Array` / base64 字符串 / `data:` URL：无需预处理，直接交给信封构造

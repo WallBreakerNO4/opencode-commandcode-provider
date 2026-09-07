@@ -1,6 +1,6 @@
 /**
- * `/provider/v1/models` 响应的运行时解析（契约：docs/spec/model-pipeline.md §0/§3，
- * 事实层：docs/research/model-metadata-sources.md §二实测形状）。
+ * `/provider/v1/models` 响应的运行时解析（契约：docs/dev/spec/model-pipeline.md §0/§3，
+ * 事实层：docs/dev/research/model-metadata-sources.md §二实测形状）。
  *
  * 该端点是发现（id 清单）、`context_length` 与 `name` 的权威（§3 字段表），匿名
  * 拉取即可。OpenAI 兼容样板字段 `object` / `owned_by` 与响应生成时刻的动态时间戳

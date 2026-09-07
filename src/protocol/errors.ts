@@ -1,5 +1,5 @@
 /**
- * 协议核心·错误映射（契约：docs/spec/protocol.md §3 十一行表）。
+ * 协议核心·错误映射（契约：docs/dev/spec/protocol.md §3 十一行表）。
  *
  * 错误对象一律是 AI SDK `APICallError` 形态：透传/合成 statusCode、标注
  * isRetryable（重试由 OpenCode 决定，provider 不自行重试）、message 含

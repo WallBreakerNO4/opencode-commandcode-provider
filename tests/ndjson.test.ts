@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test"
 import type { LanguageModelV3StreamPart } from "@ai-sdk/provider"
 import { StreamTruncatedError, createNdjsonEventStream, normalizeFinishReason, normalizeUsage } from "../src/protocol/ndjson.ts"
 
-// 规格 §2 事件全表逐事件（docs/spec/protocol.md）。fixture 素材取自
+// 规格 §2 事件全表逐事件（docs/dev/spec/protocol.md）。fixture 素材取自
 // capture/samples/generate.json 的真实 wire 形状（deepseek/deepseek-v4-flash 一轮）。
 
 const MODEL_ID = "deepseek/deepseek-v4-flash"

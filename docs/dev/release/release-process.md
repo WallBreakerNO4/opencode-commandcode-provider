@@ -1,6 +1,6 @@
 # 发布流程：v1 轮验收 → npm publish → v2 轮验收
 
-> 状态：修订（2026-09-06，issue #43/#44 执行期实测修订；原版为「两轮验收 → publish」，修订原因见下）。验收清单：`docs/spec/acceptance.md`；分发渠道：`docs/adr/0001-artifact-distribution-channels.md`；npmmirror 登记：[npmmirror-whitelist-pr.md](./npmmirror-whitelist-pr.md)。
+> 状态：修订（2026-09-06，issue #43/#44 执行期实测修订；原版为「两轮验收 → publish」，修订原因见下）。验收清单：`docs/dev/spec/acceptance.md`；分发渠道：`docs/dev/adr/0001-artifact-distribution-channels.md`；npmmirror 登记：[npmmirror-whitelist-pr.md](./npmmirror-whitelist-pr.md)。
 >
 > **职责归属**：人工验收与发布命令由**维护者**执行；agent 只承担准备与文本工作。
 > 验收发现的问题开新 issue 修订规格或实现，不就地偏离（acceptance.md 缺陷回路同款）。
@@ -13,12 +13,12 @@
 |---|---|
 | `NPM_TOKEN` secret | 供 models-pipeline 渠道 2（npm 数据包）使用。核查方式：`npm view @wallbreakerno4/opencode-commandcode-models dist-tags` 有新版本持续出现（2026-09-05 核查：数据包已连发 12 版、latest `0.0.1788622352`，secret 有效）；或 `gh secret list`（维护者权限）确认在列。失效症状：Models pipeline 在「渠道 2 · npm 数据包」步 402/403 失败 → 整轮 run 失败、data 分支停更。补配：`gh secret set NPM_TOKEN`（automation token，需 publish 权限），补配后下一轮 cron 自动恢复。 |
 | npmmirror files 白名单 | PR 文本草稿已就绪（npmmirror-whitelist-pr.md），fork / 提交 / 授权由维护者执行。**未合并不阻塞主包发布**：合并前渠道 2 稳定 403，客户端按默认 URL 列表落到 unpkg，无害。合并后需实测同步节奏满足 ≤30min SLA。 |
-| LICENSE 与 `license` 字段 | 伪装层移植自 MIT 上游 `MAXeaglet/commandcode-proxy`（`docs/research/disguise-spec.md` §许可前提），发布前需保留其许可声明。当前仓库**尚无** LICENSE 文件与 package.json `license` 字段（npm publish 会告警）——license 选型与文件由维护者确认后补齐，属发布阻塞项。 |
+| LICENSE 与 `license` 字段 | 伪装层移植自 MIT 上游 `MAXeaglet/commandcode-proxy`（`docs/dev/research/disguise-spec.md` §许可前提），发布前需保留其许可声明。当前仓库**尚无** LICENSE 文件与 package.json `license` 字段（npm publish 会告警）——license 选型与文件由维护者确认后补齐，属发布阻塞项。 |
 | npm 本机登录（一次性） | `npm login` 浏览器授权。`@wallbreakerno4` scope 已属于维护者账号（数据包已用它发版），无需新建 org。 |
 
 ## 1. 第一阶段：v1 轮人工验收（发布门槛）
 
-在最新 stable v1 宿主上跑完 `docs/spec/acceptance.md` 十项清单，**十项全部有结论**（pass / fail / 未触发，条件项如实标注）后方可发布。
+在最新 stable v1 宿主上跑完 `docs/dev/spec/acceptance.md` 十项清单，**十项全部有结论**（pass / fail / 未触发，条件项如实标注）后方可发布。
 
 **安装方式（2026-09-06 在维护者机器上全链实测通过：模型列表 42 个 + 真实 key 对话成功）**——主包未发布，npm 命令此刻不可用，v1 轮用本地路径安装：
 

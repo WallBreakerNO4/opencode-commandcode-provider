@@ -12,7 +12,7 @@ import {
 } from "../src/protocol/errors.ts"
 import { StreamTruncatedError } from "../src/protocol/ndjson.ts"
 
-// 错误映射十一行表全行（docs/spec/protocol.md §3），关键验收：
+// 错误映射十一行表全行（docs/dev/spec/protocol.md §3），关键验收：
 // - 错误对象一律 AI SDK APICallError 形态——宿主 APICallError.isInstance 能识别
 //   （AI SDK 用 Symbol.for 标记跨副本识别，测试用 devDep @ai-sdk/provider 断言）
 // - message 含 model id 与上游 message；可重试标注全部正确

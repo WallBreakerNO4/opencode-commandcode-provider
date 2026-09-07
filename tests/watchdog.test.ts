@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, jest, test } from "bun:test"
 import { createIdleWatchdog, IDLE_WATCHDOG_TIMEOUT_MS, mergeCancellation } from "../src/protocol/watchdog.ts"
 
-// 看门狗（docs/spec/protocol.md §4）：300s 空闲、无总超时、事件重置；
+// 看门狗（docs/dev/spec/protocol.md §4）：300s 空闲、无总超时、事件重置；
 // 取消合并形状：AbortSignal.any(看门狗, 调用方) 谁先响都生效（testing.md §1.1）。
 
 const TIMEOUT = IDLE_WATCHDOG_TIMEOUT_MS // 300_000

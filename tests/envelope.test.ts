@@ -3,7 +3,7 @@ import type { LanguageModelV3CallOptions, SharedV3Warning } from "@ai-sdk/provid
 import plugin from "../src/index.ts"
 import { PROVIDER_ID, buildEnvelope, splitModelReference, type EnvelopeCallContext } from "../src/protocol/envelope.ts"
 
-// 规格 §1 全表逐行（docs/spec/protocol.md），fixture 形状对照 capture/samples/generate.json
+// 规格 §1 全表逐行（docs/dev/spec/protocol.md），fixture 形状对照 capture/samples/generate.json
 // 的真实 wire：七键骨架、params 语义字段、消息转换全表、tool_choice 四态、warnings 通道。
 
 function context(overrides: Partial<EnvelopeCallContext> = {}): EnvelopeCallContext {

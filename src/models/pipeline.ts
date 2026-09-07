@@ -1,5 +1,5 @@
 /**
- * 模型管线运行时：刷新节奏与降级状态机（契约：docs/spec/model-pipeline.md §4–§5、
+ * 模型管线运行时：刷新节奏与降级状态机（契约：docs/dev/spec/model-pipeline.md §4–§5、
  * 覆盖机制 models-url-override.md §4）。#31 的解析/级联在此接上拉取、TTL 与重试。
  *
  * **刷新节奏**（§4）：

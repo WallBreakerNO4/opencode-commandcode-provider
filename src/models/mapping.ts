@@ -1,6 +1,6 @@
 /**
- * 宿主消费映射（契约：docs/spec/model-pipeline.md §3.1/§3.2；字段形状细节：
- * docs/research/opencode-plugin-provider.md §3/§4）——把级联解析出的 ResolvedModel
+ * 宿主消费映射（契约：docs/dev/spec/model-pipeline.md §3.1/§3.2；字段形状细节：
+ * docs/dev/research/opencode-plugin-provider.md §3/§4）——把级联解析出的 ResolvedModel
  * 翻译成 v1 config models entry 与 v2 `Model.Info` 字段，由 v1/v2 glue 票（#36/#37）
  * 注入宿主。
  *

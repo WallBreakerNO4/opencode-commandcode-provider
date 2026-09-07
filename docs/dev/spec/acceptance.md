@@ -1,8 +1,8 @@
 # 端到端验收清单：真宿主人工验收（v1/v2）
 
 > 状态：定稿（2026-09-01）。决策票：[WallBreakerNO4/opencode-commandcode-provider#21](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/21)。
-> 事实输入：`docs/spec/testing.md` §4（真宿主边界与本票分工）、`docs/spec/protocol.md` §3（错误映射文案）、`docs/spec/disguise.md` §3（会话绑定与两套 session id）、`docs/spec/model-pipeline.md`（级联与降级）、#22（安装承诺面基准）、#9（抓包口径、两套 id 定案）、#11/#12（v1/v2 宿主实测定案）。
-> 范围：实现完成后、发布前的真宿主人工验收——v1/v2 各一轮「真实 key + 真实宿主 + 真实网络」。自动化覆盖面见 `docs/spec/testing.md`，两文互不重复；看门狗与预请求时序**不入**本清单（#20 §4 定案）。
+> 事实输入：`docs/dev/spec/testing.md` §4（真宿主边界与本票分工）、`docs/dev/spec/protocol.md` §3（错误映射文案）、`docs/dev/spec/disguise.md` §3（会话绑定与两套 session id）、`docs/dev/spec/model-pipeline.md`（级联与降级）、#22（安装承诺面基准）、#9（抓包口径、两套 id 定案）、#11/#12（v1/v2 宿主实测定案）。
+> 范围：实现完成后、发布前的真宿主人工验收——v1/v2 各一轮「真实 key + 真实宿主 + 真实网络」。自动化覆盖面见 `docs/dev/spec/testing.md`，两文互不重复；看门狗与预请求时序**不入**本清单（#20 §4 定案）。
 
 ## 0. 前置条件
 

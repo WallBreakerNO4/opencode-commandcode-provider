@@ -1,6 +1,6 @@
 /**
  * generate 信封 `config` 块九字段采集（disguise.md §9，#19 定稿）：逐字段照抄官方
- * CLI 实现（`command-code` 1.38.2 `buildServerConfig`，调研 `docs/research/cli-config-collection.md`
+ * CLI 实现（`command-code` 1.38.2 `buildServerConfig`，调研 `docs/dev/research/cli-config-collection.md`
  * 字节偏移级还原）。
  *
  * 官方语义照抄：structure 先于 git 判定（非 git 目录也有内容）；git 查询顺序 await、

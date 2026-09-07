@@ -4,15 +4,15 @@
 
 ### Issue tracker
 
-Issue 存放在本仓库的 GitHub Issues 中（用 `gh` CLI 操作；当前还没有 remote，首次使用前需先建好 GitHub 仓库并关联）。见 `docs/agents/issue-tracker.md`。
+Issue 存放在本仓库的 GitHub Issues 中（用 `gh` CLI 操作；当前还没有 remote，首次使用前需先建好 GitHub 仓库并关联）。见 `docs/dev/agents/issue-tracker.md`。
 
 ### Triage labels
 
-五个 triage 角色使用中文标签：`待分类` / `待补充信息` / `可交给agent` / `需人工实现` / `不予处理`。见 `docs/agents/triage-labels.md`。
+五个 triage 角色使用中文标签：`待分类` / `待补充信息` / `可交给agent` / `需人工实现` / `不予处理`。见 `docs/dev/agents/triage-labels.md`。
 
 ### Domain docs
 
-单上下文（single-context）布局：根目录 `CONTEXT.md` + `docs/adr/`。见 `docs/agents/domain.md`。
+单上下文（single-context）布局：根目录 `CONTEXT.md` + `docs/dev/adr/`。见 `docs/dev/agents/domain.md`。
 
 ### 环境变量与 Command Code API key
 
@@ -25,3 +25,12 @@ Issue 存放在本仓库的 GitHub Issues 中（用 `gh` CLI 操作；当前还�
 - 本仓库用 **pnpm** 管理依赖：版本由 `package.json` 的 `packageManager` 字段锁定，lockfile 为随仓库提交的 `pnpm-lock.yaml`。不准用 npm / yarn / bun 安装或更新依赖。
 - 跑脚本一律走 pnpm：`pnpm test`（内部调用 `bun test`，bun 只承担测试运行器角色）、`pnpm typecheck`、`pnpm build`。
 - pnpm 的项目设置（如构建脚本放行策略 `allowBuilds`）写在根目录 `pnpm-workspace.yaml`，pnpm 11 不再读 package.json 的 `pnpm` 字段。
+
+## 文档布局
+
+本仓库文档按受众二分（决策见 `docs/dev/adr/0003-docs-layout-split.md`）：
+
+- **用户文档**（面向插件使用者）：放 `docs/` 顶层下按分类的子目录，现有 `docs/guide/` 即一例，需要新分类时新建子目录。
+- **开发文档**（面向开发者与 coding agent：ADR、agent 约定、发布流程、调研、规格）：一律放 `docs/dev/` 下对应子目录（`adr/`、`agents/`、`release/`、`research/`、`spec/`），规则无例外。
+
+新建文档前先判别受众再选位置；仓库内引用开发文档一律写 `docs/dev/` 前缀的完整路径。

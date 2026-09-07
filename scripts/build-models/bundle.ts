@@ -1,7 +1,7 @@
 /**
  * bundle 逆向：从 `dist/cli.mjs`（minified 单行）提取模型目录。
  *
- * 方法来自 docs/research/model-metadata-sources.md §五（1.37.0 实测，1.45.0 复验）：
+ * 方法来自 docs/dev/research/model-metadata-sources.md §五（1.37.0 实测，1.45.0 复验）：
  * 1. 已知稳定的模型 id 作锚点（`id:"<锚点>"` 只在目录条目出现；价格表用
  *    `anthropic:` 前缀 id，不会误配）；
  * 2. 锚点向前找最近的 `={`——即目录对象的开头（目录条目是平铺字段，条目内部

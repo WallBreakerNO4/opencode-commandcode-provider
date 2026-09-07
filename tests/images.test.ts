@@ -5,7 +5,7 @@ import { preparePromptImages } from "../src/protocol/images.ts"
 import type { FetchLike } from "../src/protocol/json.ts"
 import type { DisguiseLogger } from "../src/disguise/logger.ts"
 
-// 图片输入（docs/spec/protocol.md §5，老板红线级裁决）：声明 image 的模型收到
+// 图片输入（docs/dev/spec/protocol.md §5，老板红线级裁决）：声明 image 的模型收到
 // 图片 → 完整转换进信封；未声明 → 丢弃 + warn；无客户端尺寸限。
 // URL 引用下载经注入 fetch（工厂 options.fetch 接缝），模态分支经注入 logger。
 

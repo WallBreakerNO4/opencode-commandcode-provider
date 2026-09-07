@@ -1,5 +1,5 @@
 /**
- * 构建产物 schema v1 的运行时解析（契约：docs/spec/model-pipeline.md §1）。
+ * 构建产物 schema v1 的运行时解析（契约：docs/dev/spec/model-pipeline.md §1）。
  *
  * 产物经分发渠道以 JSON 到达运行时（拉取与缓存归模型管线 II，#34），本模块只负责
  * 把未知形状的已解析 JSON 变成可信的 `Artifact`。三条硬规则：
