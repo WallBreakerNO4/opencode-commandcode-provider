@@ -2,6 +2,8 @@
 
 OpenCode provider 插件：把 Command Code Go plan 专用的 `/alpha/generate` 网关桥接成 OpenCode 原生 provider。安装插件即完成全部配置——provider（`commandcode-go`）、模型清单与认证方式由插件自举，无需手写任何 provider 定义。
 
+> ⚠️ **避坑**：GLM 系列模型的缓存命中率不稳定，额度消耗明显更快，建议优先选用 deepseek 系列模型。详见[已知问题](docs/guide/known-issues.md)。
+
 ## 安装
 
 > 前置：Command Code Go plan 订阅，并在 [Studio → API Keys](https://commandcode.ai/docs/studio) 生成 API key（与 CLI 同一把）。

@@ -114,6 +114,8 @@ opencode2 plugin add @wallbreakerno4/opencode-commandcode
 | 配置改动后 OpenCode 启动报配置错误 | 多为 JSON / JSONC 语法被破坏：检查合并处逗号与括号，对照备份修复。 |
 | 认证或发消息报 403 / 无权限 | 检查订阅是否为 Go plan、key 是否有效；必要时在 [Studio → API Keys](https://commandcode.ai/docs/studio) 重新生成。 |
 
+与安装无关的已知问题（如模型额度消耗异常）见[已知问题](known-issues.md)。
+
 ## 卸载
 
 - **v2**：从全局配置 `providers` 中删除 `"commandcode-go"` 空壳，然后执行 `opencode2 plugin remove @wallbreakerno4/opencode-commandcode`。
