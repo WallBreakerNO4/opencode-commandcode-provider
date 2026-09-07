@@ -4,26 +4,17 @@
 
 ---
 
-## 起因：一个划算到离谱的订阅，却被锁死在官方 CLI 里
+前段时间刷到 CommandCode 的 Go plan：$1/月（算上手续费约 $1.4），给 $10 的模型额度，部分模型还有 2×–5× 的优惠倍率（比如 MiMo V2.5 Pro 实际能用到约 $50）。对比 OpenCode Go（$10/月，多数模型 $60 额度），光是调用 dsv4 来用的话也不赖，比梁文峰梁文谷的价格便宜多了。
 
-前段时间刷到 Command Code 的 Go plan：**$1/月（算上手续费约 $1.4），给 $10 的模型额度**，部分模型还有 2×–5× 的优惠倍率（比如 MiMo V2.5 Pro 实际能用到约 $50）。对比 OpenCode Go（$10/月，多数模型 $60 额度），这个价格实在心动。
+但是 CommandCode 最便宜的那一档订阅套餐（也就是 Go 套餐）并没有提供第三方 API 接入，只能使用他自家的 commandcode cli 来使用。这个 cli 感觉还行，但我还是习惯了使用 opencode，所以我试了一下现有的反代方案（ https://github.com/MAXeaglet/commandcode-proxy ），打算在 opencode 里面使用这个套餐。但折腾了半天都没成功接入，opencode 里边模型一直在报错，连思考都没有。所以我才产生了写一个轮子的想法。
 
-然后我点开文档，发现一个致命细节：**Go plan 没有 API**。调用标准 Provider API 直接返回 `403 upgrade_required`，官方在 Reddit 上的原话是 "the $1 plan is only meant for our coding agent"——这 $10 的额度只能用它家自己的官方 CLI 消耗。
+因此花了大概一周的时间搓了一个能够将 commandcode go plan 的私有端点桥接到 opencode 中并注册成一个 provider 的插件
 
-不甘心，先试了社区里现成的反代方案（把上游转成 OpenAI 兼容接口再接进 OpenCode），结果完全用不了：Go plan 走的是一个 CLI 专用的非公开端点（`/alpha/generate`），协议是自定义信封 + NDJSON 事件流，跟标准 API 根本不是一回事，硬套必挂。
+## 这是什么
 
-既然没轮子，那就自己造一个。
+这是一个 opencode 的插件，同时兼容 v1 和 v2（beta）版本，桥接了 Command Code Go plan 的私有端点，注册成一个 provider，允许在 opencode 里直接使用 Command Code 的模型
 
-## 我做了什么
-
-写了一个 OpenCode provider 插件：**`@wallbreakerno4/opencode-commandcode`**，把 Go plan 的专用网关桥接成 OpenCode 原生 provider：
-
-- 装上插件后，OpenCode 里直接出现 `commandcode-go/` 前缀的 **40+ 模型**（含 DeepSeek V4 Pro 等），无需手写任何 provider 配置
-- 同时支持 OpenCode **v1（stable）和 v2（beta）**
-- 模型清单自动跟随上游更新，不用手动改配置
-- 支持流式输出、工具调用、图片输入
-
-项目已发布到 npm，代码 MIT 开源。
+GitHub 链接： https://github.com/WallBreakerNO4/opencode-commandcode-provider ，欢迎 star 和提 issue。
 
 ## 怎么装
 
@@ -70,20 +61,18 @@ opencode run --model commandcode-go/deepseek/deepseek-v4-pro "hi"
 
 ![DeepSeek V4 Flash 真实对话](./assets/use-evidence.png)
 
-## ⚠️ 提前说一个坑：GLM 系列额度消耗快
+## ⚠️ commandcode 官方 api 的一个坑
 
-免得大家上来就踩：目前 Command Code 上游 API 的 **GLM 系列模型缓存命中率不稳定**——同一编码会话里上下文高度重复、理论上应持续命中缓存，实测一轮会话的综合命中率却只有约 54%（编码 agent 场景一般需要 90%+ 才合理），单次请求价格在 $0.02～$0.12 之间反复跳动，额度消耗明显偏快。
+目前 Command Code 上游 API 的 **GLM 系列模型缓存命中率不稳定**——同一编码会话里上下文高度重复、理论上应持续命中缓存，实测一轮会话的综合命中率却只有约 54%（编码 agent 场景一般需要 90%+ 才合理），单次请求价格在 $0.02～$0.12 之间反复跳动，额度消耗明显偏快。
 
 ![GLM 系列同一会话内单次请求价格波动](../../../docs/guide/assets/glm-cache-fluctuation.png)
 
-这是上游 API 侧的问题，插件只做协议桥接，修不了，官方修复后会自然生效。**额度敏感的日常使用，建议直接选 deepseek 系列**（`deepseek/deepseek-v4-pro`、`deepseek/deepseek-v4-flash`），缓存命中稳定，消耗平缓。详细实测数据见项目的[已知问题文档](https://github.com/WallBreakerNO4/opencode-commandcode-provider/blob/main/docs/guide/known-issues.md)。
+这是上游 API 侧的问题，修不了。**额度敏感的日常使用，建议直接选 deepseek 系列**，缓存命中稳定，消耗平缓。详细可见项目的[已知问题文档](https://github.com/WallBreakerNO4/opencode-commandcode-provider/blob/main/docs/guide/known-issues.md)。
 
 ## 最后
 
-坦白说：这个插件桥接的是官方未公开的 CLI 端点，协议没有文档、可能随官方更新而变动，请自行评估使用风险；项目也与 Command Code 官方没有任何关系。
+这不是官方的插件，仅供学习使用，风险自负
 
-如果你也是"订阅了 Go plan 但忍不了官方 CLI"的人，希望它能帮你省下重复造轮子的时间：
+本项目参考了 https://github.com/MAXeaglet/commandcode-proxy 中的反代实现
 
-**GitHub：https://github.com/WallBreakerNO4/opencode-commandcode-provider**
-
-有问题欢迎提 issue；觉得有用的话，顺手点个 star 就是最大的鼓励。
+如有问题，欢迎在 GitHub 上提 issue

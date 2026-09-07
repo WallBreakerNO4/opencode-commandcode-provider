@@ -37,7 +37,7 @@
     "provider",
     "commandcode"
   ],
-  "packageManager": "pnpm@11.25.0",
+  "packageManager": "pnpm@12.3.4",
   "devDependencies": {
     "@ai-sdk/provider": "3.0.8",
     "@opencode-ai/plugin": "beta",
