@@ -1,6 +1,6 @@
 # 宣传帖核心长文（NodeSeek / linux.do / V2EX 共用骨架）
 
-> 使用说明：三平台共用此正文，只按 `titles.md` 换标题；发布前把 `[配图 N：...]` 占位符替换成真实图片（拍摄清单见 `asset-checklist.md`）。
+> 使用说明：三平台共用此正文，只按 `titles.md` 换标题；正文中的图片为相对路径引用，发布到论坛时手动上传 `assets/` 下的三张图和 GLM 波动图即可。
 
 ---
 
@@ -58,19 +58,23 @@ opencode2 plugin add @wallbreakerno4/opencode-commandcode
 opencode run --model commandcode-go/deepseek/deepseek-v4-pro "hi"
 ```
 
-> [配图 1：终端验证截图]
->
-> [配图 2：OpenCode TUI 对话截图]
->
-> [配图 3：模型列表截图（`commandcode-go/` 前缀一排模型）]
->
-> [配图 4：从安装到跑通的全流程 GIF]
+插件装好后，插件列表里就能看到 `commandcode-go`：
+
+![插件列表中的 commandcode-go](./assets/commandcode-go_plugin.png)
+
+模型选择器里直接出现一整屏 Command Code (Go) 模型：
+
+![模型选择器中的 Command Code (Go) 模型](./assets/select_model.png)
+
+随手跑一轮真实对话：
+
+![DeepSeek V4 Flash 真实对话](./assets/use-evidence.png)
 
 ## ⚠️ 提前说一个坑：GLM 系列额度消耗快
 
 免得大家上来就踩：目前 Command Code 上游 API 的 **GLM 系列模型缓存命中率不稳定**——同一编码会话里上下文高度重复、理论上应持续命中缓存，实测一轮会话的综合命中率却只有约 54%（编码 agent 场景一般需要 90%+ 才合理），单次请求价格在 $0.02～$0.12 之间反复跳动，额度消耗明显偏快。
 
-> [配图 5：GLM 缓存波动用量截图（可直接复用仓库 `docs/guide/assets/glm-cache-fluctuation.png`）]
+![GLM 系列同一会话内单次请求价格波动](../../../docs/guide/assets/glm-cache-fluctuation.png)
 
 这是上游 API 侧的问题，插件只做协议桥接，修不了，官方修复后会自然生效。**额度敏感的日常使用，建议直接选 deepseek 系列**（`deepseek/deepseek-v4-pro`、`deepseek/deepseek-v4-flash`），缓存命中稳定，消耗平缓。详细实测数据见项目的[已知问题文档](https://github.com/WallBreakerNO4/opencode-commandcode-provider/blob/main/docs/guide/known-issues.md)。
 
