@@ -28,6 +28,7 @@ concurrency:
 permissions:
   contents: write # Release 与 data 分支 force-push
   issues: write # 对账断言失败自动开 issue
+  id-token: write # 渠道 2 npm Trusted Publishing（OIDC）
 
 jobs:
   pipeline:
@@ -36,6 +37,15 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+
+      # 渠道 2 认证前置：Trusted Publishing 要求 npm ≥ 11.5.1，而 runner 镜像自带 npm 10.9.8
+      # （2026-08-31 ubuntu-latest 镜像实测），必须显式升级；Node 24 自带满足要求的 npm。
+      - name: 安装 Node 24（npm ≥ 11.5.1）
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false # 发布流水线禁用依赖缓存，防缓存投毒（setup-node 文档）
 
       - name: 安装 bun（测试运行器 + 构建脚本运行时）
         uses: oven-sh/setup-bun@v2
@@ -164,7 +174,6 @@ jobs:
       - name: 渠道 2 · npm 数据包（npmmirror files 同步源）
         if: steps.detect.outputs.should-build == 'true'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           VERSION: ${{ steps.version.outputs.npm-version }}
         run: |
           set -euo pipefail
@@ -185,8 +194,10 @@ jobs:
           JSON
           # 只打 latest tag（ADR-0001：无人类消费场景，溯源走 packument 的 time 字段）；
           # 作用域包默认 restricted，免费账号首次发布必须显式 --access public，否则 402（npm scope 文档）
-          echo "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > publish/.npmrc
-          cd publish && npm publish --access public
+          # 认证走 Trusted Publishing（docs/dev/adr/0001-artifact-distribution-channels.md 修订 2026-09-11）：
+          # 顶层 id-token: write 换取短命 OIDC 凭证，无 NODE_AUTH_TOKEN、不再手工写 publish/.npmrc；
+          # provenance 由 npm 自动生成，--provenance 显式保留以固定意图
+          cd publish && npm publish --access public --provenance
 
       - name: 渠道 3 · data 分支 force-push（raw 灾备）
         if: steps.detect.outputs.should-build == 'true'

@@ -15,7 +15,7 @@
 
 ## Consequences
 
-- 仓库需新增 `NPM_TOKEN` secret；发布流水线一次运行同步发布三个渠道（Release asset / npm 数据包 / `data` 分支）。
+- 发布流水线一次运行同步发布三个渠道（Release asset / npm 数据包 / `data` 分支）。数据包发布经 npm Trusted Publishing（OIDC）认证，仓库不再持有长期 token（2026-09-11 修订，见下）。
 - 命名三件套（asset 名 `models.json`、数据包名、`data` 分支名）烧进已发布插件的默认 URL 列表——改名等于强制插件发版，变更前需重新走决策。
 
 ## 修订 2026-09-01：npm 数据包版本策略与 npmmirror files 白名单（决策票 [#18](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/18)）
@@ -23,3 +23,11 @@
 - **数据包版本策略**：每次构建发布取 `0.0.<Unix 秒 UTC>`，发布 workflow 以 `concurrency` 组串行化，保证严格单调、零碰撞。依据（2026-09-01 查证）：npm 同版本一经发布永久占用（unpublish 不释放）；build metadata 在 publish 时被注册表剥离（npm/cli#1479，`1.38.2+x` 落库为裸 `1.38.2`）——「上游 CLI 版本 + build metadata」方案在主重发布触发器（models.dev 内容变化而上游未发版）上结构性不可行；分钟粒度可读方案需 CI 进位逻辑，弃。该包无人类消费场景，运行时只打 `latest` tag；人工溯源走 packument 的 `time` 字段。
 - **npmmirror files 白名单门禁**：files 端点为白名单制（cnpm/unpkg-white-list 维护，未登记包一律 403）。对策：向其 `data/allowPackages.json` 提 PR 登记 `"@wallbreakerno4/opencode-commandcode-models": {"version": "*"}`（`*` 覆盖全部未来版本，一次登记永久有效）；PR 标题须符合 Conventional Commits（`feat: add … to allowPackages`），官方口径合并后最长约 5 分钟全网生效。合并前渠道 2 稳定 403，客户端按序落到 unpkg，无害。scope 路线（`allowScopes`）明确拒收无热门包的新 scope，排除。PR 正文须说明该包为正常发布的 npm 数据包、供应用运行时消费，非 CDN 网盘滥用；PR 文本实现期由 agent 起草，提交由维护者执行或授权。合并后需实测 npmmirror 对新版本的同步节奏满足 ≤30min SLA（列入分发流水线实现验收项）；若 PR 被拒，备选方案（package.json 内嵌 manifest / 该渠道降位）另开决策票。
 - **files URL 编码形状**：字面斜杠与 `%2F` 均 302 到版本化 URL（2026-08-31 实测），门禁与编码无关——维持本 ADR 现状字面斜杠，无变更。
+
+## 修订 2026-09-11：数据包发布改用 Trusted Publishing（OIDC）（决策票 [#40](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/40)）
+
+- **背景**：npm 2025-09 起的令牌改革（Classic 令牌永久吊销、Granular 写令牌最长 90 天）使 `NPM_TOKEN` 成为需周期人工换新的单点，超期即渠道 2 静默开始失败。Trusted Publishing 以 workflow 的 OIDC 身份换取分钟级短命凭证，零长期 token、零轮换。
+- **workflow**：models-pipeline 顶层 permissions 增加 `id-token: write`；发布前经 `actions/setup-node` 装 Node 24（npm ≥ 11.5.1；runner 镜像自带的 npm 10.9.8 低于 OIDC 交换门槛——issue 正文「自带满足」的假设经核对不成立）；渠道 2 删除 `NODE_AUTH_TOKEN` 与 `.npmrc` 写入，发布命令为 `npm publish --access public --provenance`（trusted publishing 下 provenance 由 npm 自动生成，显式 flag 固定意图）。
+- **npm 侧**：数据包配置 GitHub Actions Trusted Publisher（字段清单、CLI 备选与迁移验证步骤见 `docs/dev/release/release-process.md` §0；2026-09-03 后新建的连接默认仅允许 `npm stage publish`，须勾选允许直接 `npm publish`）。验证通过后删除 `NPM_TOKEN` secret；建议把包的 Publishing access 设为「Require two-factor authentication and disallow tokens」。
+- **直发取舍（Allow npm publish）**：npm UI 对该勾选显示 Not recommended，其默认建议面向「人工评审后发版」的包。本流水线是 cron 全自动、消费者为机器的数据供给，staged-only 需维护者对**每个版本**交互式 2FA 批准且 approve 类子命令不支持 OIDC（无法自动化），与 ≤30min SLA 及 issue #40「下一轮 cron 正常发布」的验收标准结构性冲突；同时只卡渠道 2 也不缩小客户端实际攻击面——同轮 Release（主源）与 `data` 分支分发同内容且无审批门。接受直发的补偿控制：Publishing access 禁 token（只有可信 workflow 能发）、OIDC 精确绑定 repo + workflow、provenance 自动生成、数据包无代码无依赖无生命周期脚本。
+- **后果**：发布凭据不再有有效期，定期换新取消；失效模式从令牌过期（402/403）变为 trusted publisher 配置不匹配时的 ENEEDAUTH / E404（npm 对不匹配统一返 404）。主包 `@wallbreakerno4/opencode-commandcode` 仍走维护者本地 `pnpm publish`，不适用本条。
