@@ -41,6 +41,7 @@
  */
 
 import { ENTRY_URL } from "../index.js"
+import { consoleWarnLogger } from "../disguise/logger.js"
 import { toV1ModelMap } from "../models/mapping.js"
 import { PROVIDER_ID } from "../protocol/envelope.js"
 import { ensureV1ProviderRuntime } from "../provider/model.js"
@@ -167,7 +168,7 @@ export async function serverV1(_input: unknown, _options: unknown): Promise<V1Ho
       const userModelsUrls = (existing?.options as { modelsUrls?: unknown } | undefined)?.modelsUrls
       // v1 启动协商：15s 总预算拉取一次（跨渠道共享），失败用快照；若运行时已被
       // 工厂先行 / 内嵌 v2 setup 先行构造，幂等守卫使本调用退化为读当前级联
-      const cascade = await ensureV1ProviderRuntime({ modelsUrls: userModelsUrls })
+      const cascade = await ensureV1ProviderRuntime({ modelsUrls: userModelsUrls, logger: consoleWarnLogger() })
       config.provider ??= {}
       config.provider[PROVIDER_ID] = mergeProviderBlock(npmSpec, existing, toV1ModelMap(cascade.models))
     },

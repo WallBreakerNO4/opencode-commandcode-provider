@@ -90,7 +90,7 @@
 
 级别：预请求成功、版本刷新成功 = `debug`（默认安静）；预请求失败、降级路径、落盘异常 = `warn`。
 
-通道：**注入式 logger**——伪装模块不直接依赖 opencode 客户端；v2 glue 注入 `client.app.log`，v1 与独立调用退化 console，测试注 no-op。
+通道：**注入式 logger**——伪装模块不直接依赖 OpenCode 客户端；v1 config hook 处于宿主初始化链路中，启动阶段采用「debug 静默、warn 经 `console.warn` 暴露」的安全适配器，避免回写 `client.app.log` 重新进入初始化；v2 与独立调用退化 console，测试注 no-op。
 
 ## 8. 伪装人格（D8，#9 校准后整体改写）
 

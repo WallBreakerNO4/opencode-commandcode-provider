@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test"
-import { consoleLogger, noopLogger } from "../../src/disguise/logger.ts"
+import { consoleLogger, consoleWarnLogger, noopLogger } from "../../src/disguise/logger.ts"
 
 // 注入式 logger 通道（disguise.md §7）：v2 glue 注入、v1/独立调用退化 console、测试注 no-op。
 
@@ -29,4 +29,23 @@ describe("consoleLogger 路由", () => {
     expect(debugCalls).toEqual(["预请求成功"])
     expect(warnCalls).toEqual(["预请求失败 cc-key#36ff39cc"])
   })
+})
+
+test("consoleWarnLogger 静默 debug、保留 warn", () => {
+  const debugCalls: string[] = []
+  const warnCalls: string[] = []
+  const originalDebug = console.debug
+  const originalWarn = console.warn
+  console.debug = (message: string) => debugCalls.push(message)
+  console.warn = (message: string) => warnCalls.push(message)
+  try {
+    const logger = consoleWarnLogger()
+    logger.debug("正常启动诊断")
+    logger.warn("模型目录拉取失败")
+  } finally {
+    console.debug = originalDebug
+    console.warn = originalWarn
+  }
+  expect(debugCalls).toEqual([])
+  expect(warnCalls).toEqual(["模型目录拉取失败"])
 })

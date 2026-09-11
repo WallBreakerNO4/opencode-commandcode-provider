@@ -191,7 +191,8 @@ function getRuntime(init: RuntimeInit, startup: "start" | "defer" = "start"): Pr
  */
 export function ensureProviderRuntime(init: RuntimeInit): void {
   if (init.onModelDataChange !== undefined) onModelDataChange = init.onModelDataChange
-  getRuntime(init)
+  const rt = getRuntime(init)
+  rebindRuntimeSeam(rt, init)
 }
 
 /**
@@ -202,8 +203,20 @@ export function ensureProviderRuntime(init: RuntimeInit): void {
  */
 export async function ensureV1ProviderRuntime(init: RuntimeInit): Promise<CascadeResult> {
   const rt = getRuntime(init, "defer")
+  rebindRuntimeSeam(rt, init)
   await rt.pipeline.initializeOnce()
   return rt.pipeline.getModels()
+}
+
+/**
+ * 宿主 glue 可能晚于工厂入口拿到运行时。只重绑定显式提供的接缝，避免 v1 config
+ * hook 为了接入启动 logger 而覆盖已经生效的 fetch / headers；模型管线与伪装层都
+ * 通过 trampoline 读取这些最新值。
+ */
+function rebindRuntimeSeam(rt: ProviderRuntime, init: RuntimeInit): void {
+  if (init.fetch !== undefined) rt.seam.fetch = init.fetch
+  if (init.headers !== undefined) rt.seam.headers = init.headers
+  if (init.logger !== undefined) rt.seam.logger = init.logger
 }
 
 /**
@@ -225,7 +238,7 @@ export function createCommandCode(options: CommandCodeFactoryOptions): CommandCo
   // 逐次调用重指向最新注入：宿主包装 fetch、provider 级自定义头、logger
   rt.seam.fetch = options.fetch ?? globalThis.fetch
   rt.seam.headers = options.headers ?? {}
-  rt.seam.logger = options.logger ?? consoleLogger()
+  if (options.logger !== undefined) rt.seam.logger = options.logger
   // modelsUrls config 通道接驳（model-pipeline.md §1.3）：v2 宿主把 settings.modelsUrls
   // 合并进工厂 options（首次工厂调用前插件侧不可见——管线构造时按 env/默认列表启动，
   // 这里逐次重绑定，原值不变零开销）；v1 宿主的 options.modelsUrls 已由 glue 的

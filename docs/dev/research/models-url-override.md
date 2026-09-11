@@ -174,7 +174,7 @@ config 文件经 Effect Schema 解码，全局选项 `onExcessProperty: "ignore"
 
 - **评估**：采纳「回退 + warn、不阻断」。理由：① 覆盖是可选增强，配置笔误不应升级成「provider 整体不可用」——URL 列表解析处在模型注册的必经路径上，硬失败等于把最坏失败模式（无模型可用）交给一个逗号；② warn 而非静默回退，保证问题可发现；③ 与两宿主自身的容错惯例同构——v1 config hook 抛错被宿主 log 后吞掉（`plugin/index.ts:246-252` `Effect.tapError(logError) + Effect.ignore`），v2 config 文档解析失败是 logWarning + 跳过该文档（`config.ts:100-127`），两宿主都不因配置问题炸启动。
 - 具体规则（建议条款）：逐项校验——每项必须是 `new URL()` 可解析且协议为 `http:`/`https:` 的绝对 URL；非法项丢弃并逐项 warn；值为非数组/非字符串/合法项为零时，整体回退默认列表并 warn 一次（注明原始值）；解析在插件侧进行，不依赖宿主校验。
-- warn 通道：v1 用 `client.app.log`（PluginInput 必带 client，`plugin/index.ts:146-151`；Breskott 同款），取不到时 `console.warn` 兜底；v2 插件 ctx 无 log 域（`plugin/src/promise/plugin.ts:25-51` 全字段核对），用 `console.warn`（宿主进程 stderr）。解析成功时以 debug/info 打一行「生效的 URL 列表 + 来源（config/env/default）」，支撑排错。
+- warn 通道：v1 config hook 处于宿主初始化链路中，使用 `console.warn` 暴露异常，避免此阶段调用 `client.app.log` 重新进入初始化；v2 插件 ctx 无 log 域（`plugin/src/promise/plugin.ts:25-51` 全字段核对），同样用 `console.warn`（宿主进程 stderr）。解析成功时保留 debug 级「生效的 URL 列表 + 来源（config/env/default）」，但 v1 启动适配器静默该级别。
 
 ### 4.4 与新鲜度 SLA 的交互
 
