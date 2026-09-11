@@ -15,9 +15,9 @@
  *   #11 实测），按「第一个 create* 导出」判得与 v2 共用的工厂。注入前先以用户
  *   已写的 `options.modelsUrls` 做 v1 启动协商（拉取一次，15s 总预算，失败用快照，
  *   此后无后台刷新——v1 无 reload 机制），模型清单 = 协商后的级联。
- * - **非破坏合并**：用户已写键一律优先（npm/name/env 整键、options 整块、models
- *   逐 id）——插件只补缺，绝不覆盖用户显式配置；`options` 全权归用户（modelsUrls
- *   通道所在），插件不注入任何默认值。
+ * - **非破坏合并**：用户已写键一律优先（npm/name/env 整键、options 内用户键、models
+ *   逐 id）——插件只补缺，绝不覆盖用户显式配置；`options` 保留用户值，并只追加
+ *   一个包内保留的 v1 logger 接线标记。
  * - **auth hook**：注册 `/connect` 登录项（label 固定「Command Code API Key」，
  *   CONTEXT.md）；loader 仅在 auth.json 有该 provider 凭证记录时被宿主调用（无凭证
  *   不触发，#11 实测），把凭证翻译成工厂 `apiKey`；优先级 auth > env 由宿主保证
@@ -45,7 +45,12 @@ import { consoleWarnLogger } from "../disguise/logger.js"
 import { toV1ModelMap } from "../models/mapping.js"
 import { PROVIDER_ID } from "../protocol/envelope.js"
 import { ensureV1ProviderRuntime } from "../provider/model.js"
-import { API_KEY_ENV_VAR, API_KEY_METHOD_LABEL, PROVIDER_DISPLAY_NAME } from "./constants.js"
+import {
+  API_KEY_ENV_VAR,
+  API_KEY_METHOD_LABEL,
+  PROVIDER_DISPLAY_NAME,
+  V1_PROVIDER_LOGGER_MARKER,
+} from "./constants.js"
 
 /**
  * config hook 注入的 npm spec：从入口模块自身的加载路径推导（#37 真宿主验证定案）。
@@ -82,7 +87,7 @@ export interface V1ProviderConfig {
   npm?: string
   name?: string
   env?: string[]
-  /** options 块全权归用户（modelsUrls 通道所在）；插件不注入、不合并、原样保留 */
+  /** options 内用户键原样保留；插件只追加包内保留的 v1 logger 接线标记 */
   options?: Record<string, unknown>
   models?: Record<string, unknown>
 }
@@ -144,6 +149,10 @@ function mergeProviderBlock(
     npm: npmSpec,
     env: [API_KEY_ENV_VAR],
     ...existing,
+    options: {
+      ...existing?.options,
+      [V1_PROVIDER_LOGGER_MARKER]: true,
+    },
     models: { ...models, ...existing?.models },
   }
   return merged

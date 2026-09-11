@@ -15,3 +15,10 @@ export const API_KEY_METHOD_LABEL = "Command Code API Key"
 
 /** env 认证通道扫描的环境变量（与 .env.example 清单一致） */
 export const API_KEY_ENV_VAR = "COMMANDCODE_API_KEY"
+
+/**
+ * v1 config hook → provider 工厂的内部接线标记。v1 插件与 provider 可能由宿主从
+ * 两个缓存入口动态 import，不能依赖模块级 singleton 传递启动 logger；该标记经
+ * v1 provider options 随宿主传给工厂。命名空间只供本包内部使用。
+ */
+export const V1_PROVIDER_LOGGER_MARKER = "__commandcode_v1_logger"

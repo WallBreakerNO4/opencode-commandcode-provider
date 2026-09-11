@@ -42,7 +42,8 @@ import type {
 } from "@ai-sdk/provider"
 import { PERMISSION_MODE } from "../disguise/config-block.js"
 import { buildGenerateHeaders } from "../disguise/headers.js"
-import { consoleLogger, type DisguiseLogger } from "../disguise/logger.js"
+import { consoleLogger, consoleWarnLogger, type DisguiseLogger } from "../disguise/logger.js"
+import { V1_PROVIDER_LOGGER_MARKER } from "../host/constants.js"
 import { createDisguiseState, type DisguiseState } from "../disguise/state.js"
 import { parseArtifact, type Artifact } from "../models/artifact.js"
 import { mergeModelLayers, type CascadeResult } from "../models/cascade.js"
@@ -219,6 +220,10 @@ function rebindRuntimeSeam(rt: ProviderRuntime, init: RuntimeInit): void {
   if (init.logger !== undefined) rt.seam.logger = init.logger
 }
 
+function hasV1ProviderLoggerMarker(options: CommandCodeFactoryOptions): boolean {
+  return (options as Record<string, unknown>)[V1_PROVIDER_LOGGER_MARKER] === true
+}
+
 /**
  * 当前级联（v2 glue 的 transform 回放数据源）：运行时已构造时读管线实时值（读时
  * 惰性检查 TTL，reload 回放顺带充当显式到期触发点）；未构造时为纯快照层——启动
@@ -234,11 +239,14 @@ export function latestCascade(): CascadeResult {
 // ---------------------------------------------------------------------------
 
 export function createCommandCode(options: CommandCodeFactoryOptions): CommandCodeProvider {
-  const rt = getRuntime(options)
+  // v1 config 与 provider 工厂可能来自宿主的两个动态 import 实例；标记必须在
+  // getRuntime 前决定 logger，因为模型管线构造时会同步记录 modelsUrls 来源。
+  const logger = options.logger ?? (hasV1ProviderLoggerMarker(options) ? consoleWarnLogger() : undefined)
+  const rt = getRuntime({ ...options, logger })
   // 逐次调用重指向最新注入：宿主包装 fetch、provider 级自定义头、logger
   rt.seam.fetch = options.fetch ?? globalThis.fetch
   rt.seam.headers = options.headers ?? {}
-  if (options.logger !== undefined) rt.seam.logger = options.logger
+  if (logger !== undefined) rt.seam.logger = logger
   // modelsUrls config 通道接驳（model-pipeline.md §1.3）：v2 宿主把 settings.modelsUrls
   // 合并进工厂 options（首次工厂调用前插件侧不可见——管线构造时按 env/默认列表启动，
   // 这里逐次重绑定，原值不变零开销）；v1 宿主的 options.modelsUrls 已由 glue 的
