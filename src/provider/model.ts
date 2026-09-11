@@ -42,7 +42,7 @@ import type {
 } from "@ai-sdk/provider"
 import { PERMISSION_MODE } from "../disguise/config-block.js"
 import { buildGenerateHeaders } from "../disguise/headers.js"
-import { consoleLogger, consoleWarnLogger, type DisguiseLogger } from "../disguise/logger.js"
+import { consoleLogger, consoleWarnLogger, isV1SilentModeEnabled, type DisguiseLogger } from "../disguise/logger.js"
 import { V1_PROVIDER_LOGGER_MARKER } from "../host/constants.js"
 import { createDisguiseState, type DisguiseState } from "../disguise/state.js"
 import { parseArtifact, type Artifact } from "../models/artifact.js"
@@ -241,7 +241,7 @@ export function latestCascade(): CascadeResult {
 export function createCommandCode(options: CommandCodeFactoryOptions): CommandCodeProvider {
   // v1 config 与 provider 工厂可能来自宿主的两个动态 import 实例；标记必须在
   // getRuntime 前决定 logger，因为模型管线构造时会同步记录 modelsUrls 来源。
-  const logger = options.logger ?? (hasV1ProviderLoggerMarker(options) ? consoleWarnLogger() : undefined)
+  const logger = options.logger ?? (hasV1ProviderLoggerMarker(options) || isV1SilentModeEnabled() ? consoleWarnLogger() : undefined)
   const rt = getRuntime({ ...options, logger })
   // 逐次调用重指向最新注入：宿主包装 fetch、provider 级自定义头、logger
   rt.seam.fetch = options.fetch ?? globalThis.fetch

@@ -17,6 +17,17 @@ export const noopLogger: DisguiseLogger = {
   warn() {},
 }
 
+let v1SilentMode = false
+
+/** v1 宿主已加载插件后，后续 provider 动态实例也必须隐藏正常 debug。 */
+export function enableV1SilentMode(): void {
+  v1SilentMode = true
+}
+
+export function isV1SilentModeEnabled(): boolean {
+  return v1SilentMode
+}
+
 /** v1 与独立调用的退化通道：宿主未注入 logger 时保证伪装层日志有处可去 */
 export function consoleLogger(): DisguiseLogger {
   return {

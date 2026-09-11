@@ -41,7 +41,7 @@
  */
 
 import { ENTRY_URL } from "../index.js"
-import { consoleWarnLogger } from "../disguise/logger.js"
+import { consoleWarnLogger, enableV1SilentMode } from "../disguise/logger.js"
 import { toV1ModelMap } from "../models/mapping.js"
 import { PROVIDER_ID } from "../protocol/envelope.js"
 import { ensureV1ProviderRuntime } from "../provider/model.js"
@@ -167,6 +167,7 @@ function mergeProviderBlock(
  * config 重载或 auth login 等场景重复调用，重放注入幂等（同级联 → 同块）。
  */
 export async function serverV1(_input: unknown, _options: unknown): Promise<V1Hooks> {
+  enableV1SilentMode()
   // 自举 npm spec 按实际加载路径推导（见 selfNpmSpec）；此时入口模块必已完成求值
   const npmSpec = selfNpmSpec(ENTRY_URL)
   return {

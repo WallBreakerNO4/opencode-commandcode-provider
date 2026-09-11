@@ -41,9 +41,12 @@ interface StartupResult {
   modelCount: number
 }
 
-function runIsolatedV1Startup(mode: "success" | "failure" | "factory-copy" | "factory-copy-unmarked"): StartupResult {
+function runIsolatedV1Startup(
+  mode: "success" | "failure" | "factory-copy" | "factory-copy-unmarked",
+  loadV1Plugin = true,
+): StartupResult {
   const script = `
-    import plugin from "./src/index.ts"
+    ${loadV1Plugin ? 'import plugin from "./src/index.ts"' : ""}
 
     const mode = ${JSON.stringify(mode)}
     const modelsApiUrl = ${JSON.stringify(MODELS_API_URL)}
@@ -65,9 +68,11 @@ function runIsolatedV1Startup(mode: "success" | "failure" | "factory-copy" | "fa
     console.warn = (message) => warnCalls.push(String(message))
 
     try {
-      const hooks = await plugin.server({}, {})
       const config = { provider: { "commandcode-go": { options: { modelsUrls: [artifactUrl] } } } }
-      await hooks.config(config)
+      if (${String(loadV1Plugin)}) {
+        const hooks = await plugin.server({}, {})
+        await hooks.config(config)
+      }
       if (mode === "factory-copy" || mode === "factory-copy-unmarked") {
         const { createCommandCode } = await import("./src/provider/model.ts?provider-copy")
         createCommandCode({
@@ -119,9 +124,13 @@ test("v1 进入 TUI 后加载另一份 provider 工厂仍不产生成功 debug",
   expect(captured.modelCount).toBe(1)
 })
 
-test("未带 v1 标记的独立工厂保留默认 logger 行为", () => {
-  const captured = runIsolatedV1Startup("factory-copy-unmarked")
+test("未带 v1 标记且未加载 v1 插件的独立工厂保留默认 logger 行为", () => {
+  const captured = runIsolatedV1Startup("factory-copy-unmarked", false)
   expect(captured.debugCalls).toHaveLength(2)
   expect(captured.warnCalls).toEqual([])
-  expect(captured.modelCount).toBe(1)
+})
+
+test("v1 插件加载后，未透传 marker 的 provider 副本仍静默 debug", () => {
+  const captured = runIsolatedV1Startup("factory-copy-unmarked")
+  expect(captured.debugCalls).toEqual([])
 })
