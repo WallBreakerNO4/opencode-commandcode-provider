@@ -8,7 +8,7 @@
 > 执行方式：**agent 代跑 + 维护者复核**。TUI 交互经 tmux 驱动并逐屏留图；发布与最终签收仍归维护者（职责归属见 `docs/dev/release/release-process.md`）。
 > 性质：本文件是 **agent 代跑稿**——本轮由 agent 按维护者指示执行并留证，供维护者复核签收；不替代 `docs/dev/spec/acceptance.md` 语义下的人工签收。
 > dist 溯源：构建自 commit `58d1a0f`（工作树干净），包版本 0.1.3；工厂计数所用临时插桩构建已还原并重建（见 §2）。
-> 范围：第一阶段（发布前门槛）。第二阶段（发布后按真 README 走查）待新版本发布后执行，见 §5。
+> 范围：两阶段均已完成——第一阶段（发布前门槛）见 §1–§4；第二阶段（发布后真 README 走查）见 §6。
 
 ## 0. 结论速览
 
@@ -163,8 +163,36 @@ evidence/23-factory-*.log                工厂调用计数（插桩）
 official/models.json + build-meta.json   当前官方 CLI 1.53.1 Go 档 44（核对基准）
 ```
 
-## 5. 第二阶段计划（发布后）
+## 5. 第二阶段计划（已按此执行，记录见 §6）
 
 1. 维护者发布含新 README 的版本（建议 0.1.4），打 tag、Release notes 注明包内快照 sha256（`docs/dev/release/release-process.md` §2）。
 2. 在全新隔离区**原样执行 README 手动安装节**：`opencode plugin add @wallbreakerno4/opencode-commandcode` → 重启 → `/connect`（或 env）→ 发消息；核对 npm 页面 README 与仓库一致。
 3. 跑 `docs/dev/spec/acceptance.md` §1 十项：TUI 目视与 wire 级项重做，纯插件逻辑项引用本记录；记录追加于本文件或 #51 评论，再关闭 #51。
+
+## 6. 第二阶段记录（发布后真 README 走查，0.1.4）
+
+> 执行日期：2026-09-12 晚（与第一阶段同日）。宿主仍为 `opencode v2.0.1`。
+> 安装路径：**按 README 手动安装节原样执行**——`opencode plugin add @wallbreakerno4/opencode-commandcode`（装上 0.1.4）；全局配置写入 `plugins: ["@wallbreakerno4/opencode-commandcode"]`。
+> 环境：全新隔离区 `{D,E}`（隔离与 MITM 方法同 §0）；真实 key；npm 页面已同步新 README。
+> 结论：**十项全部复验通过**（7b 仍为未触发）。
+
+| # | 结论 | 关键证据 |
+|---|---|---|
+| 1 | pass | `plugin add` 输出 installed 并把包名写进全局 `plugins`；冷启动首次 `plugin list` 为空、2s 后为 `commandcode-go  0.1.4  @wallbreakerno4/opencode-commandcode`；凭证前 models 无 commandcode-go；`/connect` 出「Command Code API Key」并入库；首条消息成功 |
+| 2 | pass | `opencode models` 44 = 官方 Go 44；TUI 选择器可见快照新增的 `DeepSeek V4.1 Flash`；包内快照已是 CLI 1.53.1 |
+| 3 | pass | TUI 约 200 字短文完整 + 追问「压缩成一句话」正常 |
+| 4 | pass | max 档推理正确（27 桶）且 TUI Thought 可见；wire `reasoning_effort:"max"` 仅出现在 max 档，base 请求不含 |
+| 5 | pass | write 工具 150 行：参数 1590B、`tool-input-*` 事件 640、无 error；落盘 150 行逐行一致 |
+| 6 | pass（同 TUI 贴图偏差） | 视觉模型描述正确；wire `data:image/png;base64` 解码 1550B、magic 正确 |
+| 7 | a pass / b 未触发 | E 区 `/connect` 错误 key 后消息报 401 并指向 `/connect` |
+| 8 | pass | a/b/c 三场景均 44 条（快照 1.53.1 与最新产物同集）；a/b 的 warn 可见、首条消息成功；c 字面离线消息 503（同 §3 观察 4 的判据冲突）；c′「管线全断、网关通」消息成功 |
+| 9 | pass | 会话 A `60721f41…` 贯穿 4 轮对话与工具调用；B `3988f55c…` 不同；服务重启后恢复 A 仍 `60721f41…`；图像 `run` 为独立宿主会话 `1d7ee064…`（语义正确，不计入 A/B） |
+| 10 | pass | npm README（0.1.4）与仓库 README **逐字节一致**、无 `opencode2`/beta/空壳残留；id / 显示名 / 认证 label 与 README 承诺一致 |
+
+wire 复核：本轮 13 条 `generate` 全部 `threadId == x-session-id`、无 error 事件；`traceparent` 逐请求新造。
+
+**npm 页面**：`npm view` 确认 `latest = 0.1.4`、README 51 行且与仓库逐字节一致（第一阶段观察 1 已消除）。
+
+证据文件：`evidence/30-plugin-add.txt`、`31-*`、`32-*`、`33-*`~`39-*`、`40-wire-checks.txt`、`41a*`/`42b*`/`43c*`/`43c2*`、`44-wrong-key-run.txt`、`45-tui-model-picker.txt`。
+
+安全提示：wire 原始 JSONL 含真实凭据——本轮 `plugin add` 期间还捕获到 npm 登录 token（pacote 请求头）。文件仅存本机 `/tmp`，**严禁入库**；如不再需要请连目录一并删除。
