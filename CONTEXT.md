@@ -122,7 +122,7 @@ _Avoid_: 来源优先级矩阵
 _Avoid_: 魔法命令、安装命令、安装脚本
 
 **For Humans 安装指南**:
-仓库内面向 coding agent 的中文分步安装文档（检测 → 安装 → 验证 → 移交用户），附故障排查与卸载节；人类只负责粘贴 prompt 和最后的手动认证。
+仓库内面向 coding agent 的中文分步安装文档（检测 → 安装 → 验证 → 移交用户），主路径面向 V2 正式版；V1 用户仅给一句冻结版指引，不展开安装步骤。附故障排查与卸载节；人类既可粘贴 prompt 交给 agent 安装，也可按手动节自行安装。
 _Avoid_: 安装教程（面向人类的）、README、安装脚本
 
 **已知问题**:
@@ -130,8 +130,12 @@ _Avoid_: 安装教程（面向人类的）、README、安装脚本
 _Avoid_: known bugs、故障排查（那是安装指南里排除安装故障的节）
 
 **宿主检测**:
-agent 用 `command -v` 区分 v1（`opencode`）/ v2（`opencode2`）安装目标的判定规则：一个都没装直接拒绝（运行环境不是 OpenCode）；只装其一装哪个；双宿主并存经提问工具让用户三选一（默认推荐两个都装）。
-_Avoid_: 版本探测、环境探测
+agent 用 `opencode --version` 判定宿主版本的规则：输出匹配 `v?2.x` 即 V2、匹配 `1.x` 即 V1；命令缺失即非 OpenCode 环境（直接拒绝）；版本无法识别时停下询问，不猜。V1/V2 已不再并存安装，无「双宿主并存」分支。
+_Avoid_: 版本探测、环境探测、命令名判别
+
+**V1 冻结**:
+v1 支持面的维护政策：v1 专属面（`src/host/v1.ts`、v1 专属测试与文档）停止新特性、只修致命问题（崩溃 / 认证不可用 / 伪装与会话状态错乱 / 安全）；上游 V1 停更 / EOL 后停止维护，代码与冻结版文档保留、不主动移除。决策：`docs/dev/adr/0004-v1-freeze-and-retention.md`。
+_Avoid_: v1 弃用、v1 退役、v1 移除
 
 **结构性验证**:
 agent 端不依赖 API key 的安装验证层：`plugin list` 能见到插件、全局配置文件内容正确、宿主 `--version` 正常；端到端发消息验证属于人工验收。
@@ -144,6 +148,10 @@ _Avoid_: 自动配置、零配置魔法
 **provider id（`commandcode-go`）**:
 插件注册的 provider 唯一标识：v1 config 注入键、v2 `opencode.json` 空壳键、integrationID、模型 id 前缀 `commandcode-go/<wire>` 四处同名；模型 reference 按首个 `/` 切分，wire id 可含 `/` 原样透传。
 _Avoid_: CCProto（原型残留）、`commandcode`（brent 包占用）
+
+**provider 空壳键**:
+v2 `opencode.json` 的 `providers` 映射里为 provider id 手写的空对象条目 `providers.<id>: {}`；效果是让 provider 在无凭证时也显示为可用（内置 config 插件把 `activation` 覆写为 `enabled`）。beta 期是安装必需步骤，正式版非必需（探针定案：`docs/dev/research/v2-stable-probe.md`）。
+_Avoid_: 空壳 provider、空壳（单独使用时）
 
 **Command Code (Go)**:
 provider 的显示名，v1 `/connect` 列表项、v2 目录与 provider 列表、v2 integration name 三处同用。
