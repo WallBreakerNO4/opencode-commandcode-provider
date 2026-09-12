@@ -40,8 +40,8 @@
   "packageManager": "pnpm@12.3.4",
   "devDependencies": {
     "@ai-sdk/provider": "3.0.8",
-    "@opencode/plugin": "2.0.x",
-    "@types/bun": "^1.4.0",
+    "@opencode/plugin": "2.0.0",
+    "@types/bun": "^1.4.2",
     "typescript": "^5.9.3"
   }
 }
