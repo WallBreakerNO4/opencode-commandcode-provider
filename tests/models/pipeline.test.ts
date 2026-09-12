@@ -549,7 +549,7 @@ describe("modelsUrls 覆盖（整列表替换在管线层生效）", () => {
 })
 
 describe("rebindModelsUrls（#36：v2 config 通道经工厂 options 运行时接驳）", () => {
-  test("原值未变（宿主逐请求透传同一 settings）：零开销跳过——不重解析、不加轮次", async () => {
+  test("原值未变（宿主随工厂调用透传同一 settings）：零开销跳过——不重解析、不加轮次", async () => {
     const harness = makeHarness((url) => (url === MODELS_API_URL ? jsonResponse(API_A) : jsonResponse(ARTIFACT_A)), {
       modelsUrls: [URL_A, URL_B],
     })

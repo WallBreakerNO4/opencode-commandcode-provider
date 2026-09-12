@@ -89,9 +89,9 @@ export interface ModelPipeline {
    * `settings.modelsUrls` 合并进工厂 options 顶层——但那要等首次工厂调用才可见
    * （beta-18684 实测：transform 草稿不带 config settings，插件侧构造时拿不到），
    * 构造时管线只能按 env/默认列表启动。本方法在工厂调用时把 config 值重绑定进
-   * 管线：原值未变零开销跳过（宿主逐请求调工厂）；解析列表真变了才替换并立即
-   * 触发一轮产物拉取（不等 TTL——用户切换镜像不该等 1h）；非法值按 §1.3 回退并
-   * warn。v1 形态（无后台刷新）不接驳。
+   * 管线：原值未变零开销跳过（宿主按 key 缓存实例、工厂调用频次由 key 变化决定）；
+   * 解析列表真变了才替换并立即触发一轮产物拉取（不等 TTL——用户切换镜像不该等
+   * 1h）；非法值按 §1.3 回退并 warn。v1 形态（无后台刷新）不接驳。
    */
   rebindModelsUrls(config: unknown): void
   /**
@@ -131,7 +131,7 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
     env: process.env[MODELS_URLS_ENV_VAR],
     logger,
   })
-  /** 上次重绑定的 config 原值：宿主逐请求透传同一 settings，原值相等即零开销跳过 */
+  /** 上次重绑定的 config 原值：宿主随工厂调用透传的 settings 未变即零开销跳过 */
   let modelsUrlsRaw: unknown = options.modelsUrls
 
   const snapshot = options.snapshot
@@ -336,7 +336,7 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
   function rebindModelsUrls(config: unknown): void {
     if (mode !== "v2") return
     if (config === undefined) return
-    // 原值未变（宿主逐请求透传同一 settings）→ 不重解析不打日志
+    // 原值未变（宿主随工厂调用透传同一 settings）→ 不重解析不打日志
     if (JSON.stringify(config) === JSON.stringify(modelsUrlsRaw)) return
     modelsUrlsRaw = config
     const resolved = resolveModelsUrls({

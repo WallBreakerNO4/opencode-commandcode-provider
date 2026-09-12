@@ -1,7 +1,8 @@
 /**
  * v2 宿主接线（#36；实测定案 #12/#5）。
  *
- * 用户 config 只写空壳 `{providers: {"commandcode-go": {}}}`，其余全部自举：
+ * 用户 config 无需 provider 空壳（正式版探针定案，docs/dev/research/v2-stable-probe.md），
+ * 其余全部自举：
  *
  * - **catalog.transform 自指注册**（#12 S1 定案）：provider.update 设
  *   `package = "aisdk:" + <入口模块 URL>`——宿主剥掉 `aisdk:` 前缀后原生 import
@@ -19,11 +20,11 @@
  *   侧构造时不可见），首次工厂调用经管线 rebindModelsUrls 接入（config > env >
  *   默认列表，原值不变零开销跳过）；settings 壳其余字段原样保留不 clobber。
  * - **测试边界**（testing.md §4 定案）：glue 是全项目唯一无自动化测试的模块——
- *   mock 宿主 = 重写宿主；验证 = 真宿主（锁定 v2 beta 快照）验证 + #21 人工验收。
+ *   mock 宿主 = 重写宿主；验证 = 真宿主（v2 正式版）验证 + 人工验收。
  *
- * 零依赖纪律（入口既定）：不 import `@opencode-ai/plugin`，宿主 ctx 以本模块的
- * 最小结构类型承接——字段名按 node_modules 实测的 beta d.ts 收窄到 glue 触达的
- * 域，宿主漂移时真宿主验证即暴露，不为漂移预付兼容成本。
+ * 零依赖纪律（入口既定）：不 import 官方插件 SDK（`@opencode/plugin`），宿主 ctx
+ * 以本模块的最小结构类型承接——字段名按 node_modules 的正式版 SDK 类型（2.0.x）
+ * 收窄到 glue 触达的域，宿主漂移时真宿主验证即暴露，不为漂移预付兼容成本。
  */
 
 import { ENTRY_URL } from "../index.js"
@@ -33,7 +34,7 @@ import { ensureProviderRuntime, latestCascade } from "../provider/model.js"
 import { API_KEY_ENV_VAR, API_KEY_METHOD_LABEL, PROVIDER_DISPLAY_NAME } from "./constants.js"
 
 // ---------------------------------------------------------------------------
-// 宿主 ctx 最小结构类型（零依赖承接；形状出处：@opencode-ai/plugin beta d.ts）
+// 宿主 ctx 最小结构类型（零依赖承接；形状出处：@opencode/plugin@2.0.x SDK 类型）
 // 显示名 / 认证 label / env 变量三常量见 constants.ts（v1/v2 glue 单源）。
 // ---------------------------------------------------------------------------
 

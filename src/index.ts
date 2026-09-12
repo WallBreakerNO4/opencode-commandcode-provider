@@ -12,8 +12,8 @@
  *   第一个 `create*` 前缀导出」判据发现它，不得引入排位更靠前的 `create*` 导出；
  *   实现与其 options/provider 契约类型见 src/provider/model.ts（#35 工厂装配）。
  *
- * 入口保持零运行时依赖：不 import `@opencode-ai/plugin`（v2 的 define() 是恒等
- * 函数），避免被宿主 beta API 漂移绑架。
+ * 入口保持零运行时依赖：不 import 官方插件 SDK（v1 `@opencode-ai/plugin` / v2
+ * `@opencode/plugin`；v2 的 define() 是恒等函数），避免被宿主 API 漂移绑架。
  */
 
 import { serverV1 } from "./host/v1.js"

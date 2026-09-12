@@ -2,9 +2,9 @@
  * 工厂装配（#35 弹道合拢点）：协议核心（执行内核 generate.ts）× 伪装模块
  * （会话身份 / config 块 / 版本头 / 伪装头）× 模型管线（级联 limit 数据）组装成
  * 包导出的 `createCommandCode({name, apiKey, headers, fetch})` 工厂，内部实现
- * LanguageModelV3（契约形状：docs/dev/research/v2-provider-contract.md §2 实测——
- * `finishReason` 为 `{unified, raw}` 对象、`usage` 嵌套结构、上游恒为流式 NDJSON、
- * `doGenerate` = `doStream` 聚合）。
+ * LanguageModelV3（契约形状：beta 实测 v2-provider-contract.md §2、正式版复核
+ * v2-stable-contract.md 差异表 #12——`finishReason` 为 `{unified, raw}` 对象、
+ * `usage` 嵌套结构、上游恒为流式 NDJSON、`doGenerate` = `doStream` 聚合）。
  *
  * 工厂签名四键无 body；宿主按「模块第一个 `create*` 前缀导出」判据发现（v1/v2
  * 共用），返回 `{ languageModel(modelID) → LanguageModelV3 }`。模型 reference 按
@@ -20,13 +20,14 @@
  * 抛出（AI SDK 惯例，宿主 catch 分类）；流内错误（截断 / error 事件 / 零输出 /
  * 流中看门狗到点）以 error part 浮现（protocol.md §3）。
  *
- * 运行时共享：宿主每次模型请求都会重新调用工厂（v2 实测两遍/请求），预请求节奏
- * （D2 每进程一次）与模型管线刷新节奏（model-pipeline.md §4 TTL）必须跨工厂调用
- * 存活——伪装状态与管线为模块级单例；宿主逐次注入的 fetch / 自定义头 / logger 经
- * 接缝重指向最新值；key 相关状态（回退会话、预请求退避）由 DisguiseState 内部
- * per-key Map 承载。调用 headers 只作会话派生种子、不透传上游（`X-Session-Id` 等
- * 是宿主内部头，非 CLI 指纹）；工厂 options.headers（用户显式配置）透传且被伪装
- * 键覆盖防冲突。
+ * 运行时共享：宿主按 key 缓存 sdk / language 实例——key 含 settings/headers/body
+ * （language 另含模型 id 与 limit），同 key 只构造一次工厂、命中即复用，凭证或配置
+ * 变化改变 key 时才再次构造（v2.0.1 源码结论：v2-stable-contract.md 差异表 #11）。预请求节奏（D2 每进程一次）与模型管线刷新节奏
+ * （model-pipeline.md §4 TTL）必须跨工厂调用存活——伪装状态与管线为模块级单例；
+ * 宿主每次工厂调用注入的 fetch / 自定义头 / logger 经接缝重指向最新值；key 相关
+ * 状态（回退会话、预请求退避）由 DisguiseState 内部 per-key Map 承载。调用 headers
+ * 只作会话派生种子、不透传上游（`X-Session-Id` 等是宿主内部头，非 CLI 指纹）；
+ * 工厂 options.headers（用户显式配置）透传且被伪装键覆盖防冲突。
  */
 
 import type {
@@ -55,7 +56,8 @@ import type { FetchLike } from "../protocol/json.js"
 import { preparePromptImages } from "../protocol/images.js"
 
 /**
- * 工厂入参：宿主调工厂时注入的 options（v2-provider-contract.md §1 实测形状）。
+ * 工厂入参：宿主调工厂时注入的 options（形状：beta 实测 v2-provider-contract.md §1，
+ * 正式版复核 v2-stable-contract.md 差异表 #10）。
  * `fetch` 是宿主包装过的实例（超时与 chunk 处理由宿主侧完成），全部出网路径——
  * generate、models、产物 URL、版本查询、预请求——统一经它注入（testing.md §2）。
  */
@@ -70,18 +72,19 @@ export interface CommandCodeFactoryOptions {
   /**
    * modelsUrls 覆盖通道原样值（model-pipeline.md §1.3）：v1 `options.modelsUrls` /
    * v2 `settings.modelsUrls` 经宿主透传后在工厂 options 中以顶层键出现。构造时作
-   * 初值；其后的调用经管线 rebindModelsUrls 重绑定（v2 的 config settings 首次
+   * 初值；工厂调用经管线 rebindModelsUrls 重绑定（v2 的 config settings 到首次
    * 工厂调用才可见，#36）。
    */
   readonly modelsUrls?: unknown
   /**
    * 注入式 logger（disguise.md §7 官方接缝；通道结论以 logger.ts 头注为准）。
-   * 逐次工厂调用重指向最新注入值。
+   * 每次工厂调用重指向最新注入值。
    */
   readonly logger?: DisguiseLogger
 }
 
-/** 工厂返回形状（v2-provider-contract.md §1：宿主经 languageModel(modelID) 取模型实例） */
+/** 工厂返回形状（beta 实测 v2-provider-contract.md §1、正式版复核
+ * v2-stable-contract.md 差异表 #10：宿主经 languageModel(modelID) 取模型实例） */
 export interface CommandCodeProvider {
   languageModel(modelID: string): LanguageModelV3
 }
@@ -90,7 +93,7 @@ export interface CommandCodeProvider {
 // 模块级运行时单例（跨工厂调用共享；见文件头「运行时共享」）
 // ---------------------------------------------------------------------------
 
-/** 逐次工厂调用重指向的注入接缝（宿主 fetch / provider 级头 / logger） */
+/** 每次工厂调用重指向的注入接缝（宿主 fetch / provider 级头 / logger） */
 interface ProviderSeam {
   fetch: FetchLike
   headers: Record<string, string>
@@ -103,7 +106,7 @@ interface ProviderRuntime {
   /** 包内快照（已解析）：版本头兜底链 ④ 与管线初始层共用同一份 */
   snapshot: Artifact
   seam: ProviderSeam
-  /** 稳定出网跳板：全部出网路径共用，逐次工厂调用重指向 seam.fetch 最新注入值 */
+  /** 稳定出网跳板：全部出网路径共用，每次工厂调用重指向 seam.fetch 最新注入值 */
   trampoline: FetchLike
 }
 
@@ -135,7 +138,7 @@ function packageSnapshot(): Artifact {
 }
 
 /** 运行时构造参数：全部仅首次构造生效（幂等构造，后续调用忽略）；fetch/headers/
- * logger 构造后仍有逐次调用重指向的活接缝，modelsUrls 没有（管线构造时解析一次） */
+ * logger 构造后仍有每次工厂调用重指向的活接缝，modelsUrls 没有（管线构造时解析一次） */
 export interface RuntimeInit {
   /** modelsUrls 的 config 通道原样值（v2 = settings.modelsUrls，glue 从 transform 捕获） */
   readonly modelsUrls?: unknown
@@ -243,13 +246,13 @@ export function createCommandCode(options: CommandCodeFactoryOptions): CommandCo
   // getRuntime 前决定 logger，因为模型管线构造时会同步记录 modelsUrls 来源。
   const logger = options.logger ?? (hasV1ProviderLoggerMarker(options) || isV1SilentModeEnabled() ? consoleWarnLogger() : undefined)
   const rt = getRuntime({ ...options, logger })
-  // 逐次调用重指向最新注入：宿主包装 fetch、provider 级自定义头、logger
+  // 每次工厂调用重指向最新注入：宿主包装 fetch、provider 级自定义头、logger
   rt.seam.fetch = options.fetch ?? globalThis.fetch
   rt.seam.headers = options.headers ?? {}
   if (logger !== undefined) rt.seam.logger = logger
   // modelsUrls config 通道接驳（model-pipeline.md §1.3）：v2 宿主把 settings.modelsUrls
   // 合并进工厂 options（首次工厂调用前插件侧不可见——管线构造时按 env/默认列表启动，
-  // 这里逐次重绑定，原值不变零开销）；v1 宿主的 options.modelsUrls 已由 glue 的
+  // 这里每次工厂调用重绑定，原值不变零开销）；v1 宿主的 options.modelsUrls 已由 glue 的
   // config hook 在构造时应用，管线在 v1 形态下忽略重绑定（无后台刷新，无需补拉）
   if (options.modelsUrls !== undefined) rt.pipeline.rebindModelsUrls(options.modelsUrls)
   const apiKey = options.apiKey ?? ""
