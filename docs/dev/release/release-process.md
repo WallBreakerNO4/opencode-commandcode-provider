@@ -1,6 +1,6 @@
 # 发布流程：V2 本地 dist 预验收 → npm publish → 真 README 走查
 
-> 状态：换轴修订（2026-09-12，issue #48/#49）：主路径改为 OpenCode 2 正式版，发布门槛从 v1 轮换到 V2 轮，V1 按 ADR-0004 只在 v1 专属面改动时复验。原版（2026-09-06，issue #43/#44）为「v1 轮验收 → publish → v2 轮验收」；其结构性原因（npm 包未就位时无从按 README 走查）仍成立，故保留两阶段——**发布前用本地 dist 预验收，发布后按真 README 走查**。
+> 状态：换轴修订（2026-09-12，issue #48/#49）：主路径改为 OpenCode 2 正式版，发布门槛从 v1 轮换到 V2 轮，V1 按 ADR-0004 只在 v1 专属面改动时复验。原版（2026-09-06，issue #43/#44）为「v1 轮验收 → publish → v2 轮验收」；其结构性原因（npm 包未就位时无从按 README 走查）仍成立，故保留两阶段——**发布前用本地 dist 预验收，发布后按真 README 走查**。2026-09-14 修订：安装走查删除重启步骤（V2 插件自动加载，无需重启宿主）。
 > 验收清单：`docs/dev/spec/acceptance.md`；分发渠道：`docs/dev/adr/0001-artifact-distribution-channels.md`；V1 政策：`docs/dev/adr/0004-v1-freeze-and-retention.md`；npmmirror 登记：`docs/dev/release/npmmirror-whitelist-pr.md`。
 >
 > **职责归属**：人工验收与发布命令由**维护者**执行；agent 只承担准备与文本工作。
@@ -47,7 +47,7 @@ npm 包就位后，在正式版 V2 宿主上**原样执行 README 手动安装�
 opencode plugin add @wallbreakerno4/opencode-commandcode
 ```
 
-重启 → `/connect`（或 env）→ `opencode models` / 发消息，跑 `docs/dev/spec/acceptance.md` §1 十项（第一阶段的纯插件逻辑项可引用记录，TUI 目视项与抓包 wire 级项重做）。发现问题开 issue 修复 → 补版本重发（无需撤包）。
+`/connect`（或 env）→ `opencode models` / 发消息，跑 `docs/dev/spec/acceptance.md` §1 十项（第一阶段的纯插件逻辑项可引用记录，TUI 目视项与抓包 wire 级项重做）。发现问题开 issue 修复 → 补版本重发（无需撤包）。
 
 ## 4. V1 条件复验（非每轮）
 

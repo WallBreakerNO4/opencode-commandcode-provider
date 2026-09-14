@@ -2,10 +2,10 @@
 
 把插件 [@wallbreakerno4/opencode-commandcode](https://github.com/WallBreakerNO4/opencode-commandcode-provider#readme)（Command Code Go plan 的 OpenCode provider）装进 OpenCode 2 正式版有两种方式：
 
-- **推荐**：把 README 里的粘贴 prompt 丢进 OpenCode 会话，由其中的 agent 按本文档自主完成安装。人类只参与两步——粘贴 prompt，以及最后的重启与认证。
+- **推荐**：把 README 里的粘贴 prompt 丢进 OpenCode 会话，由其中的 agent 按本文档自主完成安装。人类只参与两步——粘贴 prompt，以及最后的认证。
 - 手动：按下面「手动安装」节自己敲命令。
 
-> **V1 用户**：v1 支持面已冻结（只修致命问题），推荐升级到 OpenCode 2；继续使用 v1 的安装步骤见[冻结版安装指南](https://github.com/WallBreakerNO4/opencode-commandcode-provider/blob/v0.1.2/docs/guide/installation.md)。
+> **V1 用户**：v1 支持面已冻结（只修致命问题），推荐升级到 OpenCode 2；继续使用 v1 的安装步骤见[冻结版安装指南](https://github.com/WallBreakerNO4/opencode-commandcode-provider/blob/v0.1.2/docs/guide/installation.md)。注意：V1 安装后仍需重启宿主才能加载插件。
 
 ## 手动安装（OpenCode 2）
 
@@ -16,13 +16,12 @@
    opencode plugin add @wallbreakerno4/opencode-commandcode
    ```
 
-3. 重启 `opencode`。
-4. 配置凭证（二选一）：
+3. 配置凭证（二选一）：
    - 在 OpenCode 中输入 `/connect`，选择 **Command Code (Go)**，粘贴 API key；
    - 或由用户自行设置环境变量 `COMMANDCODE_API_KEY`。
-5. 验证：`opencode models` 应列出 `commandcode-go/` 前缀的模型，或直接发条消息（`opencode run --model commandcode-go/deepseek/deepseek-v4-pro "hi"`）。
+4. 验证：`opencode models` 应列出 `commandcode-go/` 前缀的模型，或直接发条消息（`opencode run --model commandcode-go/deepseek/deepseek-v4-pro "hi"`）。
 
-未配置凭证前 provider 不可见、模型列表为空是预期；冷启动后第一次调用可能为空，重试一次再判失败。详见下文「验证」与「故障排查」。
+未配置凭证前 provider 不可见、模型列表为空是预期；安装后第一次调用可能为空，重试一次再判失败。详见下文「验证」与「故障排查」。
 
 ---
 
@@ -34,7 +33,7 @@
 > curl -fsSL https://raw.githubusercontent.com/WallBreakerNO4/opencode-commandcode-provider/main/docs/guide/installation.md
 > ```
 
-你的任务：把 npm 包 `@wallbreakerno4/opencode-commandcode` 安装为用户的 OpenCode **全局**插件，完成结构性验证（Step 3 第 1–3 项，无需凭证），然后把重启、认证与模型验证交还给用户。
+你的任务：把 npm 包 `@wallbreakerno4/opencode-commandcode` 安装为用户的 OpenCode **全局**插件，完成结构性验证（Step 3 第 1–3 项，无需凭证），然后把认证与模型验证交还给用户。
 
 ### 硬性规则
 
@@ -89,7 +88,7 @@
    { "plugins": ["<仓库绝对路径>/dist"] }
    ```
 
-   不要写文件路径（`dist/index.js` 会被宿主丢弃并告警），也不要写仓库根目录（没有入口文件，会被静默忽略）。npm 包名安装不受此限。
+   不要写文件路径（`dist/index.js` 会被宿主丢弃并告警），也不要写仓库根目录（没有入口文件，会被静默忽略）。npm 包名安装不受此限。重建 `dist/` 后可能需要重启宿主才能加载新构建。
 
 #### 备份与回滚
 
@@ -99,10 +98,9 @@
 
 ### Step 2：配置凭证（先于验证）
 
-把重启与认证交还用户，并明确告知：**未配置凭证前 provider 不可见、模型列表为空，这是预期**。
+把认证交还用户，并明确告知：**未配置凭证前 provider 不可见、模型列表为空，这是预期**。
 
-1. **重启宿主**：让用户退出当前会话并重新启动 `opencode`。
-2. **认证，二选一**（agent 不参与、不接触 key）：
+1. **认证，二选一**（agent 不参与、不接触 key）：
    - 在 OpenCode 中输入 `/connect`，在列表选择 **Command Code (Go)**，粘贴 API key。key 在 Command Code 官网 [Studio → API Keys](https://commandcode.ai/docs/studio) 生成（与官方 CLI 同一把），需要 Command Code Go plan 订阅。
    - 或由用户自行设置环境变量 `COMMANDCODE_API_KEY`。
 
@@ -112,24 +110,24 @@
 
 逐项检查，全部通过才算成功：
 
-1. **包已安装**：执行 `opencode plugin list`，ID 列应出现 `commandcode-go`，SOURCE 列应包含 `@wallbreakerno4/opencode-commandcode`（本地路径安装则显示解析后的入口文件路径，如 `…/dist/index.js`）。冷启动后的第一次调用可能输出空列表或 `No plugins found`——**重试一次**再判失败。
+1. **包已安装**：执行 `opencode plugin list`，ID 列应出现 `commandcode-go`，SOURCE 列应包含 `@wallbreakerno4/opencode-commandcode`（本地路径安装则显示解析后的入口文件路径，如 `…/dist/index.js`）。安装后第一次调用可能输出空列表或 `No plugins found`——**重试一次**再判失败。
 2. **配置正确**：全局配置 `plugins` 数组包含包名（本地路径安装则为目录路径）。
 3. **宿主可用**：`opencode --version` 正常退出且输出 `v2.x`。
-4. **模型可见（凭证就绪后）**：`opencode models` 应列出 `commandcode-go/` 前缀的模型；冷启动后的第一次调用可能为空，**重试一次**再判失败。
+4. **模型可见（凭证就绪后）**：`opencode models` 应列出 `commandcode-go/` 前缀的模型；安装后第一次调用可能为空，**重试一次**再判失败。
 5. **端到端**：选一个 `commandcode-go/` 前缀的模型（例如 `commandcode-go/deepseek/deepseek-v4-pro`）发条消息，能正常回复即安装完成。
 
-已知误区：`opencode models` 在凭证就绪后会列出 `commandcode-go` 模型；要防的是冷启动竞态——第一次为空时重试一次，两次都空再查故障排查。
+已知误区：`opencode models` 在凭证就绪后会列出 `commandcode-go` 模型；要防的是首次加载竞态——第一次为空时重试一次，两次都空再查故障排查。
 
 ## 故障排查
 
 | 现象 | 原因与处理 |
 | --- | --- |
-| `opencode plugin list` 为空 | 冷启动竞态：重试一次。仍为空则检查全局配置 `plugins` 是否含包名、插件安装后是否重启过宿主。 |
-| `/connect` 列表里没有 Command Code (Go) | 插件没装进当前宿主或没重启：先跑 `opencode plugin list` 确认插件已加载，再确认重启的是同一个 `opencode`。 |
-| `opencode models` 没有 commandcode-go 模型 | 未配置凭证时为空是预期：先完成 `/connect` 或 `COMMANDCODE_API_KEY`。已配置则冷启动后重试一次；仍为空检查 key 是否有效。 |
+| `opencode plugin list` 为空 | 首次加载竞态：重试一次。仍为空则检查全局配置 `plugins` 是否含包名；仍未加载可执行 `opencode service restart`。 |
+| `/connect` 列表里没有 Command Code (Go) | 插件未加载到当前宿主：先跑 `opencode plugin list` 确认插件状态；仍未出现可执行 `opencode service restart`。 |
+| `opencode models` 没有 commandcode-go 模型 | 未配置凭证时为空是预期：先完成 `/connect` 或 `COMMANDCODE_API_KEY`。已配置则重试一次；仍为空检查 key 是否有效。 |
 | 配置改动后 OpenCode 启动报配置错误 | 多为 JSON / JSONC 语法被破坏：检查合并处逗号与括号，对照备份修复。 |
 | 认证或发消息报 403 / 无权限 | 检查订阅是否为 Go plan、key 是否有效；必要时在 [Studio → API Keys](https://commandcode.ai/docs/studio) 重新生成。 |
-| 本地路径安装后插件不加载 | `plugins` 里的本地路径必须指向**包含入口文件的目录**（本项目 = `dist/`）；文件路径会被丢弃并告警，仓库根目录会被静默忽略。 |
+| 本地路径安装后插件不加载 | `plugins` 里的本地路径必须指向**包含入口文件的目录**（本项目 = `dist/`）；文件路径会被丢弃并告警，仓库根目录会被静默忽略；重建 `dist/` 后可能需重启宿主。 |
 
 与安装无关的已知问题（如模型额度消耗异常）见[已知问题](known-issues.md)。
 

@@ -41,7 +41,7 @@ opencode2 plugin add @wallbreakerno4/opencode-commandcode
 { "plugin": ["@wallbreakerno4/opencode-commandcode"] }
 ```
 
-装完重启宿主，输入 `/connect` 选 Command Code (Go) 粘贴 key 登录（或设环境变量 `COMMANDCODE_API_KEY`）。
+装完输入 `/connect` 选 Command Code (Go) 粘贴 key 登录（或设环境变量 `COMMANDCODE_API_KEY`）。
 
 验证：
 

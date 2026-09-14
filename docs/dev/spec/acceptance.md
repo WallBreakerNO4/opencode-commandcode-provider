@@ -1,6 +1,6 @@
 # 端到端验收清单：真宿主人工验收（V2 主 + V1 条件复验）
 
-> 状态：换轴修订（2026-09-12）：主路径改为 OpenCode 2 正式版；V1 按 ADR-0004 只在 v1 专属面改动时复验。原版（2026-09-01，决策票 [#21](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/21)）为 v1/v2 双轮。
+> 状态：换轴修订（2026-09-12）：主路径改为 OpenCode 2 正式版；V1 按 ADR-0004 只在 v1 专属面改动时复验。原版（2026-09-01，决策票 [#21](https://github.com/WallBreakerNO4/opencode-commandcode-provider/issues/21)）为 v1/v2 双轮；2026-09-14 修订：安装走查删除重启步骤（V2 插件自动加载，无需重启宿主）。
 > 事实输入：`docs/dev/spec/testing.md` §4（真宿主边界与本票分工）、`docs/dev/spec/protocol.md` §3（错误映射文案）、`docs/dev/spec/disguise.md` §3（会话绑定与两套 session id）、`docs/dev/spec/model-pipeline.md`（级联与降级）、`docs/dev/research/v2-stable-contract.md`（V2 正式版契约）、`docs/dev/research/v2-stable-probe.md`（无空壳自举、本地路径写法、冷启动竞态真机事实）、`docs/dev/adr/0004-v1-freeze-and-retention.md`（V1 冻结）、#9（抓包口径）、#22（安装承诺面基准）。
 > 范围：实现完成后、发布前后的真宿主人工验收。V2 主路径每轮执行——发布前用本地 dist 预验收、发布后按真 README 走查（两阶段见 `docs/dev/release/release-process.md`）；V1 条件复验见 §2。自动化覆盖面见 `docs/dev/spec/testing.md`，两文互不重复；看门狗与预请求时序**不入**本清单（#20 §4 定案）。
 
@@ -19,7 +19,7 @@
 **V2 主路径验收约定（不遵守会误判）：**
 
 - **凭证前置**：未配置凭证（`/connect` 或 `COMMANDCODE_API_KEY`）前，provider 不可见、模型列表为空是预期（探针 A3）；模型与消息类判据一律在凭证就绪后执行。
-- **冷启动重试**：服务冷启动后第一次 `plugin list` / `models` 可能为空，**重试一次**再判失败（探针 §5 竞态）。
+- **首次加载重试**：安装或服务冷启动后第一次 `plugin list` / `models` 可能为空，**重试一次**再判失败（探针 §5 竞态）。
 - **无空壳语义**：验收环境**不写** `providers.commandcode-go` 空壳；provider 应为 `activation:"auto"`——无凭证不可见、有凭证可见（探针 A/B 对照）。写了空壳会把 activation 覆写为 `enabled`（无凭证也虚可见），不作为安装路径。
 
 观察手段图例：**TUI** = 界面直接可见；**日志** = 插件日志（脱敏：伪标识符仅 12 位截断）；**抓包** = MITM 看 wire 级信封。wire 级断言默认抓包，日志只作会话绑定的辅助判据。
@@ -30,12 +30,12 @@
 
 ### 1. 全新环境安装走查（含 /connect 登录）
 
-- **步骤**：干净（隔离）环境按当轮路径逐步执行：
-  - 发布前（本地 dist）：`opencode --version` 确认 `opencode v2.x` → 全局配置 `plugins` 指向本地 `dist/` 目录（写法规格见 `docs/dev/release/release-process.md` §1）→ 重启 → `/connect` → 发首条消息。
-  - 发布后（真 README）：原样执行 README 手动安装节——`opencode plugin add @wallbreakerno4/opencode-commandcode` → 重启 → `/connect`（或 env）→ 发首条消息。**不写任何 provider 空壳键**。
+- **步骤**：干净（隔离）环境按当轮路径逐步执行，全程不重启宿主：
+  - 发布前（本地 dist）：`opencode --version` 确认 `opencode v2.x` → 全局配置 `plugins` 指向本地 `dist/` 目录（写法规格见 `docs/dev/release/release-process.md` §1）→ `/connect` → 发首条消息。
+  - 发布后（真 README）：原样执行 README 手动安装节——`opencode plugin add @wallbreakerno4/opencode-commandcode` → `/connect`（或 env）→ 发首条消息。**不写任何 provider 空壳键**。
 - **观察**：TUI + 配置文件。
-- **通过判据**：每步与当轮承诺一致，无承诺之外的手工步骤；未配置凭证时模型列表为空、provider 不可见（预期，不判失败），配置凭证后 `commandcode-go/` 模型出现；`/connect` 出现「Command Code API Key」登录项；key 写入宿主凭证存储；全局配置无 `providers.commandcode-go` 空壳、provider `activation` 为 `auto`；首条消息成功（凭证直达工厂 apiKey 的端到端证明）。
-- **勿误判**：冷启动后第一次 `plugin list` / `models` 可能为空，重试一次再判（§0 约定）。
+- **通过判据**：每步与当轮承诺一致，无承诺之外的手工步骤（含不重启宿主——插件在同一运行中的宿主内自动加载）；未配置凭证时模型列表为空、provider 不可见（预期，不判失败），配置凭证后 `commandcode-go/` 模型出现；`/connect` 出现「Command Code API Key」登录项；key 写入宿主凭证存储；全局配置无 `providers.commandcode-go` 空壳、provider `activation` 为 `auto`；首条消息成功（凭证直达工厂 apiKey 的端到端证明）。
+- **勿误判**：安装或服务冷启动后第一次 `plugin list` / `models` 可能为空，重试一次再判（§0 约定）。
 - **基准**：#22 终稿。
 
 ### 2. 模型列表核对
@@ -99,7 +99,7 @@
 
 - **步骤**：逐条复核：provider id `commandcode-go`（integrationID / 模型 id 前缀全处同名）、登录项 label「Command Code API Key」、README 手动安装节与「全新环境安装走查」的实际行为。
 - **观察**：TUI + README。
-- **通过判据**：三处与 README 承诺零偏差；README 不出现已废弃的 `opencode2`、beta 措辞或 provider 空壳键。
+- **通过判据**：三处与 README 承诺零偏差；README 不出现已废弃的 `opencode2`、beta 措辞或 provider 空壳键；手动安装节（V2）不含重启步骤。
 - **基准**：#22 终稿（provider 承诺面）+ #49（文档换轴）。
 
 ## 2. V1 条件复验（非每轮）
