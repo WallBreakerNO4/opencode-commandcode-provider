@@ -1,6 +1,7 @@
 # OpenCode 2 正式版 Provider 包契约调研（v2.0.1）
 
 > 状态：已定稿。调研日期：2026-09-12。
+> 后续变更：自 v2.0.4 起宿主插件 API 的 catalog 域被 provider/model 域取代（本文 §0 中 catalog 相关条目与差异表对应项自 2.0.4 起过时）；变更事实与插件适配见 [`v2.0.4-provider-model-shift.md`](./v2.0.4-provider-model-shift.md)（2026-09-17 取证）。
 > 环境：本机 `opencode` v2.0.1（`opencode --version` → `opencode v2.0.1`；`opencode2` 是官方安装器生成的同二进制兼容 shim）。
 > 关系：本文兑现 [`v2-provider-contract.md`](./v2-provider-contract.md)（beta-18414 实测）§6 留下的「等 v2 正式版再重新评估」。beta 文档保持不动、作为历史基线；凡 beta 结论仍成立的本文只做确认并给出正式版出处，不重复叙述原型细节。
 > 取证方式（全部只读）：官方 V2 文档、官方 OpenAPI、GitHub `anomalyco/opencode` v2.0.1（tag commit `afc3359e`，浅克隆于 `/tmp/opencode/repo`）、npm registry、本机 v2.0.1 二进制的 `--version` / `--help` / `plugin --help`、本仓库源码。未做真实 API 调用；未执行 `plugin add/remove/update`；未改动任何全局配置。

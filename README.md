@@ -10,7 +10,7 @@ OpenCode provider 插件：把 Command Code Go plan 专用的 `/alpha/generate` 
 
 ### For Humans（推荐）
 
-把下面这段 prompt 粘贴进 OpenCode 2 会话（`opencode --version` 输出 `opencode v2.x`），agent 会按 [安装指南](docs/guide/installation.md) 自主完成安装；装完按它的提示输入 `/connect` 认证即可：
+把下面这段 prompt 粘贴进 OpenCode 2 会话（需要 v2.0.4 及以上：`opencode --version` 输出 `opencode v2.0.4` 或更高，v2.0.0–v2.0.3 不支持），agent 会按 [安装指南](docs/guide/installation.md) 自主完成安装；装完按它的提示输入 `/connect` 认证即可：
 
 ```
 按照这份指南安装 @wallbreakerno4/opencode-commandcode 插件：
@@ -19,7 +19,7 @@ https://raw.githubusercontent.com/WallBreakerNO4/opencode-commandcode-provider/m
 
 ### 手动安装（OpenCode 2）
 
-1. 确认宿主为 V2：`opencode --version` 输出形如 `opencode v2.x`。
+1. 确认宿主为 V2 且不低于 v2.0.4：`opencode --version` 输出应形如 `opencode v2.0.4`（v2.0.0–v2.0.3 不支持，请先升级宿主）。
 2. 安装插件：
 
    ```bash

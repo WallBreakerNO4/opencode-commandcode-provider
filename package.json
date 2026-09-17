@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@wallbreakerno4/opencode-commandcode",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "OpenCode provider plugin for the Command Code Go plan: an in-process bridge to the /alpha/generate gateway.",
   "license": "MIT",
   "type": "module",
@@ -39,8 +39,8 @@
   ],
   "packageManager": "pnpm@12.3.4",
   "devDependencies": {
-    "@ai-sdk/provider": "3.0.8",
-    "@opencode/plugin": "2.0.0",
+    "@ai-sdk/provider": "^3.0.16",
+    "@opencode/plugin": "^2.0.4",
     "@types/bun": "^1.4.2",
     "typescript": "^5.9.3"
   }

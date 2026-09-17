@@ -10,7 +10,7 @@
 |---|---|
 | 执行时机 | V2 主路径：每轮发布（发布前本地 dist 预验收 + 发布后真 README 走查）；V1 条件复验：仅当 v1 专属面（`src/host/v1.ts`、v1 专属测试与文档）被改动 |
 | 凭据 | 真实 Command Code Go plan API key |
-| 宿主版本 | v2 = 最新 stable（本清单按 v2.0.1 契约调研与探针定稿）；v1 = 最新 stable（仅条件复验） |
+| 宿主版本 | v2 = 最新 stable，且不低于 v2.0.4（provider/model 域世代入场版本）；v1 = 最新 stable（仅条件复验） |
 | 验收机 | 日常使用机即可——伪装人格 = 如实上报真机（#9 定案），无人格需核对 |
 | 抓包环境 | HTTPS MITM 代理（mitmproxy 等）接管宿主进程出网；wire 级断言项必需，降级项的断路复用同一环境（按域名/路径断流） |
 | 隔离 | 全程 `XDG_*` 重定向至临时目录（方法见 `docs/dev/research/v2-stable-probe.md` §1），不污染日常配置 |

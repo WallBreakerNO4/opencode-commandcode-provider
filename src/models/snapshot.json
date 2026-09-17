@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-12T11:40:19.443Z",
-  "sourceCliVersion": "1.53.1",
+  "generatedAt": "2026-09-17T04:48:23.594Z",
+  "sourceCliVersion": "1.54.2",
   "models": [
     {
       "id": "deepseek/deepseek-v4-pro",

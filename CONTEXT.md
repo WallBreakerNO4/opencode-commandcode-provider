@@ -130,7 +130,7 @@ _Avoid_: 安装教程（面向人类的）、README、安装脚本
 _Avoid_: known bugs、故障排查（那是安装指南里排除安装故障的节）
 
 **宿主检测**:
-agent 用 `opencode --version` 判定宿主版本的规则：输出匹配 `v?2.x` 即 V2、匹配 `1.x` 即 V1；命令缺失即非 OpenCode 环境（直接拒绝）；版本无法识别时停下询问，不猜。V1/V2 已不再并存安装，无「双宿主并存」分支。
+agent 用 `opencode --version` 判定宿主版本的规则：输出匹配 `v?2.0.4` 或更高即 V2 支持面（provider/model 域世代）、匹配 `v2.0.0`–`v2.0.3` 为需先升级的旧 V2、匹配 `1.x` 即 V1；命令缺失即非 OpenCode 环境（直接拒绝）；版本无法识别时停下询问，不猜。V1/V2 已不再并存安装，无「双宿主并存」分支。
 _Avoid_: 版本探测、环境探测、命令名判别
 
 **V1 冻结**:
@@ -142,7 +142,7 @@ agent 端不依赖 API key 的安装验证层：`plugin list` 能见到插件、
 _Avoid_: 冒烟测试、端到端验证
 
 **插件自举**:
-插件在运行时自己注入 provider 配置、模型清单与认证方式（v1 经 config/auth hook，v2 经 catalog.transform 与 integration），使用户除安装插件与登录外无需手写任何配置。
+插件在运行时自己注入 provider 配置、模型清单与认证方式（v1 经 config/auth hook，v2 经 provider/model 域 transform 与 integration），使用户除安装插件与登录外无需手写任何配置。
 _Avoid_: 自动配置、零配置魔法
 
 **provider id（`commandcode-go`）**:

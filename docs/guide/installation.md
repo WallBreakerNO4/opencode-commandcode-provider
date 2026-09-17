@@ -1,6 +1,6 @@
 # For Humans 安装指南
 
-把插件 [@wallbreakerno4/opencode-commandcode](https://github.com/WallBreakerNO4/opencode-commandcode-provider#readme)（Command Code Go plan 的 OpenCode provider）装进 OpenCode 2 正式版有两种方式：
+把插件 [@wallbreakerno4/opencode-commandcode](https://github.com/WallBreakerNO4/opencode-commandcode-provider#readme)（Command Code Go plan 的 OpenCode provider）装进 OpenCode 2 正式版（v2.0.4 及以上）有两种方式：
 
 - **推荐**：把 README 里的粘贴 prompt 丢进 OpenCode 会话，由其中的 agent 按本文档自主完成安装。人类只参与两步——粘贴 prompt，以及最后的认证。
 - 手动：按下面「手动安装」节自己敲命令。
@@ -9,7 +9,7 @@
 
 ## 手动安装（OpenCode 2）
 
-1. 确认宿主为 V2：`opencode --version` 输出形如 `opencode v2.x`。
+1. 确认宿主为 V2 且不低于 v2.0.4：`opencode --version` 输出应形如 `opencode v2.0.4`（v2.0.0–v2.0.3 不支持，请先升级宿主）。
 2. 安装插件：
 
    ```bash
@@ -50,7 +50,8 @@
 
 | 输出 | 判定 | 动作 |
 | --- | --- | --- |
-| 形如 `opencode v2.x` | OpenCode 2 正式版 | 进入 Step 1 |
+| 形如 `opencode v2.0.4` 或更高 | OpenCode 2 支持面 | 进入 Step 1 |
+| 形如 `opencode v2.0.0`–`v2.0.3` | OpenCode 2 旧版本（插件 API 世代不匹配） | 提示升级宿主后重试 |
 | 形如 `1.x`（纯版本号） | OpenCode V1 | 按下方 V1 分支处理 |
 | 命令不存在 | 非 OpenCode 环境 | 拒绝安装 |
 
@@ -58,8 +59,9 @@
 
 1. 执行 `opencode --version`。
 2. **命令缺失**：终止。明确告诉用户：当前环境没有 OpenCode，本插件只服务于 OpenCode，请先参照 https://opencode.ai/docs 安装 OpenCode，再回到本项目重新执行粘贴 prompt。
-3. **输出匹配 `v?2.x`**：目标宿主为 V2，直接进入 Step 1。
-4. **输出匹配 `1.x`**：宿主是 V1。问用户一次是否升级到 OpenCode 2：
+3. **输出匹配 `v?2.0.4` 或更高**：目标宿主为 V2 支持面，直接进入 Step 1。
+4. **输出匹配 `v?2.0.0`–`v2.0.3`**：宿主是 OpenCode 2 旧版本，插件 API 世代不匹配。提示用户先升级 OpenCode——升级由用户自己执行官方安装，agent 只给命令与步骤，不代跑、不改用户环境；用户升级后重新执行 `opencode --version`，确认 ≥ `v2.0.4` 再进入 Step 1。
+5. **输出匹配 `1.x`**：宿主是 V1。问用户一次是否升级到 OpenCode 2：
    - **愿意升级**：升级由用户自己执行官方安装，agent 只给命令与步骤，不代跑、不改用户环境。官方安装命令任选其一：
      - `npm install -g @opencode/cli`
      - `curl -fsSL https://opencode.ai/v2/install | bash`
@@ -70,7 +72,7 @@
 
      > v1 支持面已冻结（只修致命问题），推荐升级到 OpenCode 2；继续使用 v1 的安装步骤见[冻结版安装指南](https://github.com/WallBreakerNO4/opencode-commandcode-provider/blob/v0.1.2/docs/guide/installation.md)。
 
-5. **输出无法识别**：停下，把原始输出展示给用户并询问如何处理；不猜测版本、不继续安装。
+6. **输出无法识别**：停下，把原始输出展示给用户并询问如何处理；不猜测版本、不继续安装。
 
 ### Step 1：安装（V2）
 
@@ -112,7 +114,7 @@
 
 1. **包已安装**：执行 `opencode plugin list`，ID 列应出现 `commandcode-go`，SOURCE 列应包含 `@wallbreakerno4/opencode-commandcode`（本地路径安装则显示解析后的入口文件路径，如 `…/dist/index.js`）。安装后第一次调用可能输出空列表或 `No plugins found`——**重试一次**再判失败。
 2. **配置正确**：全局配置 `plugins` 数组包含包名（本地路径安装则为目录路径）。
-3. **宿主可用**：`opencode --version` 正常退出且输出 `v2.x`。
+3. **宿主可用**：`opencode --version` 正常退出且输出不低于 `v2.0.4`。
 4. **模型可见（凭证就绪后）**：`opencode models` 应列出 `commandcode-go/` 前缀的模型；安装后第一次调用可能为空，**重试一次**再判失败。
 5. **端到端**：选一个 `commandcode-go/` 前缀的模型（例如 `commandcode-go/deepseek/deepseek-v4-pro`）发条消息，能正常回复即安装完成。
 
@@ -127,6 +129,7 @@
 | `opencode models` 没有 commandcode-go 模型 | 未配置凭证时为空是预期：先完成 `/connect` 或 `COMMANDCODE_API_KEY`。已配置则重试一次；仍为空检查 key 是否有效。 |
 | 配置改动后 OpenCode 启动报配置错误 | 多为 JSON / JSONC 语法被破坏：检查合并处逗号与括号，对照备份修复。 |
 | 认证或发消息报 403 / 无权限 | 检查订阅是否为 Go plan、key 是否有效；必要时在 [Studio → API Keys](https://commandcode.ai/docs/studio) 重新生成。 |
+| 插件加载报错（插件状态 failed）或 provider / 模型不出现 | 宿主与插件版本不匹配：0.1.x 插件要求宿主 ≤ v2.0.3，0.2.0+ 插件要求宿主 ≥ v2.0.4。把宿主与插件都升级到最新版本。 |
 | 本地路径安装后插件不加载 | `plugins` 里的本地路径必须指向**包含入口文件的目录**（本项目 = `dist/`）；文件路径会被丢弃并告警，仓库根目录会被静默忽略；重建 `dist/` 后可能需重启宿主。 |
 
 与安装无关的已知问题（如模型额度消耗异常）见[已知问题](known-issues.md)。
