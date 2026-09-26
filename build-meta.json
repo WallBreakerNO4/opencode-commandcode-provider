@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "sourceCliVersion": "1.66.0",
+  "generatedAt": "2026-09-26T21:56:36.120Z",
+  "modelsDevSha256": "084c2de5dbc3110a5fba0b5f0fc683906b49b68db94ceec0a6f60359cc4d250e",
+  "modelsJsonSha256": "295e0350c594e202164ba4a6b66a9b704e13992f0b1eee8746b0a4df3d07a060",
+  "planDistribution": {
+    "Go": 52,
+    "GOAT": 8,
+    "Pro": 14,
+    "Max": 8
+  },
+  "modelsCount": 52
+}
