@@ -37,10 +37,10 @@
     "provider",
     "commandcode"
   ],
-  "packageManager": "pnpm@12.3.4",
+  "packageManager": "pnpm@12.9.1",
   "devDependencies": {
-    "@ai-sdk/provider": "^3.0.16",
-    "@opencode/plugin": "^2.0.4",
+    "@ai-sdk/provider": "^3.0.18",
+    "@opencode/plugin": "^2.0.22",
     "@types/bun": "^1.4.2",
     "typescript": "^5.9.3"
   }
