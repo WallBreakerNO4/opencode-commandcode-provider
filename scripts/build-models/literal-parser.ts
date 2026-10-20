@@ -67,6 +67,11 @@ class Scanner {
     return ch
   }
 
+  isDigitAt(offset = 0): boolean {
+    const ch = this.src[this.pos + offset]
+    return ch !== undefined && ch >= "0" && ch <= "9"
+  }
+
   /** 不消费地向前看：下一个 token 是否为标识符（getter 判别用） */
   peekIdentAhead(): boolean {
     let probe = this.pos
@@ -189,16 +194,21 @@ class Scanner {
       text = `${text}0x${this.src.slice(start, this.pos)}`
     } else {
       const start = this.pos
-      while (this.pos < this.src.length && /[0-9]/.test(this.src[this.pos] ?? "")) this.pos++
+      // minify 会省略小数前导 0（`.1`）；JS 语义等价于 `0.1`
+      const leadingDot = this.src[this.pos] === "."
+      if (leadingDot) text += "0"
+      while (this.isDigitAt()) this.pos++
       if (this.src[this.pos] === ".") {
         this.pos++
-        while (this.pos < this.src.length && /[0-9]/.test(this.src[this.pos] ?? "")) this.pos++
+        const fractionStart = this.pos
+        while (this.isDigitAt()) this.pos++
+        if (leadingDot && this.pos === fractionStart) this.fail("非法数字")
       }
       if (this.src[this.pos] === "e" || this.src[this.pos] === "E") {
         this.pos++
         if (this.src[this.pos] === "+" || this.src[this.pos] === "-") this.pos++
         const expStart = this.pos
-        while (this.pos < this.src.length && /[0-9]/.test(this.src[this.pos] ?? "")) this.pos++
+        while (this.isDigitAt()) this.pos++
         if (this.pos === expStart) this.fail("非法指数")
       }
       if (this.pos === start) this.fail("期望数字")
@@ -277,6 +287,9 @@ function parseValue(scanner: Scanner): Literal {
     }
     default: {
       if (/[0-9-]/.test(ch)) return { kind: "primitive", value: scanner.readNumber() }
+      if (ch === "." && scanner.isDigitAt(1)) {
+        return { kind: "primitive", value: scanner.readNumber() }
+      }
       if (/[A-Za-z_$]/.test(ch)) {
         const ident = scanner.readIdentifier()
         if (ident === "true") return { kind: "primitive", value: true }
@@ -325,7 +338,7 @@ function parseArray(scanner: Scanner): Literal {
   for (;;) {
     scanner.skipTrivia()
     if (scanner.match("]")) break
-    if (scanner.peek() === ".") scanner.fail("数组展开（spread）不是数据，拒绝解析")
+    if (scanner.peek() === "." && !scanner.isDigitAt(1)) scanner.fail("数组展开（spread）不是数据，拒绝解析")
     items.push(parseValue(scanner))
     if (scanner.match(",")) continue
     scanner.expect("]")

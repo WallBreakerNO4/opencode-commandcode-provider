@@ -84,6 +84,25 @@ describe("对象字面量子集解析器（构建侧不执行包内代码的结�
     expect(() => parseObjectText(`{a:"多\n行"}`)).toThrow(LiteralSyntaxError)
   })
 
+  test("minify 省略小数前导 0：.1 / -.5 / .5e2 / 数组中的 .5", () => {
+    const literal = parseObjectText(`{a:.1,b:-.5,c:.5e2,d:[.25,1]}`)
+    expect(literal.kind).toBe("object")
+    if (literal.kind !== "object") return
+    expect(asNumber(lastEntry(literal, "a")!)).toBe(0.1)
+    expect(asNumber(lastEntry(literal, "b")!)).toBe(-0.5)
+    expect(asNumber(lastEntry(literal, "c")!)).toBe(50)
+    const items = lastEntry(literal, "d")!
+    expect(items.kind).toBe("array")
+    if (items.kind !== "array") return
+    expect(items.items.map((item) => asNumber(item))).toEqual([0.25, 1])
+  })
+
+  test("拒绝：只有小数点没有数字（. / -. / [.]）", () => {
+    expect(() => parseObjectText(`{a:.}`)).toThrow(LiteralSyntaxError)
+    expect(() => parseObjectText(`{a:-.}`)).toThrow(LiteralSyntaxError)
+    expect(() => parseObjectText(`{a:[.]}`)).toThrow(LiteralSyntaxError)
+  })
+
   test("parseValueAt：从任意偏移解析值并报告结束位置", () => {
     const src = `var X="hello",Y={n:1};`
     const stringStart = src.indexOf('"')

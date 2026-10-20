@@ -17,6 +17,20 @@ const BUNDLE_FIXTURE = [
   "var other={id:\"anthropic:claude-sonnet-5\",provider:\"Anthropic\",category:\"premium\"};",
 ].join("")
 
+// 仿 1.84.0 真实 bundle 形态：目录容器从「名字 → 条目」映射改为
+// {catalogVersion, data:[条目...]}；字段改用 context_length / display.*；
+// 删除 reasoning 字段；无值字段写 null；价格出现省略前导 0 的小数。
+const BUNDLE_FIXTURE_184 = [
+  'var RID="zai-org/GLM-5.1";',
+  'var K={catalogVersion:"d6177bab",data:[',
+  '{aliases:[],behaviorProfile:"anthropic-interleaved-v1",category:"premium",context_length:1e6,display:{badge:null,description:"x",group:"Anthropic",label:"Claude Sonnet 4.6",notice:null,order:62},id:"claude-sonnet-4-6",inputModalities:["text","image"],maxOutputTokens:null,minimumPlan:"individual-pro",name:"Claude Sonnet 4.6",object:"model",owned_by:"command-code",pricing:{cacheReadCost:.3,cacheWriteCost:3.75,inputCost:3,outputCost:15},reasoningEfforts:["low","high"],zdr:!0},',
+  '{aliases:[],behaviorProfile:"standard-v1",category:"opensource",context_length:256e3,display:{badge:"free",description:"y",group:"Open Source",label:"Kimi K2.6",notice:null,order:10},id:"moonshotai/Kimi-K2.6",inputModalities:["text"],maxOutputTokens:32768,minimumPlan:"individual-go",name:"Kimi K2.6",object:"model",owned_by:"command-code",pricing:{cacheReadCost:.1,inputCost:.6,outputCost:3},reasoningEfforts:null,zdr:!1},',
+  '{id:"deepseek/deepseek-v4-pro",name:"DeepSeek V4 Pro",inputModalities:["text"],reasoningEfforts:["off","high","max"],context_length:1e6},',
+  '{id:RID,name:"GLM-5.1",inputModalities:["text"],reasoningEfforts:["high","max"],context_length:2e5}',
+  '],schemaVersion:1,refreshAfterSeconds:900,roles:{default:{id:"coder"}},features:{compaction:!0}};',
+  "function unrelated(){return 1}",
+].join("")
+
 describe("bundle 逆向（锚点 + ={ 截取 + 标识符注入）", () => {
   test("从锚点 id 提取目录条目，引用/别名/getter 正确处理", () => {
     const entries = extractCatalog(BUNDLE_FIXTURE, { minEntries: 3 })
@@ -48,6 +62,35 @@ describe("bundle 逆向（锚点 + ={ 截取 + 标识符注入）", () => {
     // reasoning 缺省条目不虚构
     expect(entries[4]!.reasoning).toBeUndefined()
     expect(entries[4]!.contextWindow).toBeUndefined()
+  })
+
+  test("1.84.0 形状：data 数组容器 / context_length / display.* / null 与 reasoning 推导", () => {
+    const entries = extractCatalog(BUNDLE_FIXTURE_184, { minEntries: 3 })
+    expect(entries.map((entry) => entry.id)).toEqual([
+      "claude-sonnet-4-6",
+      "moonshotai/Kimi-K2.6",
+      "deepseek/deepseek-v4-pro",
+      "zai-org/GLM-5.1",
+    ])
+
+    const sonnet = entries[0]!
+    expect(sonnet.label).toBe("Claude Sonnet 4.6") // display.label
+    expect(sonnet.badge).toBeUndefined() // display.badge:null 视为无值
+    expect(sonnet.contextWindow).toBe(1_000_000) // context_length
+    expect(sonnet.maxOutputTokens).toBeUndefined() // null 视为无值
+    expect(sonnet.reasoningEfforts).toEqual(["low", "high"])
+    expect(sonnet.reasoning).toBe(true) // 无 reasoning 字段：按 efforts 非空推导
+
+    const kimi = entries[1]!
+    expect(kimi.reasoning).toBe(false) // reasoningEfforts:null
+    expect(kimi.reasoningEfforts).toBeUndefined()
+    expect(kimi.badge).toBe("free") // display.badge
+    expect(kimi.contextWindow).toBe(256_000)
+    expect(kimi.maxOutputTokens).toBe(32768)
+
+    const deepseek = entries[2]!
+    expect(deepseek.label).toBeUndefined()
+    expect(deepseek.reasoning).toBe(true)
   })
 
   test("任一锚点命中即可（SONNET_5 / deepseek 锚点）", () => {

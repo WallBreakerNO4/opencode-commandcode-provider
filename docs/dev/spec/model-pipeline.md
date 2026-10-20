@@ -52,12 +52,12 @@ per-model：
 | 字段 | 必填 | 构建侧来源 | 说明 |
 |---|---|---|---|
 | `id` | ✅ | models.md Id 列（与 API id 同一 wire id） | 主键 |
-| `name` | ✅ | bundle `label`/`name` | 展示名 |
-| `reasoning` | ✅ | bundle `reasoning` | 布尔；bundle 缺省该字段的模型即非推理模型，构建侧显式写出 `false` |
+| `name` | ✅ | bundle `name` / `label`（1.84.0 起 `label` 位于 `display.label`） | 展示名 |
+| `reasoning` | ✅ | bundle `reasoning`；1.84.0 起该字段移除，改由 `reasoningEfforts` 非空推导 | 布尔；上游 CLI 从 1.82.2 起运行时一律以 `reasoningEfforts` 非空判定推理（`routeFor`），目录里的 `reasoning` 字段只是冗余标注。构建侧与 CLI 同口径，缺省显式写出 `false` |
 | `inputModalities` | ✅ | bundle `inputModalities` | 词表按「网关可投递」口径：取值仅 `["text"]` / `["text","image"]`（即 OpenCode 判断图片可否粘贴的开关）。不采用 models.dev 的 audio/video/pdf——那是厂商原生 API 能力，`/alpha/generate` 投递通道未经验证，advertise 超出协议层转换能力会导致放行后静默丢弃。字段为开放数组，网关支持面扩大时直接扩数据，schema 不变 |
 | `efforts` | 可选 | bundle `reasoningEfforts`（与 models.md Efforts 列同源，逐值一致） | 严格透传官方词表（当前 `low/medium/high/xhigh/max`）；无档位的模型**不写该字段**，不造空数组、不造占位值 |
-| `context` | ✅ | 补全链：bundle `contextWindow` → 同 family 官方目录值借用 → models.dev `limit.context` → 常量 200000 | 构建侧保证每个模型都有具体值；运行时被 API 覆盖（62/62），产物值主要服务 API 失效的离线场景 |
-| `maxOutput` | ✅ | 补全链：bundle `maxOutputTokens` → 同 family 借用 → models.dev `limit.output` → 常量 32000 | 官方仅极少数模型披露（Go 40 中仅 3 个），主要靠 models.dev 补齐（61/62 覆盖）。运行时角色为 `max_tokens` 裁剪参考与 `limit.output` 展示值，不再是缺省值本身（protocol.md §1.2 / ADR 0002） |
+| `context` | ✅ | 补全链：bundle `contextWindow`（1.84.0 起字段名 `context_length`）→ 同 family 官方目录值借用 → models.dev `limit.context` → 常量 200000 | 构建侧保证每个模型都有具体值；运行时被 API 覆盖（62/62），产物值主要服务 API 失效的离线场景 |
+| `maxOutput` | ✅ | 补全链：bundle `maxOutputTokens`（`null` 视为未披露）→ 同 family 借用 → models.dev `limit.output` → 常量 32000 | 官方仅极少数模型披露（Go 40 中仅 3 个），主要靠 models.dev 补齐（61/62 覆盖）。运行时角色为 `max_tokens` 裁剪参考与 `limit.output` 展示值，不再是缺省值本身（protocol.md §1.2 / ADR 0002） |
 
 **无价格字段**：v1 明确不做价格（理由见 §6），`cost` 留待将来以新增可选字段方式回归。
 
@@ -83,7 +83,7 @@ per-model：
 
 输入：`command-code@<version>` tarball（解包仅做文本解析，绝不执行包内代码）+ `/provider/v1/models` 实时清单（对账用）+ models.dev `api.json`（limits 补全用）。
 
-1. **bundle 逆向**（`dist/cli.mjs`）：提取模型目录字段（`id/label/name/reasoning/reasoningEfforts/contextWindow/maxOutputTokens/inputModalities`）。注意 1.37.0 结构：provider 为独立常量、目录对象按「`={` + 平衡括号」截取、getter 与标识符引用需注入求值（方法详见 `docs/dev/research/model-metadata-sources.md` §五）。
+1. **bundle 逆向**（`dist/cli.mjs`）：提取模型目录字段（`id/label/name/reasoning/reasoningEfforts/contextWindow/maxOutputTokens/inputModalities`）。结构随上游版本漂移：1.37.0 的目录是「常量名 → 条目」映射、provider 为独立常量；1.84.0 起容器变为 `{catalogVersion, data:[条目]}`，字段改为 `context_length` 与 `display.label/badge`，`reasoning` 字段移除，无值字段写 `null`。条目按「带字符串 `id`（字面量或 minify 引用）+ `name`/`label`/`inputModalities`/`display.label` 任一目录字段的对象」收集，两种容器形状共用；getter 与标识符引用只做文本求值（方法详见 `docs/dev/research/model-metadata-sources.md` §五）。
 2. **models.md 解析**（`dist/bundled/command-code-knowledge/reference/models.md`，与 tarball 内文件同源）：Min plan 在第 6 列（index 6），按行首 `` | `wire-id` | `` 模式解析；normalize = 去掉后缀 `" and above"`（`Max` 为裸词，自然归一）。
 3. **Go plan 过滤**：保留 normalize 后 `== "Go"` 的模型。官方语义：Min plan 是能调用该模型的最便宜档位，高档包含低档全部模型，套餐序 `Go < GOAT < Pro < Max`。当前基线 40 个模型。
 4. **limits 补全**：保证 `context` / `maxOutput` 每模型必有具体值，按 §1.1 补全链依次尝试；构建日志记录每个值的 provenance（`bundle` / `family` / `models-dev` / `constant`），编造值可审计。

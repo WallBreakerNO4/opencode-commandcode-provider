@@ -4,10 +4,12 @@
  * 方法来自 docs/dev/research/model-metadata-sources.md §五（1.37.0 实测，1.45.0 复验）：
  * 1. 已知稳定的模型 id 作锚点（`id:"<锚点>"` 只在目录条目出现；价格表用
  *    `anthropic:` 前缀 id，不会误配）；
- * 2. 锚点向前找最近的 `={`——即目录对象的开头（目录条目是平铺字段，条目内部
- *    不可能再有 `={`，该前提由解析后的形状校验兜底）；
+ * 2. 锚点向前找最近的 `={`——即目录容器的开头（条目内部不可能再有 `={`，
+ *    该前提由解析后的形状校验兜底）；
  * 3. 从 `={` 起交给 literal-parser 解析（结构保证只出不执行任何包内代码）；
- * 4. 目录里 minify 出的标识符引用（provider:NR、spec:QR、别名 YR=FR）在整份
+ * 4. 容器内按「带 id 的条目对象」收集：1.82 及以前是「名字 → 条目」映射，
+ *    1.84.0 起条目移入 `data` 数组；
+ * 5. 目录里 minify 出的标识符引用（provider:NR、spec:QR、别名 YR=FR）在整份
  *    bundle 文本中做「字面量定义 / 别名链」文本解析求值——同样不执行代码。
  */
 
@@ -103,6 +105,8 @@ export class BundleExtractError extends Error {
   }
 }
 
+type ObjectLiteral = Extract<Literal, { kind: "object" }>
+
 /** 从 bundle 全文提取模型目录；锚点全失效或形状校验不过时抛 BundleExtractError */
 export function extractCatalog(source: string, options: { minEntries?: number } = {}): CatalogEntry[] {
   const minEntries = options.minEntries ?? MIN_CATALOG_ENTRIES
@@ -145,10 +149,10 @@ function extractCatalogWithAnchor(source: string, anchorId: string, minEntries: 
   const resolver = new RefResolver(source)
   const entries: CatalogEntry[] = []
   const problems: string[] = []
-  for (const entry of parsed.entries) {
-    const built = buildEntry(entry.value, resolver)
+  for (const entry of collectCatalogEntries(parsed, resolver)) {
+    const built = buildEntry(entry, resolver)
     if (typeof built === "string") {
-      problems.push(`[${entry.key}] ${built}`)
+      problems.push(`[${entryId(entry, resolver)}] ${built}`)
       continue
     }
     entries.push(built)
@@ -166,6 +170,51 @@ function extractCatalogWithAnchor(source: string, anchorId: string, minEntries: 
   return entries
 }
 
+/** 容器下探深度上限：已知形状最深 1 层（映射值 / data 数组元素），留余量防异常结构无限深入 */
+const MAX_CONTAINER_DEPTH = 4
+
+/**
+ * 目录容器形状随上游漂移：1.37–1.82 是「常量名 → 条目」映射，1.84 起是
+ * {catalogVersion, data:[条目]}。按「带 id 的对象」统一收集，不依赖某一版容器结构。
+ */
+function collectCatalogEntries(
+  container: ObjectLiteral,
+  resolver: RefResolver,
+): Array<ObjectLiteral> {
+  const out: Array<ObjectLiteral> = []
+  const walk = (value: Literal, depth: number): void => {
+    if (depth > MAX_CONTAINER_DEPTH) return
+    if (value.kind === "array") {
+      for (const item of value.items) walk(item, depth + 1)
+      return
+    }
+    if (value.kind !== "object") return
+    if (isCatalogEntryShape(value, resolver)) {
+      out.push(value)
+      return
+    }
+    for (const entry of value.entries) walk(entry.value, depth + 1)
+  }
+  for (const entry of container.entries) walk(entry.value, 0)
+  return out
+}
+
+/**
+ * 条目形状：带字符串 id（允许 minify 出的引用，如 `id:RID`），且至少有一个目录字段
+ * （排除 roles 之类的配置对象）。display.label 也算目录字段：1.84.0 的展示名在那里。
+ */
+function isCatalogEntryShape(object: ObjectLiteral, resolver: RefResolver): boolean {
+  if (readStringField(object, "id", resolver) === undefined) return false
+  return (
+    ["name", "label", "inputModalities"].some((key) => lastEntry(object, key) !== undefined) ||
+    readNestedStringField(object, "display", "label", resolver) !== undefined
+  )
+}
+
+function entryId(object: ObjectLiteral, resolver: RefResolver): string {
+  return readStringField(object, "id", resolver) ?? "?"
+}
+
 /** 条目组装：消费字段解析失败即报错（fail-fast），未消费字段的引用解析失败也报错（保持数据纯度可审计） */
 function buildEntry(value: Literal, resolver: RefResolver): CatalogEntry | string {
   if (value.kind !== "object") return "条目不是对象"
@@ -178,30 +227,38 @@ function buildEntry(value: Literal, resolver: RefResolver): CatalogEntry | strin
 
   const name = readStringField(value, "name", resolver)
   if (name !== undefined) entry.name = name
-  const label = readStringField(value, "label", resolver)
+  const label = readDisplayStringField(value, "label", resolver)
   if (label !== undefined) entry.label = label
+
+  const effortsPresent = lastEntry(value, "reasoningEfforts") !== undefined
+  const efforts = readField(value, "reasoningEfforts", resolver)
+  const effortList = efforts === undefined ? undefined : asStringArray(efforts)
+  if (efforts !== undefined && effortList === undefined) return "reasoningEfforts 不是字符串数组"
+  if (effortList !== undefined) entry.reasoningEfforts = effortList
 
   const reasoning = readField(value, "reasoning", resolver)
   if (reasoning !== undefined) {
     const flag = asBoolean(reasoning)
     if (flag === undefined) return "reasoning 不是布尔"
     entry.reasoning = flag
+  } else if (effortsPresent) {
+    // 1.84.0 起 bundle 移除 reasoning 字段，用 reasoningEfforts:null 表达「无档位」；
+    // 上游 CLI 同样以档位非空判定推理（routeFor: reasoningEfforts.length > 0）
+    entry.reasoning = (effortList?.length ?? 0) > 0
   }
 
-  const efforts = readField(value, "reasoningEfforts", resolver)
-  if (efforts !== undefined) {
-    const list = asStringArray(efforts)
-    if (list === undefined) return "reasoningEfforts 不是字符串数组"
-    entry.reasoningEfforts = list
+  // 1.84.0 起 contextWindow 改名为 context_length
+  const contextWindow = readField(value, "contextWindow", resolver) ?? readField(value, "context_length", resolver)
+  if (contextWindow !== undefined) {
+    const num = asNumber(contextWindow)
+    if (num === undefined) return "contextWindow 不是数字"
+    entry.contextWindow = num
   }
-
-  for (const field of ["contextWindow", "maxOutputTokens"] as const) {
-    const literal = readField(value, field, resolver)
-    if (literal !== undefined) {
-      const num = asNumber(literal)
-      if (num === undefined) return `${field} 不是数字`
-      entry[field] = num
-    }
+  const maxOutputTokens = readField(value, "maxOutputTokens", resolver)
+  if (maxOutputTokens !== undefined) {
+    const num = asNumber(maxOutputTokens)
+    if (num === undefined) return "maxOutputTokens 不是数字"
+    entry.maxOutputTokens = num
   }
 
   const modalities = readField(value, "inputModalities", resolver)
@@ -227,21 +284,39 @@ function buildEntry(value: Literal, resolver: RefResolver): CatalogEntry | strin
     entry.hidden = flag
   }
 
-  const badge = readStringField(value, "badge", resolver)
+  const badge = readDisplayStringField(value, "badge", resolver)
   if (badge !== undefined) entry.badge = badge
 
   return entry
 }
 
-/** 读字段：值若是引用则求值；引用解析失败返回 undefined（由调用方按字段必要性处置） */
-function readField(object: Extract<Literal, { kind: "object" }>, key: string, resolver: RefResolver): Literal | undefined {
+/** 读字段：值若是引用则求值；null 与缺失同义（1.84.0 起用 null 表达「无值」），引用解析失败返回 undefined */
+function readField(object: ObjectLiteral, key: string, resolver: RefResolver): Literal | undefined {
   const literal = lastEntry(object, key)
   if (literal === undefined) return undefined
+  if (literal.kind === "primitive" && literal.value === null) return undefined
   if (literal.kind === "ref") return resolver.resolve(literal.name)
   return literal
 }
 
-function readStringField(object: Extract<Literal, { kind: "object" }>, key: string, resolver: RefResolver): string | undefined {
+/** 读嵌套对象里的字符串字段（如 display.label / display.badge） */
+function readNestedStringField(
+  object: ObjectLiteral,
+  outerKey: string,
+  key: string,
+  resolver: RefResolver,
+): string | undefined {
+  const nested = readField(object, outerKey, resolver)
+  if (nested === undefined || nested.kind !== "object") return undefined
+  return readStringField(nested, key, resolver)
+}
+
+function readStringField(object: ObjectLiteral, key: string, resolver: RefResolver): string | undefined {
   const literal = readField(object, key, resolver)
   return literal === undefined ? undefined : asString(literal)
+}
+
+/** 展示字段：1.84.0 起收进 display 对象，旧版本在顶层 */
+function readDisplayStringField(object: ObjectLiteral, key: string, resolver: RefResolver): string | undefined {
+  return readStringField(object, key, resolver) ?? readNestedStringField(object, "display", key, resolver)
 }
