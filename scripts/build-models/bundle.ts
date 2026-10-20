@@ -37,6 +37,7 @@ export interface CatalogEntry {
   readonly provider?: string
   readonly spec?: string
   readonly hidden?: boolean
+  readonly minimumPlan?: string
   readonly badge?: string
 }
 
@@ -102,6 +103,28 @@ export class BundleExtractError extends Error {
   constructor(message: string) {
     super(message)
     this.name = "BundleExtractError"
+  }
+}
+
+export interface EmbeddedCatalogResult {
+  readonly entries: readonly CatalogEntry[]
+  /** 解析失败时的告警文本；成功时为 undefined */
+  readonly warning?: string
+}
+
+/**
+ * 内嵌目录软兜底：解析失败不再阻塞发布，返回空补集 + 告警文本，
+ * 由调用方退化为纯 view=client 产物。
+ */
+export function extractEmbeddedCatalog(
+  source: string,
+  options: { minEntries?: number } = {},
+): EmbeddedCatalogResult {
+  try {
+    return { entries: extractCatalog(source, options) }
+  } catch (error) {
+    if (!(error instanceof BundleExtractError)) throw error
+    return { entries: [], warning: error.message }
   }
 }
 
@@ -268,7 +291,7 @@ function buildEntry(value: Literal, resolver: RefResolver): CatalogEntry | strin
     entry.inputModalities = list
   }
 
-  for (const field of ["provider", "spec"] as const) {
+  for (const field of ["provider", "spec", "minimumPlan"] as const) {
     const literal = readField(value, field, resolver)
     if (literal !== undefined) {
       const str = asString(literal)

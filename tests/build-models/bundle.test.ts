@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test"
-import { BundleExtractError, extractCatalog, RefResolver } from "../../scripts/build-models/bundle.ts"
+import {
+  BundleExtractError,
+  extractCatalog,
+  extractEmbeddedCatalog,
+  RefResolver,
+} from "../../scripts/build-models/bundle.ts"
 
 // 仿 1.45.0 真实 bundle 形态的最小样本：provider 常量在前、目录对象以 `={` 开头、
 // 条目含引用 / !0 / 1e6 / maxOutputTokens / getter / 别名链。
@@ -23,8 +28,9 @@ const BUNDLE_FIXTURE = [
 const BUNDLE_FIXTURE_184 = [
   'var RID="zai-org/GLM-5.1";',
   'var K={catalogVersion:"d6177bab",data:[',
-  '{aliases:[],behaviorProfile:"anthropic-interleaved-v1",category:"premium",context_length:1e6,display:{badge:null,description:"x",group:"Anthropic",label:"Claude Sonnet 4.6",notice:null,order:62},id:"claude-sonnet-4-6",inputModalities:["text","image"],maxOutputTokens:null,minimumPlan:"individual-pro",name:"Claude Sonnet 4.6",object:"model",owned_by:"command-code",pricing:{cacheReadCost:.3,cacheWriteCost:3.75,inputCost:3,outputCost:15},reasoningEfforts:["low","high"],zdr:!0},',
-  '{aliases:[],behaviorProfile:"standard-v1",category:"opensource",context_length:256e3,display:{badge:"free",description:"y",group:"Open Source",label:"Kimi K2.6",notice:null,order:10},id:"moonshotai/Kimi-K2.6",inputModalities:["text"],maxOutputTokens:32768,minimumPlan:"individual-go",name:"Kimi K2.6",object:"model",owned_by:"command-code",pricing:{cacheReadCost:.1,inputCost:.6,outputCost:3},reasoningEfforts:null,zdr:!1},',
+  '{aliases:[],behaviorProfile:"anthropic-interleaved-v1",category:"premium",context_length:1e6,display:{badge:null,description:"x",group:"Anthropic",label:"Claude Sonnet 4.6",notice:null,order:62},hidden:!1,id:"claude-sonnet-4-6",inputModalities:["text","image"],maxOutputTokens:null,minimumPlan:"individual-pro",name:"Claude Sonnet 4.6",object:"model",owned_by:"command-code",pricing:{cacheReadCost:.3,cacheWriteCost:3.75,inputCost:3,outputCost:15},reasoningEfforts:["low","high"],zdr:!0},',
+  '{aliases:[],behaviorProfile:"standard-v1",category:"opensource",context_length:256e3,display:{badge:"free",description:"y",group:"Open Source",label:"Kimi K2.6",notice:null,order:10},hidden:!1,id:"moonshotai/Kimi-K2.6",inputModalities:["text"],maxOutputTokens:32768,minimumPlan:"individual-go",name:"Kimi K2.6",object:"model",owned_by:"command-code",pricing:{cacheReadCost:.1,inputCost:.6,outputCost:3},reasoningEfforts:null,zdr:!1},',
+  '{id:"stealth/cat-jam:free",name:"Cat Jam",inputModalities:["text"],minimumPlan:"individual-go",hidden:!1,context_length:2e5},',
   '{id:"deepseek/deepseek-v4-pro",name:"DeepSeek V4 Pro",inputModalities:["text"],reasoningEfforts:["off","high","max"],context_length:1e6},',
   '{id:RID,name:"GLM-5.1",inputModalities:["text"],reasoningEfforts:["high","max"],context_length:2e5}',
   '],schemaVersion:1,refreshAfterSeconds:900,roles:{default:{id:"coder"}},features:{compaction:!0}};',
@@ -69,6 +75,7 @@ describe("bundle 逆向（锚点 + ={ 截取 + 标识符注入）", () => {
     expect(entries.map((entry) => entry.id)).toEqual([
       "claude-sonnet-4-6",
       "moonshotai/Kimi-K2.6",
+      "stealth/cat-jam:free",
       "deepseek/deepseek-v4-pro",
       "zai-org/GLM-5.1",
     ])
@@ -80,6 +87,8 @@ describe("bundle 逆向（锚点 + ={ 截取 + 标识符注入）", () => {
     expect(sonnet.maxOutputTokens).toBeUndefined() // null 视为无值
     expect(sonnet.reasoningEfforts).toEqual(["low", "high"])
     expect(sonnet.reasoning).toBe(true) // 无 reasoning 字段：按 efforts 非空推导
+    expect(sonnet.minimumPlan).toBe("individual-pro")
+    expect(sonnet.hidden).toBe(false)
 
     const kimi = entries[1]!
     expect(kimi.reasoning).toBe(false) // reasoningEfforts:null
@@ -87,10 +96,16 @@ describe("bundle 逆向（锚点 + ={ 截取 + 标识符注入）", () => {
     expect(kimi.badge).toBe("free") // display.badge
     expect(kimi.contextWindow).toBe(256_000)
     expect(kimi.maxOutputTokens).toBe(32768)
+    expect(kimi.minimumPlan).toBe("individual-go")
 
-    const deepseek = entries[2]!
+    const catJam = entries[2]!
+    expect(catJam.minimumPlan).toBe("individual-go")
+    expect(catJam.hidden).toBe(false)
+
+    const deepseek = entries[3]!
     expect(deepseek.label).toBeUndefined()
     expect(deepseek.reasoning).toBe(true)
+    expect(deepseek.minimumPlan).toBeUndefined() // 旧形状条目没有该字段
   })
 
   test("任一锚点命中即可（SONNET_5 / deepseek 锚点）", () => {
@@ -101,6 +116,19 @@ describe("bundle 逆向（锚点 + ={ 截取 + 标识符注入）", () => {
   test("全部锚点失效 → BundleExtractError（结构漂移交人工适配）", () => {
     const broken = BUNDLE_FIXTURE.replaceAll("claude-sonnet-4-6", "claude-x").replaceAll("claude-sonnet-5", "claude-y").replaceAll("deepseek/deepseek-v4-pro", "x")
     expect(() => extractCatalog(broken)).toThrow(BundleExtractError)
+  })
+
+  test("软兜底：解析失败返回空补集 + 告警文本，绝不抛错阻塞发布", () => {
+    const broken = BUNDLE_FIXTURE.replaceAll("claude-sonnet-4-6", "claude-x").replaceAll("claude-sonnet-5", "claude-y").replaceAll("deepseek/deepseek-v4-pro", "x")
+    const result = extractEmbeddedCatalog(broken)
+    expect(result.entries).toEqual([])
+    expect(result.warning).toContain("全部锚点失效")
+  })
+
+  test("软兜底：解析成功原样返回条目且无告警", () => {
+    const result = extractEmbeddedCatalog(BUNDLE_FIXTURE_184, { minEntries: 3 })
+    expect(result.warning).toBeUndefined()
+    expect(result.entries.map((entry) => entry.id)).toContain("stealth/cat-jam:free")
   })
 
   test("目录规模低于形状校验下限 → 拒绝（坏截取防线）", () => {

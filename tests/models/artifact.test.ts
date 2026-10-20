@@ -73,6 +73,7 @@ describe("构建产物解析（schema v1，规格 model-pipeline.md §1）", () 
       schemaVersion: 1,
       generatedAt: "2026-09-03T00:00:00.000Z",
       sourceCliVersion: "1.45.0",
+      catalogVersion: "d6177bab", // 新产物可选字段：旧解析器无感知
       releaseTag: "v2026.09.03", // 未知顶层键
       models: [
         {
