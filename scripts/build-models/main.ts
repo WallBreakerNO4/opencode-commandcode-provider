@@ -82,7 +82,7 @@ export interface BuildMeta {
 
 /**
  * 读取上次成功构建的 individual-go 非隐藏计数。
- * 新基准用 `goModelCount`；旧 data 分支基准与旧 drill 输入用 `planDistribution.Go`，
+ * 新基准用 `goModelCount`；#62 之前的旧 data 分支基准只有 `planDistribution.Go`，
  * 迁移首轮沿用同一口径，避免把历史基准误判成「无基线」。
  */
 export function readPrevGoModelCount(content: string): number {

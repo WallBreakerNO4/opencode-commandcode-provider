@@ -249,7 +249,7 @@ describe("main.ts 编排（view=client 直出 ∪ 内嵌目录补集）", () => 
 
   test("readPrevGoModelCount：新字段优先，兼容旧 planDistribution.Go；坏形状报错", () => {
     expect(readPrevGoModelCount(JSON.stringify({ goModelCount: 59 }))).toBe(59)
-    // 旧 data 分支基准 / 旧 drill 输入：迁移首轮仍按 Go 计数比较
+    // #62 之前的旧 data 分支基准：迁移首轮仍按 Go 计数比较
     expect(readPrevGoModelCount(JSON.stringify({ planDistribution: { Go: 54, GOAT: 10, Pro: 15, Max: 10 } }))).toBe(54)
     expect(readPrevGoModelCount(JSON.stringify({ planDistribution: { Go: 54 }, goModelCount: 59 }))).toBe(59)
     expect(() => readPrevGoModelCount("{}")).toThrow(/goModelCount/)

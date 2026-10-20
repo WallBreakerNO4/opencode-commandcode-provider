@@ -1,8 +1,8 @@
 name: Models pipeline
 
 # 构建侧全自动流水线（issue #28；规格 docs/dev/spec/model-pipeline.md §2 + ADR docs/dev/adr/0001-artifact-distribution-channels.md）：
-# cron 轮询上游 command-code 版本与 models.dev 内容 hash，相对上次成功构建有变化才触发
-# 解析；三渠道（Release asset / npm 数据包 / data 分支）一次运行同步发布。
+# cron 轮询上游 command-code 版本、models.dev 内容 hash 与 view=client catalogVersion，
+# 相对上次成功构建有变化才触发解析；三渠道（Release asset / npm 数据包 / data 分支）一次运行同步发布。
 
 on:
   schedule:
@@ -15,7 +15,7 @@ on:
         type: boolean
         default: false
       drill-prev-distribution:
-        description: 对账断言演练：注入伪造的上次分布 JSON（如 {"Go":999,"GOAT":0,"Pro":0,"Max":0}），构建应失败并自动开 issue、不出产物
+        description: 对账断言演练：注入伪造的上次 individual-go 非隐藏模型计数（如 999），构建应失败并自动开 issue、不出产物
         type: string
         default: ""
 
@@ -52,24 +52,66 @@ jobs:
         with:
           bun-version: latest
 
-      - name: 变更检测（上游 CLI 版本 × models.dev 内容 hash）
+      - name: 变更检测（CLI 版本 × models.dev hash × view=client catalogVersion）
         id: detect
         env:
           FORCE: ${{ inputs.force }}
+          DRILL: ${{ inputs.drill-prev-distribution }}
         run: |
           set -euo pipefail
+          # drill 输入先校验，避免格式错误被下游误报成「对账断言失败」并开 issue
+          if [ -n "$DRILL" ] && ! jq -e 'type == "number" and . >= 0 and . == floor' >/dev/null 2>&1 <<<"$DRILL"; then
+            echo "::error::drill-prev-distribution 必须是非负整数（individual-go 非隐藏模型计数），收到「${DRILL}」"
+            exit 1
+          fi
+          # catalogVersion 是远程字符串：拒绝会破坏请求头/输出的控制字符与双引号
+          header_safe() {
+            case "$1" in
+              *$'\r'*|*$'\n'*|*'"'*) return 1 ;;
+            esac
+          }
           LATEST=$(curl -fsSL https://registry.npmjs.org/command-code/latest | jq -r .version)
           DEV_HASH=$(curl -fsSL https://models.dev/api.json | sha256sum | cut -d' ' -f1)
-          PREV_CLI=""; PREV_HASH=""
-          # data 分支的 build-meta.json = 上次成功构建的基准；同文件兼作下次构建的分布基线
+          PREV_CLI=""; PREV_HASH=""; PREV_CATALOG=""; PREV_CATALOG_PRESENT=false
+          # data 分支的 build-meta.json = 上次成功构建的基准；同文件兼作下次构建的 individual-go 计数基线
           if curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/data/build-meta.json" -o prev-meta.json; then
-            PREV_CLI=$(jq -r .sourceCliVersion prev-meta.json)
-            PREV_HASH=$(jq -r .modelsDevSha256 prev-meta.json)
+            PREV_CLI=$(jq -r '.sourceCliVersion // empty' prev-meta.json)
+            PREV_HASH=$(jq -r '.modelsDevSha256 // empty' prev-meta.json)
+            PREV_CATALOG=$(jq -r '.catalogVersion // empty' prev-meta.json)
+            if [ -n "$PREV_CATALOG" ]; then
+              PREV_CATALOG_PRESENT=true
+              if ! header_safe "$PREV_CATALOG"; then
+                echo "::warning::build-meta 的 catalogVersion 含无法用于请求头的字符，本轮跳过 catalog 变更检测"
+                PREV_CATALOG=""
+              fi
+            fi
           else
             rm -f prev-meta.json
           fi
+          # 实测服务端 ETag 即 catalogVersion，但带双引号（"abc…"）；build-meta 存的是响应体
+          # 里的裸值，条件请求必须补回引号，否则永远 200。
+          CATALOG_HEADERS=()
+          if [ -n "$PREV_CATALOG" ]; then
+            CATALOG_HEADERS=(-H "If-None-Match: \"${PREV_CATALOG}\"")
+          fi
+          CATALOG_STATUS=$(curl -sSL -o catalog.json -w '%{http_code}' \
+            "${CATALOG_HEADERS[@]}" \
+            'https://api.commandcode.ai/provider/v1/models?view=client') || CATALOG_STATUS="000"
+          CATALOG_VERSION=""
+          if [ "$CATALOG_STATUS" = "304" ]; then
+            CATALOG_VERSION="$PREV_CATALOG"
+          elif [ "$CATALOG_STATUS" = "200" ]; then
+            CATALOG_VERSION=$(jq -r '.catalogVersion // empty' catalog.json 2>/dev/null || true)
+            if [ -n "$CATALOG_VERSION" ] && ! header_safe "$CATALOG_VERSION"; then
+              echo "::warning::view=client 的 catalogVersion 含无法安全记录的字符，本轮跳过 catalog 变更检测"
+              CATALOG_VERSION=""
+            elif [ -z "$CATALOG_VERSION" ]; then
+              echo "::warning::view=client 响应缺 catalogVersion，本轮跳过 catalog 变更检测"
+            fi
+          else
+            echo "::warning::view=client catalog 拉取失败（HTTP ${CATALOG_STATUS:-无}），本轮跳过 catalog 变更检测"
+          fi
           SHOULD=false; REASON=""
-          DRILL="${{ inputs.drill-prev-distribution }}"
           if [ "$FORCE" = "true" ]; then
             SHOULD=true; REASON="手动强制"
           elif [ -n "$DRILL" ]; then
@@ -81,20 +123,27 @@ jobs:
             SHOULD=true; REASON="command-code 发版 ${PREV_CLI} → ${LATEST}"
           elif [ "$PREV_HASH" != "$DEV_HASH" ]; then
             SHOULD=true; REASON="models.dev 内容变化（上游未发版，limits 数据更新）"
+          elif [ -n "$CATALOG_VERSION" ] && [ "$PREV_CATALOG_PRESENT" = false ]; then
+            # 旧 build-meta 确实没有 catalogVersion：构建一次建立基准，否则 catalog-only 变更永远检测不到
+            SHOULD=true; REASON="view=client catalogVersion 基准缺失（旧 build-meta），建立基准"
+          elif [ -n "$PREV_CATALOG" ] && [ -n "$CATALOG_VERSION" ] && [ "$PREV_CATALOG" != "$CATALOG_VERSION" ]; then
+            SHOULD=true; REASON="view=client catalogVersion 变化 ${PREV_CATALOG} → ${CATALOG_VERSION}"
           fi
-          echo "cli-version=${LATEST}" >> "$GITHUB_OUTPUT"
-          echo "should-build=${SHOULD}" >> "$GITHUB_OUTPUT"
-          echo "reason=${REASON}" >> "$GITHUB_OUTPUT"
-          echo "变更检测：should=${SHOULD} reason=${REASON}（上次 CLI ${PREV_CLI}，本次 ${LATEST}）"
+          {
+            echo "cli-version=${LATEST}"
+            echo "should-build=${SHOULD}"
+            echo "reason=${REASON}"
+          } >> "$GITHUB_OUTPUT"
+          echo "变更检测：should=${SHOULD} reason=${REASON}（上次 CLI ${PREV_CLI:-无} → 本次 ${LATEST}；上次 catalog ${PREV_CATALOG:-无} → 本次 ${CATALOG_VERSION:-未知}）"
 
-      - name: 对账断言演练（注入伪造的上次分布）
+      - name: 对账断言演练（注入伪造的上次 individual-go 计数）
         if: inputs.drill-prev-distribution != ''
         env:
-          DRILL_DIST: ${{ inputs.drill-prev-distribution }}
+          DRILL_GO_COUNT: ${{ inputs.drill-prev-distribution }}
         run: |
           set -euo pipefail
-          jq -n --argjson dist "$DRILL_DIST" \
-            '{schemaVersion: 1, sourceCliVersion: "drill", generatedAt: "1970-01-01T00:00:00Z", modelsDevSha256: "drill", modelsJsonSha256: "drill", planDistribution: $dist, modelsCount: 0}' \
+          jq -n --argjson goModelCount "$DRILL_GO_COUNT" \
+            '{schemaVersion: 1, sourceCliVersion: "drill", catalogVersion: "drill", generatedAt: "1970-01-01T00:00:00Z", modelsDevSha256: "drill", modelsJsonSha256: "drill", goModelCount: $goModelCount, modelsCount: 0}' \
             > drill-prev-meta.json
           echo "演练用伪造 prev-meta：$(cat drill-prev-meta.json)"
 
