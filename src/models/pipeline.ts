@@ -1,14 +1,17 @@
 /**
  * 模型管线运行时：刷新节奏与降级状态机（契约：docs/dev/spec/model-pipeline.md §4–§5、
- * 覆盖机制 models-url-override.md §4）。#31 的解析/级联在此接上拉取、TTL 与重试。
+ * 覆盖机制 models-url-override.md §4）。解析/级联（catalog.ts / cascade.ts）在此接上
+ * 拉取、TTL 与重试。
  *
  * **刷新节奏**（§4）：
  * - 构建产物：按 modelsUrls 解析出的有序 URL 列表拉取、首个成功者胜；TTL 1h +
  *   随机抖动；内容 hash（signature.ts，只含 models）变化才触发下游动作（v2
  *   `catalog.reload()`）；渠道支持时带 ETag/Last-Modified 条件请求（304 = 未变，
  *   复用该渠道上次产物，不重下载不重解析）。
- * - `/provider/v1/models`：匿名拉取、TTL 5min；变更签名 = 排序后 (id,
- *   context_length) 序列（`created` 已在 api.ts 数据入口剥除）。
+ * - `view=client` catalog：匿名拉取；TTL 跟随响应 `refreshAfterSeconds`（当前
+ *   900s，缺失/非法回落默认值）；带 `If-None-Match` 条件请求（值为上次成功响应的
+ *   catalogVersion），304 复用上次成功清单并重排 TTL；变更签名 = 排序后
+ *   (id, context_length) 序列。
  * - **v2 形态**（`start`）：启动零阻塞——立即以包内快照注册返回，首轮拉取转后台，
  *   签名变化才回调 `onChange`（glue 接 catalog.reload()）。
  * - **v1 形态**（`initializeOnce`）：启动拉取一次（15s 总预算，跨渠道共享），失败
@@ -18,32 +21,31 @@
  * `getModels`）或显式（`refreshIfDue`）检查 TTL 到点即后台刷新，
  * stale-while-revalidate：读永不等待在途拉取。
  *
- * **降级**（§5）：快照 = 「最后已知良好产物」的角色扮演者——产物/API 一旦成功拉到，
- * 后续刷新失败**沿用内存中的上次成功数据**（它就是最新鲜的最后已知良好产物，比
- * 内置快照新），只有从未成功过才落到内置快照；全部失败照常可用 + 指数退避重试
- * （30s 起、上限 30min），任一来源恢复即回到完整级联。所有降级路径打 warn 注明
- * 退到了哪层。
+ * **降级**（§5）：快照 = 「最后已知良好产物」的角色扮演者——产物/catalog 一旦成功
+ * 拉到，后续刷新失败**沿用内存中的上次成功数据**（它就是最新鲜的最后已知良好
+ * 数据，比内置快照新），只有从未成功过才落到内置快照；catalog 失败不缩小模型
+ * 列表（发现 = 产物全集），只让 context/name 回落产物值。全部失败照常可用 +
+ * 指数退避重试（30s 起、上限 30min），任一来源恢复即回到完整级联。所有降级路径
+ * 打 warn 注明退到了哪层。
  *
  * 出网统一走注入的 fetch 接缝（testing.md §2）；时间直接取 `Date.now()`（fake
  * timers 驱动）。
  */
 
 import type { FetchLike } from "../protocol/json.js"
-import { parseModelsApi, type ApiModelEntry } from "./api.js"
 import { parseArtifact, type Artifact } from "./artifact.js"
+import { parseClientCatalog, type ClientCatalog } from "./catalog.js"
 import { mergeModelLayers, type CascadeResult } from "./cascade.js"
-import { apiChangeSignature, artifactContentHash } from "./signature.js"
+import { artifactContentHash, catalogChangeSignature } from "./signature.js"
 import { MODELS_URLS_ENV_VAR, resolveModelsUrls } from "./urls.js"
 
-/** `/provider/v1/models` 端点（匿名拉取，带 key 实测无差异——§0） */
-export const MODELS_API_URL = "https://api.commandcode.ai/provider/v1/models"
+/** `view=client` catalog 端点（官方 CLI 1.84.0 起的发现源；匿名拉取） */
+export const CLIENT_CATALOG_URL = "https://api.commandcode.ai/provider/v1/models?view=client"
 
 /** 构建产物刷新 TTL：1h（§4） */
 export const ARTIFACT_REFRESH_TTL_MS = 60 * 60 * 1000
 /** 产物 TTL 随机抖动上限：+0～5min（错开整点、防雷群） */
 export const ARTIFACT_TTL_JITTER_MS = 5 * 60 * 1000
-/** `/models` API 刷新 TTL：5min（§4，无抖动） */
-export const API_REFRESH_TTL_MS = 5 * 60 * 1000
 /** 刷新失败指数退避基数：30s × 2^failCount（§5） */
 export const REFRESH_RETRY_BASE_MS = 30 * 1000
 /** 刷新失败指数退避上限：30min（§5） */
@@ -71,7 +73,7 @@ export interface ModelPipelineOptions {
   /** 出网接缝（工厂 options.fetch；缺省 globalThis.fetch） */
   readonly fetch?: FetchLike
   readonly logger?: PipelineLogger
-  /** 下游动作（v2 catalog.reload()）：产物内容 hash 或 API 签名变化时回调，携带最新级联 */
+  /** 下游动作（v2 catalog.reload()）：产物内容 hash 或 catalog 签名变化时回调，携带最新级联 */
   readonly onChange?: (cascade: CascadeResult) => void
 }
 
@@ -140,13 +142,13 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
     /** 上次成功产物（sticky——刷新失败不清空，它就是最新鲜的「最后已知良好产物」） */
     artifact: undefined as Artifact | undefined,
     artifactHash: undefined as string | undefined,
-    /** 上次成功 API 清单（sticky，同上） */
-    api: undefined as readonly ApiModelEntry[] | undefined,
-    apiSignature: undefined as string | undefined,
+    /** 上次成功 catalog（sticky，同上；catalogVersion / refreshAfterSeconds 随它保留） */
+    catalog: undefined as ClientCatalog | undefined,
+    catalogSignature: undefined as string | undefined,
     nextArtifactAttemptAt: 0,
-    nextApiAttemptAt: 0,
+    nextCatalogAttemptAt: 0,
     artifactFailCount: 0,
-    apiFailCount: 0,
+    catalogFailCount: 0,
   }
 
   /** 宿主形态：initializeOnce → v1（此后刷新停用）；start → v2 */
@@ -157,7 +159,7 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
   const channelCache = new Map<string, ChannelCache>()
 
   function recomputeCascade(): void {
-    current = mergeModelLayers({ api: state.api, artifact: state.artifact, snapshot })
+    current = mergeModelLayers({ catalog: state.catalog?.models, artifact: state.artifact, snapshot })
   }
 
   function backoffDelay(failCount: number): number {
@@ -252,27 +254,51 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
     return { attempted: true, ok: false, changed: false, detail: failures.join("；") }
   }
 
-  /** API 层：单次拉取 + 签名比对；失败动退避（退化 warn 归轮次落定后统一打，判层才准确） */
-  async function fetchApiIntoState(deadline: AbortSignal | undefined): Promise<SourceOutcome> {
+  /** `If-None-Match` 值：服务端 ETag 即带引号的 catalogVersion；版本号含引号/换行符
+   * 时不能安全进请求头，放弃条件请求（全量拉取代价可接受） */
+  function catalogEtag(catalogVersion: string): string | undefined {
+    return /["\r\n]/.test(catalogVersion) ? undefined : `"${catalogVersion}"`
+  }
+
+  /**
+   * catalog 层：单次拉取 + 条件请求 + 签名比对；失败动退避（降级 warn 归轮次
+   * 落定后统一打，判层才准确）。catalog 只作 context/name 的字段级权威，失败不
+   * 影响模型列表（发现 = 产物全集）。
+   */
+  async function fetchCatalogIntoState(deadline: AbortSignal | undefined): Promise<SourceOutcome> {
     try {
-      const response = await fetchImpl(MODELS_API_URL, {
-        headers: { accept: "application/json" },
+      const headers: Record<string, string> = { accept: "application/json" }
+      const cachedVersion = state.catalog?.catalogVersion
+      const etag = cachedVersion === undefined ? undefined : catalogEtag(cachedVersion)
+      if (etag !== undefined) headers["if-none-match"] = etag
+      const response = await fetchImpl(CLIENT_CATALOG_URL, {
+        headers,
         signal: requestSignal(deadline),
       })
+      if (response.status === 304 && state.catalog !== undefined) {
+        // 未变：复用上次成功清单（含其 refreshAfterSeconds），只重排节奏
+        state.catalogFailCount = 0
+        state.nextCatalogAttemptAt = Date.now() + state.catalog.refreshAfterSeconds * 1000
+        logger.debug(`client catalog 未变化（catalogVersion=${state.catalog.catalogVersion ?? "未知"}），复用上次成功清单`)
+        return { attempted: true, ok: true, changed: false }
+      }
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
       const body: unknown = await response.json()
-      const parsed = parseModelsApi(body)
-      if (!parsed.ok) throw new Error(`/models 响应解析失败：${parsed.detail}`)
-      const signature = apiChangeSignature(parsed.models)
-      const changed = state.apiSignature !== signature
-      state.api = parsed.models
-      state.apiSignature = signature
-      state.apiFailCount = 0
-      state.nextApiAttemptAt = Date.now() + API_REFRESH_TTL_MS
+      const parsed = parseClientCatalog(body)
+      if (!parsed.ok) throw new Error(`client catalog 解析失败：${parsed.detail}`)
+      const signature = catalogChangeSignature(parsed.catalog.models)
+      const changed = state.catalogSignature !== signature
+      state.catalog = parsed.catalog
+      state.catalogSignature = signature
+      state.catalogFailCount = 0
+      state.nextCatalogAttemptAt = Date.now() + parsed.catalog.refreshAfterSeconds * 1000
+      logger.debug(
+        `client catalog 拉取成功：catalogVersion=${parsed.catalog.catalogVersion ?? "未知"}，${parsed.catalog.models.length} 条，${parsed.catalog.refreshAfterSeconds}s 后刷新`,
+      )
       return { attempted: true, ok: true, changed }
     } catch (error) {
-      state.nextApiAttemptAt = Date.now() + backoffDelay(state.apiFailCount)
-      state.apiFailCount += 1
+      state.nextCatalogAttemptAt = Date.now() + backoffDelay(state.catalogFailCount)
+      state.catalogFailCount += 1
       return { attempted: true, ok: false, changed: false, detail: describeError(error) }
     }
   }
@@ -283,33 +309,35 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
     const task = (async () => {
       try {
         const wantArtifact = Date.now() >= state.nextArtifactAttemptAt
-        const wantApi = Date.now() >= state.nextApiAttemptAt
-        if (!wantArtifact && !wantApi) return
-        const [artifactOutcome, apiOutcome] = await Promise.all([
+        const wantCatalog = Date.now() >= state.nextCatalogAttemptAt
+        if (!wantArtifact && !wantCatalog) return
+        const [artifactOutcome, catalogOutcome] = await Promise.all([
           wantArtifact ? fetchArtifactIntoState(deadline) : idleOutcome,
-          wantApi ? fetchApiIntoState(deadline) : idleOutcome,
+          wantCatalog ? fetchCatalogIntoState(deadline) : idleOutcome,
         ])
         recomputeCascade()
-        // API 降级 warn 归轮次落定后统一打：degradedTo 依据最终产物层判层——
+        // catalog 降级 warn 归轮次落定后统一打：degradedTo 依据最终产物层判层——
         // 在 fetch 内判会撞上并行产物拉取未落定的竞态（两个来源并行拉取）
-        if (apiOutcome.attempted && !apiOutcome.ok) {
-          const degradedTo = current.productLayer === "artifact" ? "产物" : "快照"
-          if (state.api === undefined) {
-            logger.warn(`/provider/v1/models 拉取失败（${apiOutcome.detail}），发现退化为${degradedTo} id 清单`)
+        if (catalogOutcome.attempted && !catalogOutcome.ok) {
+          if (state.catalog === undefined) {
+            const degradedTo = current.productLayer === "artifact" ? "产物" : "快照"
+            logger.warn(
+              `client catalog 拉取失败（${catalogOutcome.detail}），context/name 回落${degradedTo}值，模型列表按${degradedTo}全集注册`,
+            )
           } else {
-            logger.warn(`/provider/v1/models 刷新失败（${apiOutcome.detail}），沿用上次成功清单`)
+            logger.warn(`client catalog 刷新失败（${catalogOutcome.detail}），沿用上次成功清单`)
           }
         }
-        if (artifactOutcome.attempted && apiOutcome.attempted && !artifactOutcome.ok && !apiOutcome.ok) {
+        if (artifactOutcome.attempted && catalogOutcome.attempted && !artifactOutcome.ok && !catalogOutcome.ok) {
           // 全部来源失败（§5）：照常可用 + 指数退避；下次可试时刻取两来源的较早者
-          const nextRetry = Math.min(state.nextArtifactAttemptAt, state.nextApiAttemptAt) - Date.now()
+          const nextRetry = Math.min(state.nextArtifactAttemptAt, state.nextCatalogAttemptAt) - Date.now()
           const holding =
             state.artifact === undefined
               ? "包内快照全量注册照常可用（数据可能过期）"
               : "沿用上次成功数据照常可用"
           logger.warn(`模型数据全部来源失败：${holding}，${formatDelay(Math.max(nextRetry, 0))} 后指数退避重试`)
         }
-        if ((artifactOutcome.changed || apiOutcome.changed) && mode !== "v1") {
+        if ((artifactOutcome.changed || catalogOutcome.changed) && mode !== "v1") {
           try {
             options.onChange?.(current)
           } catch (error) {
@@ -327,7 +355,7 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
   /** 到期检查 + 后台刷新触发；返回在途轮次 promise（无动作立即落定） */
   function refreshIfDue(): Promise<void> {
     if (mode === "v1") return Promise.resolve()
-    if (Date.now() >= state.nextArtifactAttemptAt || Date.now() >= state.nextApiAttemptAt) {
+    if (Date.now() >= state.nextArtifactAttemptAt || Date.now() >= state.nextCatalogAttemptAt) {
       void runRound()
     }
     return roundInFlight ?? Promise.resolve()
@@ -382,7 +410,7 @@ export function createModelPipeline(options: ModelPipelineOptions): ModelPipelin
       // v1 无 reload 机制：本轮之后关闭一切后台刷新（applyArtifact 会在轮内重排
       // TTL，此处覆写为永不到期；refreshIfDue 的 mode 检查是第二道闸）
       state.nextArtifactAttemptAt = Number.POSITIVE_INFINITY
-      state.nextApiAttemptAt = Number.POSITIVE_INFINITY
+      state.nextCatalogAttemptAt = Number.POSITIVE_INFINITY
       return current
     },
 

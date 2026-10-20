@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test"
-import type { ApiModelEntry } from "../../src/models/api.ts"
-import { parseModelsApi } from "../../src/models/api.ts"
+import type { CatalogEntry } from "../../src/models/catalog.ts"
+import { parseClientCatalog } from "../../src/models/catalog.ts"
 import type { Artifact, ArtifactModel } from "../../src/models/artifact.ts"
-import { apiChangeSignature, artifactContentHash } from "../../src/models/signature.ts"
+import { artifactContentHash, catalogChangeSignature } from "../../src/models/signature.ts"
 
 function artifactWith(models: ArtifactModel[], overrides: Partial<Artifact> = {}): Artifact {
   return {
@@ -32,8 +32,11 @@ describe("产物内容 hash（§4：对 models 数组做内容 hash）", () => {
     expect(artifactContentHash(artifactWith(MODELS))).not.toBe(artifactContentHash(changed))
   })
 
-  test("generatedAt / sourceCliVersion 变化不改变 hash（只哈希 models——重建但同目录不触发 reload）", () => {
-    const rebuilt = artifactWith(MODELS, { generatedAt: "2026-09-02T00:00:00.000Z", sourceCliVersion: "1.46.0" })
+  test("generatedAt / sourceCliVersion 变化不改变 hash（只哈希 models）", () => {
+    const rebuilt = artifactWith(MODELS, {
+      generatedAt: "2026-09-02T00:00:00.000Z",
+      sourceCliVersion: "1.46.0",
+    })
     expect(artifactContentHash(artifactWith(MODELS))).toBe(artifactContentHash(rebuilt))
   })
 
@@ -50,56 +53,54 @@ describe("产物内容 hash（§4：对 models 数组做内容 hash）", () => {
   })
 })
 
-describe("API 变更签名（§4：排序后 (id, context_length) 序列，剔除 created）", () => {
+describe("catalog 变更签名（§4：排序后 (id, context_length) 序列）", () => {
   test("同集合同签名——顺序无关（排序后比较）", () => {
-    const a: ApiModelEntry[] = [
+    const a: CatalogEntry[] = [
       { id: "m/a", contextLength: 200000 },
       { id: "m/b", contextLength: 128000 },
     ]
-    const b: ApiModelEntry[] = [
+    const b: CatalogEntry[] = [
       { id: "m/b", contextLength: 128000 },
       { id: "m/a", contextLength: 200000 },
     ]
-    expect(apiChangeSignature(a)).toBe(apiChangeSignature(b))
-  })
-
-  test("上游仅 created 时间戳变化 → 签名不变（不触发 reload 的验收核心）", () => {
-    // created 不在 ApiModelEntry 中——它在 api.ts 解析入口已被结构性剥除；
-    // 此处用「多出的未知字段不进解析结果」的同一事实断言签名稳定性
-    const t0 = { data: [{ id: "m/a", context_length: 200000, created: 1754000000 }] }
-    const t1 = { data: [{ id: "m/a", context_length: 200000, created: 1754999999 }] }
-    const parsed0 = parseModelsApi(t0)
-    const parsed1 = parseModelsApi(t1)
-    expect(parsed0.ok && parsed1.ok).toBe(true)
-    if (parsed0.ok && parsed1.ok) {
-      expect(apiChangeSignature(parsed0.models)).toBe(apiChangeSignature(parsed1.models))
-    }
+    expect(catalogChangeSignature(a)).toBe(catalogChangeSignature(b))
   })
 
   test("context_length 变化 → 签名变化", () => {
-    const before: ApiModelEntry[] = [{ id: "m/a", contextLength: 200000 }]
-    const after: ApiModelEntry[] = [{ id: "m/a", contextLength: 400000 }]
-    expect(apiChangeSignature(before)).not.toBe(apiChangeSignature(after))
+    const before: CatalogEntry[] = [{ id: "m/a", contextLength: 200000 }]
+    const after: CatalogEntry[] = [{ id: "m/a", contextLength: 400000 }]
+    expect(catalogChangeSignature(before)).not.toBe(catalogChangeSignature(after))
   })
 
   test("id 清单增删 → 签名变化", () => {
-    const before: ApiModelEntry[] = [{ id: "m/a", contextLength: 200000 }]
-    const after: ApiModelEntry[] = [
+    const before: CatalogEntry[] = [{ id: "m/a", contextLength: 200000 }]
+    const after: CatalogEntry[] = [
       { id: "m/a", contextLength: 200000 },
       { id: "m/b", contextLength: 128000 },
     ]
-    expect(apiChangeSignature(before)).not.toBe(apiChangeSignature(after))
+    expect(catalogChangeSignature(before)).not.toBe(catalogChangeSignature(after))
   })
 
-  test("name 变化不改变签名（name 不在签名键内；其权威在级联但非变更判据）", () => {
-    const a: ApiModelEntry[] = [{ id: "m/a", name: "Old Name", contextLength: 200000 }]
-    const b: ApiModelEntry[] = [{ id: "m/a", name: "New Name", contextLength: 200000 }]
-    expect(apiChangeSignature(a)).toBe(apiChangeSignature(b))
+  test("name 变化不改变签名（name 是字段级权威但不是变更判据）", () => {
+    const a: CatalogEntry[] = [{ id: "m/a", name: "Old Name", contextLength: 200000 }]
+    const b: CatalogEntry[] = [{ id: "m/a", name: "New Name", contextLength: 200000 }]
+    expect(catalogChangeSignature(a)).toBe(catalogChangeSignature(b))
+  })
+
+  test("catalogVersion / refreshAfterSeconds 变化不改变签名（元信息不进变更判据）", () => {
+    const t0 = { catalogVersion: "v1", refreshAfterSeconds: 900, data: [{ id: "m/a", context_length: 200000 }] }
+    const t1 = { catalogVersion: "v2", refreshAfterSeconds: 60, data: [{ id: "m/a", context_length: 200000 }] }
+    const parsed0 = parseClientCatalog(t0)
+    const parsed1 = parseClientCatalog(t1)
+    expect(parsed0.ok && parsed1.ok).toBe(true)
+    if (parsed0.ok && parsed1.ok) {
+      expect(catalogChangeSignature(parsed0.catalog.models)).toBe(catalogChangeSignature(parsed1.catalog.models))
+    }
   })
 
   test("缺 context_length 的条目以 null 占位参与签名（容忍上游字段级缺失且可感知补齐）", () => {
-    const missing: ApiModelEntry[] = [{ id: "m/a" }]
-    const filled: ApiModelEntry[] = [{ id: "m/a", contextLength: 200000 }]
-    expect(apiChangeSignature(missing)).not.toBe(apiChangeSignature(filled))
+    const missing: CatalogEntry[] = [{ id: "m/a" }]
+    const filled: CatalogEntry[] = [{ id: "m/a", contextLength: 200000 }]
+    expect(catalogChangeSignature(missing)).not.toBe(catalogChangeSignature(filled))
   })
 })
