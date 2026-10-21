@@ -77,23 +77,31 @@ _Avoid_: 假身份、多平台伪装、win32 假人格（已弃用）
 ### 模型
 
 **模型清单**:
-某订阅 plan 实际可用的模型 id 集合。来源：`GET /provider/v1/models`。
+某订阅 plan 在插件中可见的模型 id 集合。构建侧来源：`view=client` catalog 的 Go 可见子集 ∪ 官方 CLI 内嵌目录补集；运行时来源：构建产物（含内存中的上次成功产物）或包内快照全集。可见不等于网关一定放行——上游下架而产物未更新时，选中后由网关报错。
+
+**client catalog**:
+官方 CLI 1.84.0 起使用的模型目录端点 `GET /provider/v1/models?view=client` 及其响应，顶层含 `catalogVersion` / `refreshAfterSeconds` / `data`。构建侧的发现权威；运行时的 `context` / `name` 字段级权威，不参与「暴露哪些 id」的判定。
+_Avoid_: 普通 /models API（已退役）、API 模型清单
+
+**官方 CLI 内嵌目录**:
+官方 `command-code` 包 `dist/cli.mjs` 内置的模型目录。仅构建侧解析，用作 `view=client` 缺失条目的补集来源；与插件随包发布的「包内快照」不是一回事。
+_Avoid_: 内置目录（易与包内快照混淆）、bundle 目录
 
 **模型元数据**:
-单个模型的上下文窗口、价格、能力（视觉 / 工具）、reasoning 档位等配置参数。来源：官方 CLI 模型目录（构建侧解析进构建产物）、`/provider/v1/models`、models.dev（仅构建侧补 limits 缺口）、包内快照。
+单个模型的上下文窗口、价格、能力（视觉 / 工具）、reasoning 档位等配置参数。来源：`view=client` catalog（构建侧发现与元数据，运行时 `context` / `name`）、官方 CLI 内嵌目录（仅构建侧补集）、models.dev（仅构建侧补 limits 缺口）、构建产物与包内快照。
 _Avoid_: 模型配置、模型信息
 
 **构建产物**:
-构建侧（GitHub Action，随官方 CLI 发版自动触发）从官方 CLI 包解析出的 JSON（schema 见 `docs/dev/spec/model-pipeline.md`），经分发渠道（默认 URL 列表）供插件运行时拉取。绝不在用户机器上解析或生成。
+构建侧（GitHub Action，随官方 CLI 发版或 catalog 变化触发）产出的 JSON（schema 见 `docs/dev/spec/model-pipeline.md`）：由 `view=client` catalog 的 Go 可见条目直出，并以官方 CLI 内嵌目录补入远程缺失条目；经分发渠道（默认 URL 列表）供插件运行时拉取。绝不在用户机器上解析或生成。
 _Avoid_: 解析产物（旧称）、逆向结果、gist JSON
 
 **Go plan 过滤**:
-把 `/provider/v1/models` 的全量列表筛成 Go plan 实际可用子集的规则：Min plan 归一化后等于 Go 的模型保留，在构建侧完成，客户端不做过滤。
+把 `view=client` catalog 的全量目录筛成 Go plan 实际可用子集的规则：`minimumPlan === "individual-go"` 且 `hidden !== true` 的模型保留；官方 CLI 内嵌目录只补远程缺失条目。在构建侧完成，客户端不做过滤。
 _Avoid_: isGoModel 前缀白名单（jiesou 式，已漂移弃用）、客户端过滤
 
 **Min plan**:
-官方 CLI models.md 标注的、能调用某模型的最便宜订阅档位；套餐序 Go < GOAT < Pro < Max，高档包含低档全部模型。Go plan 过滤的判定依据。
-_Avoid_: 最低套餐列
+client catalog 的 `minimumPlan` 字段：能调用某模型的最便宜订阅档位，取值为 `individual-go` / `individual-goat` / `individual-pro` / `individual-max` / `individual-provider`；订阅档位序 Go < GOAT < Pro < Max，高档包含低档全部模型。Go plan 过滤只看 `individual-go`。旧 models.md 的文本档位已退役。
+_Avoid_: 最低套餐列、models.md Min plan 列
 
 **包内快照**:
 随插件一起发布的构建产物副本（同 schema），代表发版时刻的最后已知良好产物，是运行时永远可用的兜底层。
@@ -116,7 +124,7 @@ _Avoid_: 源列表、fallback 链、URL 追加/插位
 _Avoid_: reasoning variants（中英混用）、档位补全
 
 **合并级联**:
-运行时对多来源模型数据按「每字段单一天窗」取值的规则：`/provider/v1/models`（发现、context）× 构建产物（其余元数据）× 包内快照（兜底）。
+运行时对多来源模型数据按「每字段单一天窗」取值的规则：构建产物全集（含内存中的上次成功产物，或包内快照）负责发现，`view=client` catalog 提供 `context` / `name`，构建产物提供其余元数据；catalog 不参与发现、不做交集过滤。
 _Avoid_: 来源优先级矩阵
 
 ### 插件与安装
