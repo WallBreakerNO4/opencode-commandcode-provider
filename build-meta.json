@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "sourceCliVersion": "1.88.5",
+  "catalogVersion": "d4517aa346db93ffbaa608be32fdf12c62d057a00cc48a5e251e034372776177",
+  "generatedAt": "2026-11-07T08:42:46.808Z",
+  "modelsDevSha256": "d724c4120bdcdebbb081e68b180290683261efca25110ae9ca4fb756096a8cf5",
+  "modelsJsonSha256": "f3153e789cb2e94b9781d51a243720d77553e1542c25be4fd198dfee145729e3",
+  "goModelCount": 58,
+  "modelsCount": 58
+}
