@@ -4,9 +4,10 @@
  *    individual-max, individual-provider}（新取值 = 官方调整档位体系，人工确认）；
  * 2. 产物非空（打掉「解析/过滤链路坏了还发布 0 模型」的静默风险）；
  * 3. Go 计数监控：individual-go 非隐藏条目数相对上次成功构建漂移 > ±5 → 人工复核，
- *    防批量套餐调整或坏数据静默通过；
- * 4. 模态词表：只看进产物的 Go 非隐藏条目；新模态出现 = 网关投递能力未经验证，
- *    advertise 超出协议层转换能力会放行后静默丢弃，必须人工确认协议层支持后扩词表。
+ *    防批量套餐调整或坏数据静默通过。
+ * 模态词表不再走断言：词表外模态由 clipInputModalities 裁剪后再进产物并记录日志/元数据
+ * （issue #66：上游 advertise 超前于网关投递能力——file 模态当前无法经 /alpha/generate
+ * 投递，实测见 docs/dev/spec/model-pipeline.md §1.1；裁剪而非失败，保住构建可用性）。
  * 断言失败聚合输出（一次跑完全部断言再抛），开 issue 时信息一次给全。
  */
 
@@ -66,24 +67,57 @@ export function assertGoCountStable(current: number, prev: number | undefined): 
   return { assertion: "Go 模型计数监控", detail }
 }
 
-/** §1.1 模态词表：网关可投递口径的当前词表；上游扩模态必须经人工确认协议层支持后在此扩词表 */
+/**
+ * §1.1 模态词表：网关可投递口径的当前词表。
+ * 词表外模态不扩词表直接进产物：上游 advertise 超前于网关投递能力（issue #66 实测：
+ * `file` 模态的正确 wire 形态 `document` 块网关协议层不转换，流内报 ModelMessage[]
+ * schema 错误），广告出去只会放行后静默丢弃。扩词表的前置条件是
+ * `scripts/probe-file-delivery.ts` 实测确认网关已支持投递。
+ */
 const ALLOWED_INPUT_MODALITIES = new Set(["text", "image"])
 
-export function assertModalityVocabulary(entries: readonly CatalogEntry[]): ReconcileFailure | undefined {
-  const violations: string[] = []
-  for (const entry of entries) {
-    if (!isGoPlanVisible(entry)) continue
+export interface ModalityClipResult {
+  readonly entries: CatalogEntry[]
+  /** 被裁掉的模态记录（modelId → 剥除的模态），无裁剪时为空 Map */
+  readonly clips: ReadonlyMap<string, readonly string[]>
+}
+
+/**
+ * 词表外模态裁剪（issue #66 定案）：只处理 Go 可见条目（与原断言的过滤口径一致），
+ * 把 `inputModalities` 裁到 ALLOWED_INPUT_MODALITIES 内，返回新条目数组，不原地修改。
+ * `inputModalities` 缺失的条目原样保留（缺字段由 emit 的 fail-fast 覆盖），
+ * 非 Go 可见条目同理（不进产物，无需裁剪）。
+ */
+export function clipInputModalities(entries: readonly CatalogEntry[]): ModalityClipResult {
+  const clips = new Map<string, readonly string[]>()
+  const clipped = entries.map((entry) => {
+    if (!isGoPlanVisible(entry)) return entry
     const modalities = entry.inputModalities
-    if (modalities === undefined) continue // 缺字段由 emit 的 fail-fast 覆盖
-    const unknown = modalities.filter((modality) => !ALLOWED_INPUT_MODALITIES.has(modality))
-    if (unknown.length > 0) violations.push(`${entry.id}：[${modalities.join("、")}]`)
-  }
-  if (violations.length === 0) return undefined
-  return {
-    assertion: "inputModalities 词表",
-    detail: `以下模型出现词表外模态（当前词表：text / image）：${violations.join("；")}。` +
-      "新模态 = 网关投递能力未经验证，需人工确认协议层转换支持后更新 ALLOWED_INPUT_MODALITIES，否则放行会静默丢弃",
-  }
+    if (modalities === undefined) return entry
+    const kept: string[] = []
+    const removed: string[] = []
+    for (const modality of modalities) {
+      if (ALLOWED_INPUT_MODALITIES.has(modality)) kept.push(modality)
+      else removed.push(modality)
+    }
+    if (removed.length === 0) return entry
+    clips.set(entry.id, removed)
+    return { ...entry, inputModalities: kept }
+  })
+  return { entries: clipped, clips }
+}
+
+/**
+ * file 模态扩散监控清单（全量 catalog 口径，不分档位 / hidden）：返回 inputModalities
+ * 含 "file" 的条目 id，按字典序稳定排序。workflow 用计数变化决定是否开 issue 提醒复测
+ * （阈值 >5，见 .github/workflows/models-pipeline.yml）；当前真实值见 issue #66
+ * （meta/muse-ember 与 meta/muse-wonder-1.0）。
+ */
+export function listFileCapableModels(entries: readonly CatalogEntry[]): readonly string[] {
+  return entries
+    .filter((entry) => entry.inputModalities?.includes("file") ?? false)
+    .map((entry) => entry.id)
+    .sort()
 }
 
 export function runReconcile(assertions: ReadonlyArray<ReconcileFailure | undefined>): void {

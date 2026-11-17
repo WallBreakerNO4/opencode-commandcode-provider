@@ -33,8 +33,9 @@ import {
 import {
   assertArtifactNonEmpty,
   assertGoCountStable,
-  assertModalityVocabulary,
   assertPlanValueDomain,
+  clipInputModalities,
+  listFileCapableModels,
   PLAN_VALUES,
   runReconcile,
 } from "./reconcile.ts"
@@ -78,6 +79,10 @@ export interface BuildMeta {
   readonly modelsJsonSha256: string
   readonly goModelCount: number
   readonly modelsCount: number
+  /** 全量 catalog（不分档位 / hidden）中含 file 模态的模型 id，字典序；workflow 扩散监控口径 */
+  readonly fileCapableModels: readonly string[]
+  /** Go 可见条目被剥除的词表外模态（modelId → 剥除模态），键按字典序；无裁剪时为空对象 */
+  readonly clippedModalities: Readonly<Record<string, readonly string[]>>
 }
 
 /**
@@ -170,31 +175,37 @@ export async function runBuild(
   const devSha256 = sha256Hex(dev.bytes)
   stdout(`[models.dev] api.json sha256=${devSha256.slice(0, 16)}…`)
 
-  // 5. 合并 + 对账断言：任一失败抛 ReconcileError → main 捕获 → 非零退出，无产物落盘
+  // 5. 合并 + 模态裁剪 + 对账断言：任一断言失败抛 ReconcileError → main 捕获 → 非零退出，无产物落盘
   const merged = mergeCatalogs(remote.entries, embedded)
-  const goEntries = merged.filter(isGoPlanVisible)
+  // file 清单必须先于裁剪统计：裁剪会从 Go 可见条目里剥掉 file（全量口径，issue #66）
+  const fileCapableModels = listFileCapableModels(merged)
+  const { entries: catalogEntries, clips } = clipInputModalities(merged)
+  const goEntries = catalogEntries.filter(isGoPlanVisible)
   const goIds = goEntries.map((entry) => entry.id)
   const prevGoCount = args.prevMetaPath === undefined
     ? undefined
     : readPrevGoModelCount(await Bun.file(args.prevMetaPath).text())
   stdout(`[catalog] 合并目录 ${merged.length} 条（view=client ${remote.entries.length} + 内嵌补集 ${merged.length - remote.entries.length}）`)
   stdout(`[catalog] Go plan 可见 ${goIds.length} 条（individual-go 且非隐藏）`)
+  for (const [id, removed] of clips) {
+    stdout(`[catalog] 词表外模态裁剪：${id} 剥除 ${removed.join("、")}（网关不可投递，issue #66 实测定案）`)
+  }
+  stdout(`[catalog] file 模态模型 ${fileCapableModels.length} 个（全量口径，监控阈值 >5）`)
   runReconcile([
     assertPlanValueDomain(merged),
     assertArtifactNonEmpty(goIds),
     assertGoCountStable(goIds.length, prevGoCount),
-    assertModalityVocabulary(merged),
   ])
-  stdout(`[reconcile] 断言全过：minimumPlan ⊆ {${PLAN_VALUES.join(",")}}；产物 ${goIds.length} 条；模态词表一致`)
+  stdout(`[reconcile] 断言全过：minimumPlan ⊆ {${PLAN_VALUES.join(",")}}；产物 ${goIds.length} 条；模态按网关可投递词表裁剪（见裁剪日志）`)
 
-  // 6. 产物组装（Go plan 过滤 + limits 补全链 + provenance 日志）
+  // 6. 产物组装（Go plan 过滤 + limits 补全链 + provenance 日志）；输入是裁剪后的条目
   const devCache = new Map<string, ReturnType<typeof lookupLimits>>()
   const generatedAt = new Date().toISOString()
   const { artifact, provenance } = buildArtifact(
     release.version,
     remote.catalogVersion,
     generatedAt,
-    merged,
+    catalogEntries,
     (id) => {
       const cached = devCache.get(id)
       if (cached !== undefined) return cached
@@ -226,6 +237,11 @@ export async function runBuild(
     modelsJsonSha256: sha256Hex(new TextEncoder().encode(modelsJson)),
     goModelCount: goIds.length,
     modelsCount: artifact.models.length,
+    fileCapableModels,
+    // 键按字典序：build-meta 是可变检测基准，形状必须逐次确定
+    clippedModalities: Object.fromEntries(
+      [...clips].sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0)),
+    ),
   }
   return { modelsJson, meta }
 }

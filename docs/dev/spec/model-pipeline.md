@@ -65,7 +65,7 @@ per-model：
 | `id` | ✅ | client catalog `data[].id`；补集条目取内嵌目录 `id` | 主键，与网关 wire id 同一写法 |
 | `name` | ✅ | catalog `name`，缺失时取 `display.label`；补集条目同口径 | 展示名；入口缺 `name` / `label` 时构建硬失败，不猜值 |
 | `reasoning` | ✅ | catalog `reasoning`；字段缺失时由 `reasoningEfforts` 非空推导 | 布尔；上游 CLI 从 1.82.2 起运行时一律以 `reasoningEfforts` 非空判定推理，目录里的 `reasoning` 字段只是冗余标注。构建侧与 CLI 同口径，缺省显式写出 `false` |
-| `inputModalities` | ✅ | catalog `inputModalities`；补集条目同字段 | 词表按「网关可投递」口径：取值仅 `["text"]` / `["text","image"]`（即 OpenCode 判断图片可否粘贴的开关）。不采用 models.dev 的 audio/video/pdf——那是厂商原生 API 能力，`/alpha/generate` 投递通道未经验证，advertise 超出协议层转换能力会导致放行后静默丢弃。字段为开放数组，网关支持面扩大时直接扩数据，schema 不变。条目缺该字段时构建硬失败 |
+| `inputModalities` | ✅ | catalog `inputModalities`；补集条目同字段 | 词表按「网关可投递」口径：产物只广告 `["text"]` / `["text","image"]`（即 OpenCode 判断图片可否粘贴的开关）。Go 可见条目的词表外模态在构建时被剥除并记入 build-meta 的 `clippedModalities`（构建日志逐模型输出），不是允许后静默丢弃；扩词表的前置条件是 `scripts/probe-file-delivery.ts` 实测确认 `/alpha/generate` 已能投递对应模态（issue #66 定案：`file` 模态上游 advertise 超前于网关投递能力）。不采用 models.dev 的 audio/video/pdf——那是厂商原生 API 能力，网关通道未经验证。字段为开放数组，网关支持面扩大时直接扩数据，schema 不变。条目缺该字段时构建硬失败 |
 | `efforts` | 可选 | catalog `reasoningEfforts`；补集条目同字段 | 严格透传官方词表（当前 `low/medium/high/xhigh/max`）；无档位的模型**不写该字段**，不造空数组、不造占位值 |
 | `context` | ✅ | 补全链：catalog `context_length`（构建日志沿用历史标签 `bundle`）→ 同 family 官方目录值借用 → models.dev `limit.context` → 常量 200000 | 构建侧保证每个模型都有具体值；运行时可能被 client catalog 的 `context_length` 覆盖（那是网关实际执行值），产物值主要服务 catalog 失效的降级场景 |
 | `maxOutput` | ✅ | 补全链：catalog `maxOutputTokens`（`null` / 缺失视为未披露）→ 同 family 借用 → models.dev `limit.output` → 常量 32000 | 官方仅少数条目录披露该字段（2026-10-20 实测 10/102），主要靠 models.dev 补齐。运行时角色为 `max_tokens` 裁剪参考与 `limit.output` 展示值，不再是缺省值本身（`docs/dev/spec/protocol.md` §1.2 / `docs/dev/adr/0002-gateway-max-tokens-cap.md`） |
@@ -109,7 +109,7 @@ per-model：
 4. **合并**：产物集合 = client catalog 条目 ∪ 内嵌目录中「Go 可见但 client catalog 缺失」的条目；同 id 时远程条目优先。
 5. **Go plan 过滤**：`minimumPlan === "individual-go"` 且 `hidden !== true`。
 6. **limits 补全**：按 §1.1 的补全链保证 `context` / `maxOutput` 每模型必有具体值；构建日志记录每个值的 provenance（`bundle` / `family` / `models-dev` / `constant`），编造值可审计。
-7. **对账断言**：见 §2.5；任一失败则构建失败、开 issue，不静默出产物。
+7. **对账断言**：见 §2.5；任一失败则构建失败、开 issue，不静默出产物。模态裁剪先于断言完成（见 §2.5），产物组装的输入是裁剪后的条目。
 8. **写出**：断言全部通过后才写 `models.json` 与 `build-meta.json`；产物 schema 见 §1。
 
 ### 2.3 Go plan 判据
@@ -135,7 +135,8 @@ per-model：
 | Min plan 值域 | 合并目录中出现的 `minimumPlan` ⊆ 五值词表 | 官方调整档位体系，需人工确认套餐序与过滤判据 |
 | 产物非空 | Go 过滤后至少 1 条 | 解析或过滤链路损坏，拒绝发布空产物 |
 | Go 模型计数监控 | 当前 `individual-go` 非隐藏计数相对上次成功构建漂移 ≤ ±5 | 批量套餐调整或坏数据可能静默通过，需人工复核 |
-| inputModalities 词表 | 进产物的 Go 可见条目只含 `text` / `image` | 新模态 = 网关投递能力未经验证，需人工确认协议层支持后扩词表 |
+
+模态词表**不再走断言**：Go 可见条目的词表外模态由 `clipInputModalities` 剥除后再进产物（返回新条目数组，不原地修改 catalog），裁剪明细写入 build-meta 的 `clippedModalities` 并在构建日志逐模型输出。语义从断言失败改为裁剪，依据是 issue #66 定案：上游 advertise 超前于网关投递能力（`file` 模态的 `document` wire 形态当前不被网关 ModelMessage 转换层处理），断言失败会让产物长期停更，裁剪保住构建可用性。file 模态扩散由 workflow 按全量 catalog 口径监控——build-meta 的 `fileCapableModels` 计数「上次 ≤5、本次 >5」时开 issue 提醒人工复测（`scripts/probe-file-delivery.ts`）；复测通过才是扩 `ALLOWED_INPUT_MODALITIES` 并实现协议层 file→document 转换的前置条件。
 
 另有产物组装 fail-fast（`emit.ts`，不属于 `runReconcile` 的聚合断言）：条目缺 `name` / `label` 或 `inputModalities` 时抛出错误，构建同样失败，不以猜值掩盖。
 
@@ -149,7 +150,7 @@ per-model：
 
 ### 2.6 build-meta 与变更检测
 
-`build-meta.json` 记录：`sourceCliVersion`、`catalogVersion`、`generatedAt`、`modelsDevSha256`、`modelsJsonSha256`、`goModelCount`、`modelsCount`。它随 data 分支发布，同时是下次构建的 `--prev-meta`。
+`build-meta.json` 记录：`sourceCliVersion`、`catalogVersion`、`generatedAt`、`modelsDevSha256`、`modelsJsonSha256`、`goModelCount`、`modelsCount`、`fileCapableModels`（全量 catalog 中含 `file` 的模型 id，字典序；扩散监控口径）、`clippedModalities`（Go 可见条目被剥除的词表外模态，modelId → 模态列表，键按字典序）。它随 data 分支发布，同时是下次构建的 `--prev-meta`。
 
 workflow 每 15 分钟轮询三项，任一变化即构建：
 

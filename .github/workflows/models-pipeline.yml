@@ -260,3 +260,68 @@ jobs:
           git add -f models.json build-meta.json
           git commit -m "构建产物发布 ${{ steps.version.outputs.npm-version }}（command-code@${{ steps.detect.outputs.cli-version }}）"
           git push --force origin data-publish:data
+
+      # issue #66：file 模态扩散监控（全量 catalog 口径，裁剪/断言之外的独立观察窗）。
+      # 上游 advertise 超前于网关投递能力时，file 只会被构建裁掉；但数量越过阈值
+      # （>5 且上次 ≤5，回落再上冲会重新触发）意味着 file 可能正在成为常态，
+      # 需人工复测网关投递能力（scripts/probe-file-delivery.ts）。本步骤只开 issue 提醒，
+      # 任何 gh 故障都只告警：它位于发布链尾部，不能反过来污染已完成的发布。
+      - name: file 模态扩散监控
+        if: steps.detect.outputs.should-build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          CUR=$(jq -r '(.fileCapableModels // []) | length' artifact/build-meta.json 2>/dev/null || echo 0)
+          PREV=0
+          if [ -f prev-meta.json ]; then
+            PREV=$(jq -r '(.fileCapableModels // []) | length' prev-meta.json 2>/dev/null || echo 0)
+          fi
+          case "$CUR" in ''|*[!0-9]*) CUR=0 ;; esac
+          case "$PREV" in ''|*[!0-9]*) PREV=0 ;; esac
+          echo "file 模态模型：上次 ${PREV} → 本次 ${CUR}（监控阈值 >5）"
+          if [ "$CUR" -le 5 ] || [ "$PREV" -gt 5 ]; then
+            echo "未越过扩散阈值，跳过提醒"
+            exit 0
+          fi
+
+          MODELS=$(jq -r '(.fileCapableModels // [])[] | "- `" + . + "`"' artifact/build-meta.json 2>/dev/null || true)
+          [ -n "$MODELS" ] || MODELS="-（清单读取失败）"
+          BODY=$(mktemp)
+          {
+            echo "@WallBreakerNO4"
+            echo
+            echo "上游 catalog 中含 file 输入模态的模型数量越过监控阈值（>5）。"
+            echo
+            echo "- file 模态模型计数：${PREV} → ${CUR}"
+            echo "- 模型清单（全量口径，不分档位 / hidden）："
+            echo "$MODELS"
+            echo
+            echo "上游网关可能已支持 file 投递。请运行 \`bun scripts/probe-file-delivery.ts\` 复测；确认通过后再扩 ALLOWED_INPUT_MODALITIES 并实现协议层 file→document 转换。"
+            echo
+            echo "- Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "- 触发原因：${{ steps.detect.outputs.reason }}"
+          } > "$BODY"
+          TITLE="上游 file 输入模态扩散提醒"
+          # 标签缺失不应炸掉提醒：缺则自建（与对账失败开 issue 同款逻辑）
+          gh label create "需人工实现" --color F9D0C4 --description "需要人类亲自实现" --force >/dev/null 2>&1 || true
+          OPEN=$(gh issue list --search "${TITLE} in:title state:open" --json number --jq 'length' 2>/dev/null || true)
+          case "$OPEN" in
+            ''|*[!0-9]*)
+              echo "::warning::无法查询同名未关闭 issue，跳过 file 模态扩散提醒"
+              ;;
+            0)
+              if ! gh issue create --title "${TITLE}（$(date -u +%Y-%m-%d)）" --body-file "$BODY" --label 需人工实现; then
+                echo "::warning::带标签开 issue 失败，重试不带标签"
+                gh issue create --title "${TITLE}（$(date -u +%Y-%m-%d)）" --body-file "$BODY" \
+                  || echo "::warning::file 模态扩散提醒开 issue 失败（不影响本轮发布）"
+              fi
+              ;;
+            *)
+              # 已有未关闭的同名提醒：追加评论而非新建，防轮询周期刷屏
+              NUM=$(gh issue list --search "${TITLE} in:title state:open" --json number --jq '.[0].number' 2>/dev/null || true)
+              if ! gh issue comment "$NUM" --body-file "$BODY"; then
+                echo "::warning::file 模态扩散提醒追加评论失败（不影响本轮发布）"
+              fi
+              ;;
+          esac

@@ -3,8 +3,9 @@ import type { CatalogEntry } from "../../scripts/build-models/bundle.ts"
 import {
   assertArtifactNonEmpty,
   assertGoCountStable,
-  assertModalityVocabulary,
   assertPlanValueDomain,
+  clipInputModalities,
+  listFileCapableModels,
   MAX_GO_COUNT_DRIFT,
   PLAN_VALUES,
   ReconcileError,
@@ -63,21 +64,55 @@ describe("对账断言（任一失败 = 构建失败 + 开 issue，不静默出�
     expect(assertGoCountStable(0, undefined)).toBeUndefined()
   })
 
-  test("模态词表：只看进产物的 Go 非隐藏条目；词表外模态必须人工裁决", () => {
+  test("模态裁剪：只裁 Go 可见条目，剥除词表外模态并记录；输入不被原地修改", () => {
+    const catalog: CatalogEntry[] = [
+      entry("a", "individual-go", { inputModalities: ["text", "image", "file"] }),
+      entry("b", "individual-go", { inputModalities: ["text"] }),
+      entry("non-go", "individual-max", { inputModalities: ["text", "file"] }),
+      entry("hidden-go", "individual-go", { hidden: true, inputModalities: ["text", "file", "audio"] }),
+      entry("no-modalities", "individual-go"), // 缺字段交给 emit fail-fast，裁剪层原样保留
+    ]
+    const { entries, clips } = clipInputModalities(catalog)
+
+    expect(entries.map((item) => item.id)).toEqual(["a", "b", "non-go", "hidden-go", "no-modalities"])
+    expect(entries[0]?.inputModalities).toEqual(["text", "image"])
+    expect(entries[1]?.inputModalities).toEqual(["text"])
+    // 非 Go 档与 hidden 条目不在产物过滤集合内，原样保留，不记录裁剪
+    expect(entries[2]?.inputModalities).toEqual(["text", "file"])
+    expect(entries[3]?.inputModalities).toEqual(["text", "file", "audio"])
+    expect(entries[4]?.inputModalities).toBeUndefined()
+    // 原数组条目不被原地修改
+    expect(catalog[0]?.inputModalities).toEqual(["text", "image", "file"])
+
+    expect([...clips]).toEqual([["a", ["file"]]])
+  })
+
+  test("模态裁剪：无词表外模态时不裁剪、不记录，条目原样返回", () => {
     const catalog: CatalogEntry[] = [
       entry("a", "individual-go", { inputModalities: ["text", "image"] }),
       entry("b", "individual-go", { inputModalities: ["text"] }),
-      entry("c", "individual-go", { inputModalities: ["text", "audio"] }),
-      entry("non-go", "individual-max", { inputModalities: ["text", "audio"] }),
-      entry("hidden-go", "individual-go", { hidden: true, inputModalities: ["text", "audio"] }),
     ]
-    expect(assertModalityVocabulary(catalog.slice(0, 2))).toBeUndefined()
-    const failure = assertModalityVocabulary(catalog)
-    expect(failure?.assertion).toBe("inputModalities 词表")
-    expect(failure?.detail).toContain("c")
-    expect(failure?.detail).toContain("audio")
-    expect(failure?.detail).not.toContain("non-go")
-    expect(failure?.detail).not.toContain("hidden-go")
+    const { entries, clips } = clipInputModalities(catalog)
+    expect(entries).toEqual(catalog)
+    expect(clips.size).toBe(0)
+  })
+
+  test("file 模态清单：全量口径（含非 Go 档与 hidden），按 id 字典序排序；无 file 时空数组", () => {
+    expect(listFileCapableModels([])).toEqual([])
+    const catalog: CatalogEntry[] = [
+      entry("zeta/file", undefined, { inputModalities: ["text", "file"] }),
+      entry("meta/muse-wonder-1.0", "individual-max", { inputModalities: ["text", "image", "file"] }),
+      entry("alpha/plain", "individual-go", { inputModalities: ["text"] }),
+      entry("hidden/file", "individual-go", { hidden: true, inputModalities: ["file"] }),
+      entry("meta/muse-ember", "individual-go", { inputModalities: ["text", "image", "file"] }),
+    ]
+    expect(listFileCapableModels(catalog)).toEqual([
+      "hidden/file",
+      "meta/muse-ember",
+      "meta/muse-wonder-1.0",
+      "zeta/file",
+    ])
+    expect(listFileCapableModels([entry("a", "individual-go", { inputModalities: ["text", "image"] })])).toEqual([])
   })
 
   test("runReconcile：聚合全部失败一次性抛出（开 issue 信息给全）", () => {

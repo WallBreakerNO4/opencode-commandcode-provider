@@ -73,6 +73,24 @@ const CLIENT_CATALOG = {
       hidden: true,
       inputModalities: ["text"],
     },
+    {
+      // issue #66：上游 advertise file 模态，网关当前不可投递 → 构建裁剪为 text/image
+      id: "meta/muse-ember",
+      name: "Muse Ember",
+      context_length: 200000,
+      minimumPlan: "individual-go",
+      hidden: false,
+      inputModalities: ["text", "image", "file"],
+    },
+    {
+      // 同模态但非 Go 档：不进产物，只进全量 file 监控清单
+      id: "meta/muse-wonder-1.0",
+      name: "Muse Wonder 1.0",
+      context_length: 200000,
+      minimumPlan: "individual-max",
+      hidden: false,
+      inputModalities: ["text", "image", "file"],
+    },
   ],
 }
 
@@ -140,7 +158,7 @@ describe("main.ts 编排（view=client 直出 ∪ 内嵌目录补集）", () => 
       schemaVersion: number
       sourceCliVersion: string
       catalogVersion?: string
-      models: Array<{ id: string; name: string; reasoning: boolean; efforts?: string[] }>
+      models: Array<{ id: string; name: string; reasoning: boolean; efforts?: string[]; inputModalities: string[] }>
     }
 
     expect(artifact.schemaVersion).toBe(1)
@@ -150,8 +168,11 @@ describe("main.ts 编排（view=client 直出 ∪ 内嵌目录补集）", () => 
       "claude-sonnet-5",
       "deepseek/deepseek-v4-pro",
       "minimax/minimax-m3.1-flash",
+      "meta/muse-ember",
       "stealth/cat-jam:free",
     ])
+    // issue #66：file 模态被裁掉，产物只广告网关可投递的 text/image
+    expect(artifact.models.find((model) => model.id === "meta/muse-ember")?.inputModalities).toEqual(["text", "image"])
     // cat-jam:free 永久回归：内嵌目录有、远程 catalog 无 → 仍进产物，且 hidden 不顶替
     expect(artifact.models.some((model) => model.id === "stealth/hidden-jam:free")).toBe(false)
     expect(artifact.models.some((model) => model.id === "stealth/remote-hidden")).toBe(false)
@@ -163,13 +184,20 @@ describe("main.ts 编排（view=client 直出 ∪ 内嵌目录补集）", () => 
 
     expect(meta.sourceCliVersion).toBe("1.84.0")
     expect(meta.catalogVersion).toBe("d6177bab")
-    expect(meta.goModelCount).toBe(4)
-    expect(meta.modelsCount).toBe(4)
+    expect(meta.goModelCount).toBe(5)
+    expect(meta.modelsCount).toBe(5)
     expect(meta.modelsDevSha256).toMatch(/^[0-9a-f]{64}$/)
     expect(meta.modelsJsonSha256).toMatch(/^[0-9a-f]{64}$/)
+    // file 模态监控是全量 catalog 口径：非 Go 档的 muse-wonder 不进产物但进清单
+    expect(meta.fileCapableModels).toEqual(["meta/muse-ember", "meta/muse-wonder-1.0"])
+    // 裁剪明细只记 Go 可见条目
+    expect(meta.clippedModalities).toEqual({ "meta/muse-ember": ["file"] })
+    expect(Object.keys(meta.clippedModalities)).toEqual(["meta/muse-ember"])
 
     expect(lines.some((line) => line.includes("[input] view=client catalogVersion=d6177bab"))).toBe(true)
     expect(lines.some((line) => line.includes("[bundle] 内嵌目录 25 条"))).toBe(true)
+    expect(lines.some((line) => line === "[catalog] 词表外模态裁剪：meta/muse-ember 剥除 file（网关不可投递，issue #66 实测定案）")).toBe(true)
+    expect(lines.some((line) => line.includes("[catalog] file 模态模型 2 个（全量口径，监控阈值 >5）"))).toBe(true)
     // limits provenance 逐值可审计
     expect(lines.some((line) => line.includes("deepseek/deepseek-v4-pro · maxOutput = 64000 ← bundle"))).toBe(true)
     expect(lines.some((line) => line.includes("minimax/minimax-m3.1-flash · maxOutput = 65536 ← models-dev（minimax/minimax-m3.1-flash）"))).toBe(true)
@@ -228,9 +256,10 @@ describe("main.ts 编排（view=client 直出 ∪ 内嵌目录补集）", () => 
       "claude-sonnet-5",
       "deepseek/deepseek-v4-pro",
       "minimax/minimax-m3.1-flash",
+      "meta/muse-ember",
     ])
     expect(artifact.catalogVersion).toBe("d6177bab")
-    expect(meta.goModelCount).toBe(3)
+    expect(meta.goModelCount).toBe(4)
     expect(lines.some((line) => line.includes("[warn]") && line.includes("产物退化为纯 view=client 集合"))).toBe(true)
   })
 
@@ -243,7 +272,7 @@ describe("main.ts 编排（view=client 直出 ∪ 内嵌目录补集）", () => 
     }) as typeof globalThis.fetch
 
     const { meta } = await runBuild({ outDir: "/tmp/unused", cliVersion: "1.84.0" }, (line) => lines.push(line), patched)
-    expect(meta.goModelCount).toBe(3)
+    expect(meta.goModelCount).toBe(4)
     expect(lines.some((line) => line.includes("[warn]") && line.includes("产物退化为纯 view=client 集合"))).toBe(true)
   })
 
