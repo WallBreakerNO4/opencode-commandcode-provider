@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "sourceCliVersion": "1.93.5",
+  "catalogVersion": "014c3c66b8e861ba208656b17c5d94690aeebf4c3cafe70d08316e58a7f4937e",
+  "generatedAt": "2026-11-28T11:11:10.620Z",
+  "modelsDevSha256": "ebf491b21dcfa4fe03054552a6ea7512b3d929cb58bf577875112c2237839793",
+  "modelsJsonSha256": "6c2c09c8ae2365ea03b10482ef25e3c287e2b8007299e285bd0e042798cab81f",
+  "goModelCount": 62,
+  "modelsCount": 62,
+  "fileCapableModels": [
+    "meta/muse-ember",
+    "meta/muse-wonder-1.0"
+  ],
+  "clippedModalities": {
+    "meta/muse-ember": [
+      "file"
+    ]
+  }
+}
